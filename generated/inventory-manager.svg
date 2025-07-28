@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1000 700">
+  
+  <title>Inventory Manager PWA</title>
+  <desc>Professional inventory management system with backend integration</desc>
+  
+  <!-- JSON Metadata -->
+  <script type="application/json" id="app-config"><![CDATA[
+  {
+    "app": {
+      "name": "Inventory Manager PWA",
+      "version": "2.5.0",
+      "type": "business",
+      "features": ["stock_tracking", "barcode_scanning", "reports", "alerts"]
+    },
+    "backend": {
+      "api": "/api/inventory/",
+      "database": "inventory_db",
+      "storage": "mysql"
+    }
+  }
+  ]]></script>
+  
+  <!-- Backend Logic (encoded to avoid conflicts) -->
+  <script type="application/json" id="server-code"><![CDATA[
+  {
+    "backend_implementation": "class InventoryAPI { private db; public function getItems() { return db->query('SELECT * FROM inventory'); } public function addItem(data) { return db->insert('inventory', data); } public function updateStock(id, quantity) { return db->update('inventory', ['quantity' => quantity], ['id' => id]); } }"
+  }
+  ]]></script>
+
+  <defs>
+    <style><![CDATA[
+      .app-font { font-family: system-ui, sans-serif; }
+      .title { fill: white; font-size: 28px; font-weight: bold; text-anchor: middle; }
+      .card { fill: rgba(255,255,255,0.1); stroke: #4caf50; stroke-width: 1; rx: 8; }
+      .item-text { fill: white; font-size: 14px; }
+      .stock-low { fill: #f44336; }
+      .stock-ok { fill: #4caf50; }
+      .btn { fill: #2196f3; stroke: none; rx: 4; cursor: pointer; }
+      .btn-text { fill: white; font-size: 12px; text-anchor: middle; }
+    ]]></style>
+    
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a237e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3949ab;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+  
+  <!-- Header -->
+  <text x="500" y="40" class="title">📦 Inventory Manager PWA</text>
+  
+  <!-- Dashboard Cards -->
+  <rect x="50" y="70" width="200" height="100" class="card"/>
+  <text x="70" y="95" class="item-text">Total Items</text>
+  <text x="70" y="120" class="item-text" style="font-size:24px;" id="total-items">0</text>
+  
+  <rect x="270" y="70" width="200" height="100" class="card"/>
+  <text x="290" y="95" class="item-text">Low Stock</text>
+  <text x="290" y="120" class="stock-low" style="font-size:24px;" id="low-stock">0</text>
+  
+  <rect x="490" y="70" width="200" height="100" class="card"/>
+  <text x="510" y="95" class="item-text">Total Value</text>
+  <text x="510" y="120" class="stock-ok" style="font-size:24px;" id="total-value">$0</text>
+  
+  <!-- Quick Actions -->
+  <rect x="720" y="70" width="80" height="30" class="btn" onclick="addItem()"/>
+  <text x="760" y="88" class="btn-text">Add Item</text>
+  
+  <rect x="810" y="70" width="80" height="30" class="btn" onclick="exportData()"/>
+  <text x="850" y="88" class="btn-text">Export</text>
+  
+  <rect x="720" y="110" width="80" height="30" class="btn" onclick="syncBackend()"/>
+  <text x="760" y="128" class="btn-text">Sync</text>
+  
+  <rect x="810" y="110" width="80" height="30" class="btn" onclick="generateReport()"/>
+  <text x="850" y="128" class="btn-text">Report</text>
+  
+  <!-- Items List -->
+  <rect x="50" y="190" width="900" height="400" class="card"/>
+  <text x="70" y="215" class="item-text" style="font-weight:bold;">Inventory Items</text>
+  
+  <!-- Table Headers -->
+  <text x="70" y="240" class="item-text" style="font-size:12px;">Product</text>
+  <text x="300" y="240" class="item-text" style="font-size:12px;">SKU</text>
+  <text x="450" y="240" class="item-text" style="font-size:12px;">Stock</text>
+  <text x="550" y="240" class="item-text" style="font-size:12px;">Price</text>
+  <text x="650" y="240" class="item-text" style="font-size:12px;">Status</text>
+  <text x="750" y="240" class="item-text" style="font-size:12px;">Actions</text>
+  
+  <!-- Items Container -->
+  <rect x="60" y="250" width="880" height="2" fill="#4caf50" opacity="0.5"/>
+  <rect x="60" y="260" width="880" height="320" fill="none" id="items-container"/>
+  
+  <!-- Status Bar -->
+  <text x="500" y="630" class="item-text" style="text-anchor:middle;">Connected to Backend • Last Sync: <tspan id="last-sync">Never</tspan></text>
+  
+  <script><![CDATA[
+    class InventoryManager {
+        constructor() {
+            this.items = [];
+            this.config = {};
+            this.loadConfig();
+            this.loadData();
+            this.updateUI();
+        }
+        
+        loadConfig() {
+            const configEl = document.getElementById('app-config');
+            if (configEl) {
+                this.config = JSON.parse(configEl.textContent);
+            }
+            
+            const serverEl = document.getElementById('server-code');
+            if (serverEl) {
+                this.serverCode = JSON.parse(serverEl.textContent);
+            }
+            
+            console.log('Inventory Manager initialized:', this.config.app.name);
+        }
+        
+        addSampleItem() {
+            const sampleItems = [
+                {id: 'ITM001', name: 'Laptop Dell XPS', sku: 'DELL-XPS-001', stock: 15, price: 1299.99, minStock: 5},
+                {id: 'ITM002', name: 'Wireless Mouse', sku: 'MOUSE-001', stock: 3, price: 29.99, minStock: 10},
+                {id: 'ITM003', name: 'USB Cable', sku: 'USB-C-001', stock: 50, price: 9.99, minStock: 20},
+                {id: 'ITM004', name: 'Monitor 24inch', sku: 'MON-24-001', stock: 8, price: 299.99, minStock: 5}
+            ];
+            
+            const item = sampleItems[Math.floor(Math.random() * sampleItems.length)];
+            item.id = 'ITM' + Date.now();
+            item.stock = Math.floor(Math.random() * 50) + 1;
+            
+            this.items.push(item);
+            this.saveData();
+            this.updateUI();
+            console.log('Item added:', item);
+        }
+        
+        updateUI() {
+            this.updateStats();
+            this.renderItems();
+        }
+        
+        updateStats() {
+            const total = this.items.length;
+            const lowStock = this.items.filter(item => item.stock <= item.minStock).length;
+            const totalValue = this.items.reduce((sum, item) => sum + (item.stock * item.price), 0);
+            
+            document.getElementById('total-items').textContent = total;
+            document.getElementById('low-stock').textContent = lowStock;
+            document.getElementById('total-value').textContent = '$' + totalValue.toFixed(2);
+        }
+        
+        renderItems() {
+            const container = document.getElementById('items-container');
+            // Clear existing items
+            while (container.children.length > 0) {
+                container.removeChild(container.lastChild);
+            }
+            
+            this.items.slice(0, 12).forEach((item, index) => {
+                const y = index * 25;
+                const isLowStock = item.stock <= item.minStock;
+                
+                // Product name
+                const nameText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                nameText.setAttribute('x', '10');
+                nameText.setAttribute('y', y + 15);
+                nameText.setAttribute('class', 'item-text');
+                nameText.setAttribute('font-size', '11px');
+                nameText.textContent = item.name.substring(0, 25);
+                container.appendChild(nameText);
+                
+                // SKU
+                const skuText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                skuText.setAttribute('x', '240');
+                skuText.setAttribute('y', y + 15);
+                skuText.setAttribute('class', 'item-text');
+                skuText.setAttribute('font-size', '11px');
+                skuText.textContent = item.sku;
+                container.appendChild(skuText);
+                
+                // Stock
+                const stockText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                stockText.setAttribute('x', '390');
+                stockText.setAttribute('y', y + 15);
+                stockText.setAttribute('class', isLowStock ? 'stock-low' : 'stock-ok');
+                stockText.setAttribute('font-size', '11px');
+                stockText.textContent = item.stock;
+                container.appendChild(stockText);
+                
+                // Price
+                const priceText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                priceText.setAttribute('x', '490');
+                priceText.setAttribute('y', y + 15);
+                priceText.setAttribute('class', 'item-text');
+                priceText.setAttribute('font-size', '11px');
+                priceText.textContent = '$' + item.price.toFixed(2);
+                container.appendChild(priceText);
+                
+                // Status
+                const statusText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                statusText.setAttribute('x', '590');
+                statusText.setAttribute('y', y + 15);
+                statusText.setAttribute('class', isLowStock ? 'stock-low' : 'stock-ok');
+                statusText.setAttribute('font-size', '10px');
+                statusText.textContent = isLowStock ? 'LOW' : 'OK';
+                container.appendChild(statusText);
+                
+                // Delete button
+                const deleteBtn = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                deleteBtn.setAttribute('x', '690');
+                deleteBtn.setAttribute('y', y + 5);
+                deleteBtn.setAttribute('width', '40');
+                deleteBtn.setAttribute('height', '15');
+                deleteBtn.setAttribute('fill', '#f44336');
+                deleteBtn.setAttribute('rx', '2');
+                deleteBtn.setAttribute('style', 'cursor: pointer');
+                deleteBtn.onclick = () => this.deleteItem(item.id);
+                container.appendChild(deleteBtn);
+                
+                const deleteBtnText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                deleteBtnText.setAttribute('x', '710');
+                deleteBtnText.setAttribute('y', y + 15);
+                deleteBtnText.setAttribute('fill', 'white');
+                deleteBtnText.setAttribute('font-size', '9px');
+                deleteBtnText.setAttribute('text-anchor', 'middle');
+                deleteBtnText.textContent = 'Del';
+                container.appendChild(deleteBtnText);
+            });
+        }
+        
+        deleteItem(id) {
+            this.items = this.items.filter(item => item.id !== id);
+            this.saveData();
+            this.updateUI();
+        }
+        
+        saveData() {
+            localStorage.setItem('inventory-data', JSON.stringify(this.items));
+        }
+        
+        loadData() {
+            const saved = localStorage.getItem('inventory-data');
+            if (saved) {
+                this.items = JSON.parse(saved);
+            }
+        }
+        
+        exportInventory() {
+            const exportData = {
+                app: this.config.app,
+                inventory: this.items,
+                exported_at: new Date().toISOString(),
+                summary: {
+                    total_items: this.items.length,
+                    low_stock_items: this.items.filter(i => i.stock <= i.minStock).length,
+                    total_value: this.items.reduce((sum, i) => sum + (i.stock * i.price), 0)
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'inventory-export.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        syncWithBackend() {
+            console.log('Syncing with backend...', this.config.backend);
+            document.getElementById('last-sync').textContent = new Date().toLocaleTimeString();
+        }
+        
+        generateReport() {
+            const reportData = {
+                total_items: this.items.length,
+                low_stock_count: this.items.filter(i => i.stock <= i.minStock).length,
+                total_value: this.items.reduce((sum, i) => sum + (i.stock * i.price), 0),
+                categories: [...new Set(this.items.map(i => i.category || 'General'))],
+                generated_at: new Date().toISOString()
+            };
+            
+            console.log('Inventory Report Generated:', reportData);
+            alert('Report generated! Check console for details.');
+        }
+    }
+    
+    let app;
+    
+    function addItem() { app.addSampleItem(); }
+    function exportData() { app.exportInventory(); }
+    function syncBackend() { app.syncWithBackend(); }
+    function generateReport() { app.generateReport(); }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        app = new InventoryManager();
+    });
+    
+    app = new InventoryManager();
+  ]]></script>
+</svg>

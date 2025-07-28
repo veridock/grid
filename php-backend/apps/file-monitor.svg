@@ -1,0 +1,1028 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
+     width="100%" height="100%" viewBox="0 0 1400 900">
+  
+  <defs>
+    <!-- Embedded CSS -->
+    <style type="text/css"><![CDATA[
+      .toolbar { fill: #1e293b; }
+      .button { fill: #3b82f6; cursor: pointer; transition: all 0.2s; }
+      .button:hover { fill: #2563eb; transform: translateY(-1px); }
+      .button:active { transform: translateY(0); }
+      .button-text { fill: white; font-family: system-ui, -apple-system, sans-serif; font-size: 13px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+      .active-view { fill: #10b981 !important; }
+      .folder-item { fill: #f8fafc; stroke: #e2e8f0; stroke-width: 1; cursor: pointer; transition: all 0.2s; }
+      .folder-item:hover { fill: #f1f5f9; stroke: #cbd5e1; }
+      .folder-item-active { fill: #dbeafe !important; stroke: #3b82f6 !important; stroke-width: 2 !important; }
+      .file-item { fill: white; stroke: #e5e7eb; stroke-width: 1; cursor: pointer; transition: all 0.2s; }
+      .file-item:hover { fill: #f9fafb; stroke: #d1d5db; transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+      .pdf-file { stroke: #dc2626; }
+      .image-file { stroke: #10b981; }
+      .svg-file { stroke: #8b5cf6; }
+      .status-text { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #64748b; }
+      .header-text { font-family: system-ui, -apple-system, sans-serif; font-size: 18px; font-weight: 600; fill: white; }
+      .path-text { font-family: monospace; font-size: 12px; fill: #475569; }
+      .loading-spinner { animation: spin 1s linear infinite; transform-origin: center; }
+      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+      .list-item { transition: all 0.2s; }
+      .list-item:hover { background: #f8fafc; }
+      .thumbnail { border-radius: 8px; overflow: hidden; }
+      .drop-zone { fill: none; stroke: #3b82f6; stroke-width: 2; stroke-dasharray: 8 4; opacity: 0; transition: opacity 0.2s; }
+      .drop-zone.active { opacity: 1; fill: rgba(59, 130, 246, 0.1); }
+    ]]></style>
+    
+    <!-- Filter definitions -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.1"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#f8fafc"/>
+  
+  <!-- Header Toolbar -->
+  <rect class="toolbar" x="0" y="0" width="1400" height="70"/>
+  
+  <!-- App Title and Logo -->
+  <g transform="translate(20, 35)">
+    <circle cx="0" cy="0" r="20" fill="#3b82f6"/>
+    <text x="0" y="0" class="button-text" font-size="16" font-weight="bold">FM</text>
+  </g>
+  <text class="header-text" x="65" y="40">File Monitor PWA</text>
+  
+  <!-- Toolbar Buttons -->
+  <g id="toolbar-buttons" transform="translate(250, 15)">
+    <!-- Add Folder Button -->
+    <rect class="button" id="add-folder-btn" x="0" y="0" width="120" height="40" rx="6"/>
+    <text class="button-text" x="60" y="20">+ Add Folder</text>
+    
+    <!-- Refresh Button -->
+    <rect class="button" id="refresh-btn" x="130" y="0" width="100" height="40" rx="6"/>
+    <text class="button-text" x="180" y="20">⟳ Refresh</text>
+    
+    <!-- Grid View Button -->
+    <rect class="button active-view" id="grid-view-btn" x="240" y="0" width="80" height="40" rx="6"/>
+    <text class="button-text" x="280" y="20">⊞ Grid</text>
+    
+    <!-- List View Button -->
+    <rect class="button" id="list-view-btn" x="330" y="0" width="80" height="40" rx="6"/>
+    <text class="button-text" x="370" y="20">☰ List</text>
+    
+    <!-- Convert All PDFs Button -->
+    <rect class="button" id="convert-all-btn" x="420" y="0" width="140" height="40" rx="6"/>
+    <text class="button-text" x="490" y="20">⚡ Convert PDFs</text>
+    
+    <!-- Settings Button -->
+    <rect class="button" id="settings-btn" x="570" y="0" width="100" height="40" rx="6"/>
+    <text class="button-text" x="620" y="20">⚙ Settings</text>
+  </g>
+  
+  <!-- Search Box -->
+  <g transform="translate(950, 15)">
+    <rect fill="white" x="0" y="0" width="300" height="40" rx="20" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="20" y="25" fill="#9ca3af" font-family="system-ui" font-size="14">🔍 Search files...</text>
+  </g>
+  
+  <!-- Status Indicator -->
+  <g transform="translate(1270, 15)">
+    <rect fill="#10b981" x="0" y="10" width="20" height="20" rx="10"/>
+    <text x="30" y="25" class="status-text">Monitoring</text>
+  </g>
+  
+  <!-- Main Content Area -->
+  <g id="main-content">
+    <!-- Sidebar - Monitored Folders -->
+    <rect fill="#f1f5f9" x="0" y="70" width="250" height="830"/>
+    <rect fill="#e2e8f0" x="0" y="70" width="250" height="50"/>
+    <text x="20" y="100" font-family="system-ui" font-size="16" font-weight="600" fill="#1e293b">Monitored Folders</text>
+    
+    <!-- Folder List Container -->
+    <g id="folder-list" transform="translate(10, 130)">
+      <!-- Folders will be dynamically added here -->
+    </g>
+    
+    <!-- Content Area -->
+    <rect fill="white" x="250" y="70" width="1150" height="830"/>
+    
+    <!-- Breadcrumb -->
+    <rect fill="#f8fafc" x="250" y="70" width="1150" height="50" stroke="#e5e7eb" stroke-width="1"/>
+    <text id="breadcrumb" x="270" y="100" class="path-text" fill="#64748b">Select a folder to monitor</text>
+    
+    <!-- File Grid/List Container -->
+    <g id="file-container" transform="translate(270, 140)">
+      <!-- Grid View (default) -->
+      <g id="grid-view" style="display: block;">
+        <!-- Files will be dynamically added here -->
+      </g>
+      
+      <!-- List View (hidden) -->
+      <g id="list-view" style="display: none;">
+        <!-- List headers -->
+        <rect fill="#f8fafc" x="0" y="0" width="1100" height="40" stroke="#e5e7eb" stroke-width="1"/>
+        <text x="50" y="25" font-family="system-ui" font-size="13" font-weight="600" fill="#475569">Name</text>
+        <text x="400" y="25" font-family="system-ui" font-size="13" font-weight="600" fill="#475569">Type</text>
+        <text x="550" y="25" font-family="system-ui" font-size="13" font-weight="600" fill="#475569">Size</text>
+        <text x="700" y="25" font-family="system-ui" font-size="13" font-weight="600" fill="#475569">Modified</text>
+        <text x="900" y="25" font-family="system-ui" font-size="13" font-weight="600" fill="#475569">Actions</text>
+        
+        <!-- List items container -->
+        <g id="list-items" transform="translate(0, 50)">
+          <!-- Files will be dynamically added here -->
+        </g>
+      </g>
+    </g>
+    
+    <!-- Drop Zone Overlay -->
+    <rect id="drop-zone" class="drop-zone" x="260" y="130" width="1130" height="750" rx="10" pointer-events="none"/>
+    
+    <!-- Loading Overlay -->
+    <g id="loading-overlay" style="display: none;">
+      <rect fill="rgba(255,255,255,0.9)" x="250" y="120" width="1150" height="780"/>
+      <g transform="translate(825, 500)">
+        <circle class="loading-spinner" cx="0" cy="0" r="30" fill="none" stroke="#3b82f6" stroke-width="4" stroke-dasharray="70 30"/>
+        <text x="0" y="60" text-anchor="middle" font-family="system-ui" font-size="16" fill="#64748b">Processing files...</text>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Status Bar -->
+  <rect fill="#1e293b" x="0" y="860" width="1400" height="40"/>
+  <text id="status-text" x="20" y="882" class="status-text" fill="#94a3b8">Ready</text>
+  <text id="file-count" x="1380" y="882" text-anchor="end" class="status-text" fill="#94a3b8">0 files</text>
+  
+  <!-- Hidden file input for folder selection -->
+  <foreignObject x="0" y="0" width="1" height="1" style="overflow: hidden;">
+    <input type="file" id="folder-input" webkitdirectory directory multiple style="display: none;"/>
+  </foreignObject>
+  
+  <script type="text/javascript"><![CDATA[
+    // Node.js server code
+    const isNode = typeof window === 'undefined';
+    
+    if (isNode) {
+      const http = require('http');
+      const fs = require('fs');
+      const path = require('path');
+      const { exec } = require('child_process');
+      const chokidar = require('chokidar');
+      const sharp = require('sharp');
+      const pdf2svg = require('pdf2svg');
+      
+      const PORT = 3000;
+      const monitoredFolders = new Map();
+      const fileCache = new Map();
+      
+      // Create HTTP server
+      const server = http.createServer((req, res) => {
+        const url = new URL(req.url, `http://localhost:${PORT}`);
+        
+        // Serve main SVG app
+        if (url.pathname === '/') {
+          res.writeHead(200, { 'Content-Type': 'image/svg+xml' });
+          res.end(fs.readFileSync(__filename, 'utf8'));
+          return;
+        }
+        
+        // API endpoints
+        if (url.pathname.startsWith('/api/')) {
+          res.setHeader('Content-Type', 'application/json');
+          
+          switch (url.pathname) {
+            case '/api/folders':
+              if (req.method === 'GET') {
+                res.end(JSON.stringify({
+                  folders: Array.from(monitoredFolders.keys())
+                }));
+              } else if (req.method === 'POST') {
+                let body = '';
+                req.on('data', chunk => body += chunk);
+                req.on('end', () => {
+                  const { path: folderPath } = JSON.parse(body);
+                  addMonitoredFolder(folderPath);
+                  res.end(JSON.stringify({ success: true }));
+                });
+              }
+              break;
+              
+            case '/api/files':
+              const folder = url.searchParams.get('folder');
+              if (folder && monitoredFolders.has(folder)) {
+                const files = scanFolder(folder);
+                res.end(JSON.stringify({ files }));
+              } else {
+                res.statusCode = 404;
+                res.end(JSON.stringify({ error: 'Folder not found' }));
+              }
+              break;
+              
+            case '/api/convert-pdf':
+              if (req.method === 'POST') {
+                let body = '';
+                req.on('data', chunk => body += chunk);
+                req.on('end', async () => {
+                  const { filePath } = JSON.parse(body);
+                  try {
+                    const svgPath = await convertPdfToSvg(filePath);
+                    res.end(JSON.stringify({ success: true, svgPath }));
+                  } catch (error) {
+                    res.statusCode = 500;
+                    res.end(JSON.stringify({ error: error.message }));
+                  }
+                });
+              }
+              break;
+              
+            case '/api/thumbnail':
+              const filePath = url.searchParams.get('file');
+              if (filePath) {
+                try {
+                  const thumbnail = await generateThumbnail(filePath);
+                  res.setHeader('Content-Type', 'image/png');
+                  res.end(thumbnail);
+                } catch (error) {
+                  res.statusCode = 404;
+                  res.end();
+                }
+              }
+              break;
+              
+            default:
+              res.statusCode = 404;
+              res.end(JSON.stringify({ error: 'Not found' }));
+          }
+          return;
+        }
+        
+        // Serve static files
+        if (url.pathname.startsWith('/files/')) {
+          const filePath = decodeURIComponent(url.pathname.substring(7));
+          if (fs.existsSync(filePath)) {
+            const ext = path.extname(filePath).toLowerCase();
+            const contentTypes = {
+              '.svg': 'image/svg+xml',
+              '.png': 'image/png',
+              '.jpg': 'image/jpeg',
+              '.jpeg': 'image/jpeg',
+              '.pdf': 'application/pdf'
+            };
+            
+            res.setHeader('Content-Type', contentTypes[ext] || 'application/octet-stream');
+            fs.createReadStream(filePath).pipe(res);
+          } else {
+            res.statusCode = 404;
+            res.end();
+          }
+          return;
+        }
+        
+        res.statusCode = 404;
+        res.end();
+      });
+      
+      // Folder monitoring functions
+      function addMonitoredFolder(folderPath) {
+        if (monitoredFolders.has(folderPath)) return;
+        
+        const watcher = chokidar.watch(folderPath, {
+          persistent: true,
+          ignoreInitial: false,
+          depth: 2
+        });
+        
+        watcher.on('add', filePath => {
+          console.log(`File added: ${filePath}`);
+          if (path.extname(filePath).toLowerCase() === '.pdf') {
+            convertPdfToSvg(filePath).catch(console.error);
+          }
+        });
+        
+        watcher.on('change', filePath => {
+          console.log(`File changed: ${filePath}`);
+          fileCache.delete(filePath);
+        });
+        
+        watcher.on('unlink', filePath => {
+          console.log(`File removed: ${filePath}`);
+          fileCache.delete(filePath);
+        });
+        
+        monitoredFolders.set(folderPath, watcher);
+      }
+      
+      function scanFolder(folderPath) {
+        const files = [];
+        
+        function scanDir(dir, level = 0) {
+          if (level > 2) return;
+          
+          try {
+            const items = fs.readdirSync(dir);
+            items.forEach(item => {
+              const fullPath = path.join(dir, item);
+              const stat = fs.statSync(fullPath);
+              
+              if (stat.isDirectory()) {
+                scanDir(fullPath, level + 1);
+              } else {
+                const ext = path.extname(item).toLowerCase();
+                if (['.pdf', '.svg', '.png', '.jpg', '.jpeg'].includes(ext)) {
+                  files.push({
+                    name: item,
+                    path: fullPath,
+                    size: stat.size,
+                    modified: stat.mtime,
+                    type: ext.substring(1)
+                  });
+                }
+              }
+            });
+          } catch (error) {
+            console.error(`Error scanning ${dir}:`, error);
+          }
+        }
+        
+        scanDir(folderPath);
+        return files;
+      }
+      
+      async function convertPdfToSvg(pdfPath) {
+        const svgPath = pdfPath.replace(/\.pdf$/i, '.svg');
+        
+        return new Promise((resolve, reject) => {
+          exec(`pdf2svg "${pdfPath}" "${svgPath}" 1`, (error, stdout, stderr) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(svgPath);
+            }
+          });
+        });
+      }
+      
+      async function generateThumbnail(filePath) {
+        const ext = path.extname(filePath).toLowerCase();
+        
+        if (fileCache.has(filePath)) {
+          return fileCache.get(filePath);
+        }
+        
+        let thumbnail;
+        
+        if (['.png', '.jpg', '.jpeg'].includes(ext)) {
+          thumbnail = await sharp(filePath)
+            .resize(200, 200, { fit: 'contain', background: 'white' })
+            .png()
+            .toBuffer();
+        } else if (ext === '.svg') {
+          thumbnail = await sharp(filePath)
+            .resize(200, 200, { fit: 'contain', background: 'white' })
+            .png()
+            .toBuffer();
+        } else if (ext === '.pdf') {
+          // Generate thumbnail from first page of PDF
+          const tempPng = filePath.replace(/\.pdf$/i, '_thumb.png');
+          await new Promise((resolve, reject) => {
+            exec(`convert -density 72 "${filePath}[0]" -resize 200x200 "${tempPng}"`, (error) => {
+              if (error) reject(error);
+              else resolve();
+            });
+          });
+          
+          thumbnail = await fs.promises.readFile(tempPng);
+          await fs.promises.unlink(tempPng);
+        }
+        
+        fileCache.set(filePath, thumbnail);
+        return thumbnail;
+      }
+      
+      // Start server
+      server.listen(PORT, () => {
+        console.log(`File Monitor PWA running at http://localhost:${PORT}`);
+      });
+      
+      // Cleanup on exit
+      process.on('SIGINT', () => {
+        monitoredFolders.forEach(watcher => watcher.close());
+        server.close();
+        process.exit();
+      });
+    }
+    
+    // Client-side code
+    if (typeof window !== 'undefined') {
+      // PWA Registration
+      if ('serviceWorker' in navigator) {
+        const swCode = `
+          const CACHE_NAME = 'file-monitor-v1';
+          
+          self.addEventListener('install', (e) => {
+            e.waitUntil(
+              caches.open(CACHE_NAME).then((cache) => {
+                return cache.addAll(['/']);
+              })
+            );
+          });
+          
+          self.addEventListener('fetch', (e) => {
+            e.respondWith(
+              caches.match(e.request).then((response) => {
+                return response || fetch(e.request);
+              })
+            );
+          });
+        `;
+        
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(swUrl);
+      }
+      
+      // App State
+      let currentView = 'grid';
+      let currentFolder = null;
+      let files = [];
+      let monitoredFolders = [];
+      
+      // Elements
+      const folderList = document.getElementById('folder-list');
+      const fileContainer = document.getElementById('file-container');
+      const gridView = document.getElementById('grid-view');
+      const listView = document.getElementById('list-view');
+      const listItems = document.getElementById('list-items');
+      const breadcrumb = document.getElementById('breadcrumb');
+      const statusText = document.getElementById('status-text');
+      const fileCount = document.getElementById('file-count');
+      const loadingOverlay = document.getElementById('loading-overlay');
+      const dropZone = document.getElementById('drop-zone');
+      
+      // Initialize
+      async function init() {
+        await loadMonitoredFolders();
+        setupEventListeners();
+        updateStatus('Ready to monitor files');
+      }
+      
+      // Load monitored folders
+      async function loadMonitoredFolders() {
+        try {
+          const response = await fetch('/api/folders');
+          const data = await response.json();
+          monitoredFolders = data.folders;
+          renderFolderList();
+        } catch (error) {
+          console.error('Error loading folders:', error);
+          updateStatus('Failed to load folders', true);
+        }
+      }
+      
+      // Render folder list
+      function renderFolderList() {
+        folderList.innerHTML = '';
+        
+        monitoredFolders.forEach((folder, index) => {
+          const folderGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          folderGroup.setAttribute('transform', `translate(0, ${index * 60})`);
+          
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('class', currentFolder === folder ? 'folder-item folder-item-active' : 'folder-item');
+          rect.setAttribute('width', '230');
+          rect.setAttribute('height', '50');
+          rect.setAttribute('rx', '6');
+          
+          const folderIcon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          folderIcon.setAttribute('x', '15');
+          folderIcon.setAttribute('y', '30');
+          folderIcon.setAttribute('font-size', '20');
+          folderIcon.textContent = '📁';
+          
+          const folderName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          folderName.setAttribute('x', '45');
+          folderName.setAttribute('y', '30');
+          folderName.setAttribute('font-family', 'system-ui');
+          folderName.setAttribute('font-size', '14');
+          folderName.setAttribute('fill', '#1e293b');
+          
+          const name = folder.split('/').pop() || folder;
+          folderName.textContent = name.length > 20 ? name.substring(0, 20) + '...' : name;
+          
+          const removeBtn = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          removeBtn.setAttribute('x', '210');
+          removeBtn.setAttribute('y', '30');
+          removeBtn.setAttribute('font-size', '16');
+          removeBtn.setAttribute('fill', '#ef4444');
+          removeBtn.setAttribute('cursor', 'pointer');
+          removeBtn.textContent = '×';
+          
+          // Event listeners
+          rect.addEventListener('click', () => selectFolder(folder));
+          folderIcon.addEventListener('click', () => selectFolder(folder));
+          folderName.addEventListener('click', () => selectFolder(folder));
+          removeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            removeFolder(folder);
+          });
+          
+          folderGroup.appendChild(rect);
+          folderGroup.appendChild(folderIcon);
+          folderGroup.appendChild(folderName);
+          folderGroup.appendChild(removeBtn);
+          
+          folderList.appendChild(folderGroup);
+        });
+      }
+      
+      // Select folder
+      async function selectFolder(folder) {
+        currentFolder = folder;
+        breadcrumb.textContent = folder;
+        renderFolderList();
+        await loadFiles();
+      }
+      
+      // Load files from selected folder
+      async function loadFiles() {
+        if (!currentFolder) return;
+        
+        showLoading(true);
+        
+        try {
+          const response = await fetch(`/api/files?folder=${encodeURIComponent(currentFolder)}`);
+          const data = await response.json();
+          files = data.files;
+          renderFiles();
+          fileCount.textContent = `${files.length} files`;
+        } catch (error) {
+          console.error('Error loading files:', error);
+          updateStatus('Failed to load files', true);
+        } finally {
+          showLoading(false);
+        }
+      }
+      
+      // Render files based on current view
+      function renderFiles() {
+        if (currentView === 'grid') {
+          renderGridView();
+        } else {
+          renderListView();
+        }
+      }
+      
+      // Render grid view
+      function renderGridView() {
+        gridView.innerHTML = '';
+        
+        files.forEach((file, index) => {
+          const col = index % 5;
+          const row = Math.floor(index / 5);
+          const x = col * 220;
+          const y = row * 250;
+          
+          const fileGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          fileGroup.setAttribute('transform', `translate(${x}, ${y})`);
+          
+          // Card background
+          const card = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          card.setAttribute('class', 'file-item');
+          card.setAttribute('width', '200');
+          card.setAttribute('height', '230');
+          card.setAttribute('rx', '8');
+          card.setAttribute('filter', 'url(#shadow)');
+          
+          // Thumbnail container
+          const thumbContainer = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          thumbContainer.setAttribute('x', '10');
+          thumbContainer.setAttribute('y', '10');
+          thumbContainer.setAttribute('width', '180');
+          thumbContainer.setAttribute('height', '160');
+          thumbContainer.setAttribute('rx', '4');
+          thumbContainer.setAttribute('fill', '#f3f4f6');
+          
+          // Thumbnail image
+          const thumbnail = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+          thumbnail.setAttribute('x', '10');
+          thumbnail.setAttribute('y', '10');
+          thumbnail.setAttribute('width', '180');
+          thumbnail.setAttribute('height', '160');
+          thumbnail.setAttribute('href', `/api/thumbnail?file=${encodeURIComponent(file.path)}`);
+          thumbnail.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+          
+          // File type icon
+          const typeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          typeIcon.setAttribute('x', '20');
+          typeIcon.setAttribute('y', '195');
+          typeIcon.setAttribute('font-size', '24');
+          typeIcon.textContent = getFileIcon(file.type);
+          
+          // File name
+          const fileName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          fileName.setAttribute('x', '50');
+          fileName.setAttribute('y', '190');
+          fileName.setAttribute('font-family', 'system-ui');
+          fileName.setAttribute('font-size', '13');
+          fileName.setAttribute('fill', '#1e293b');
+          fileName.textContent = file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name;
+          
+          // File size
+          const fileSize = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          fileSize.setAttribute('x', '50');
+          fileSize.setAttribute('y', '210');
+          fileSize.setAttribute('font-family', 'system-ui');
+          fileSize.setAttribute('font-size', '11');
+          fileSize.setAttribute('fill', '#64748b');
+          fileSize.textContent = formatFileSize(file.size);
+          
+          // Actions
+          if (file.type === 'pdf') {
+            const convertBtn = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            convertBtn.setAttribute('transform', 'translate(160, 190)');
+            convertBtn.setAttribute('cursor', 'pointer');
+            
+            const btnBg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            btnBg.setAttribute('cx', '0');
+            btnBg.setAttribute('cy', '0');
+            btnBg.setAttribute('r', '15');
+            btnBg.setAttribute('fill', '#3b82f6');
+            
+            const btnText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            btnText.setAttribute('x', '0');
+            btnText.setAttribute('y', '0');
+            btnText.setAttribute('text-anchor', 'middle');
+            btnText.setAttribute('dominant-baseline', 'middle');
+            btnText.setAttribute('fill', 'white');
+            btnText.setAttribute('font-size', '10');
+            btnText.textContent = 'SVG';
+            
+            convertBtn.appendChild(btnBg);
+            convertBtn.appendChild(btnText);
+            
+            convertBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              convertPdfFile(file.path);
+            });
+            
+            fileGroup.appendChild(convertBtn);
+          }
+          
+          // Event listeners
+          card.addEventListener('click', () => openFile(file));
+          
+          fileGroup.appendChild(card);
+          fileGroup.appendChild(thumbContainer);
+          fileGroup.appendChild(thumbnail);
+          fileGroup.appendChild(typeIcon);
+          fileGroup.appendChild(fileName);
+          fileGroup.appendChild(fileSize);
+          
+          gridView.appendChild(fileGroup);
+        });
+      }
+      
+      // Render list view
+      function renderListView() {
+        listItems.innerHTML = '';
+        
+        files.forEach((file, index) => {
+          const y = index * 50;
+          
+          const itemGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          itemGroup.setAttribute('transform', `translate(0, ${y})`);
+          itemGroup.setAttribute('class', 'list-item');
+          
+          // Row background
+          const rowBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rowBg.setAttribute('width', '1100');
+          rowBg.setAttribute('height', '50');
+          rowBg.setAttribute('fill', index % 2 === 0 ? 'white' : '#f9fafb');
+          rowBg.setAttribute('cursor', 'pointer');
+          
+          // File icon
+          const icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          icon.setAttribute('x', '20');
+          icon.setAttribute('y', '30');
+          icon.setAttribute('font-size', '20');
+          icon.textContent = getFileIcon(file.type);
+          
+          // File name
+          const name = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          name.setAttribute('x', '50');
+          name.setAttribute('y', '30');
+          name.setAttribute('font-family', 'system-ui');
+          name.setAttribute('font-size', '14');
+          name.setAttribute('fill', '#1e293b');
+          name.textContent = file.name;
+          
+          // File type
+          const type = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          type.setAttribute('x', '400');
+          type.setAttribute('y', '30');
+          type.setAttribute('font-family', 'system-ui');
+          type.setAttribute('font-size', '13');
+          type.setAttribute('fill', '#64748b');
+          type.textContent = file.type.toUpperCase();
+          
+          // File size
+          const size = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          size.setAttribute('x', '550');
+          size.setAttribute('y', '30');
+          size.setAttribute('font-family', 'system-ui');
+          size.setAttribute('font-size', '13');
+          size.setAttribute('fill', '#64748b');
+          size.textContent = formatFileSize(file.size);
+          
+          // Modified date
+          const modified = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          modified.setAttribute('x', '700');
+          modified.setAttribute('y', '30');
+          modified.setAttribute('font-family', 'system-ui');
+          modified.setAttribute('font-size', '13');
+          modified.setAttribute('fill', '#64748b');
+          modified.textContent = new Date(file.modified).toLocaleDateString();
+          
+          // Actions
+          const actions = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          actions.setAttribute('transform', 'translate(900, 15)');
+          
+          // View button
+          const viewBtn = createButton('View', 0, () => openFile(file));
+          actions.appendChild(viewBtn);
+          
+          // Convert button (for PDFs)
+          if (file.type === 'pdf') {
+            const convertBtn = createButton('Convert', 60, () => convertPdfFile(file.path));
+            actions.appendChild(convertBtn);
+          }
+          
+          // Event listener
+          rowBg.addEventListener('click', () => openFile(file));
+          
+          itemGroup.appendChild(rowBg);
+          itemGroup.appendChild(icon);
+          itemGroup.appendChild(name);
+          itemGroup.appendChild(type);
+          itemGroup.appendChild(size);
+          itemGroup.appendChild(modified);
+          itemGroup.appendChild(actions);
+          
+          listItems.appendChild(itemGroup);
+        });
+      }
+      
+      // Helper function to create buttons
+      function createButton(text, x, onClick) {
+        const btnGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        btnGroup.setAttribute('transform', `translate(${x}, 0)`);
+        btnGroup.setAttribute('cursor', 'pointer');
+        
+        const btnBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        btnBg.setAttribute('width', '50');
+        btnBg.setAttribute('height', '20');
+        btnBg.setAttribute('rx', '4');
+        btnBg.setAttribute('fill', '#3b82f6');
+        
+        const btnText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        btnText.setAttribute('x', '25');
+        btnText.setAttribute('y', '14');
+        btnText.setAttribute('text-anchor', 'middle');
+        btnText.setAttribute('fill', 'white');
+        btnText.setAttribute('font-family', 'system-ui');
+        btnText.setAttribute('font-size', '11');
+        btnText.textContent = text;
+        
+        btnGroup.appendChild(btnBg);
+        btnGroup.appendChild(btnText);
+        
+        btnGroup.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onClick();
+        });
+        
+        return btnGroup;
+      }
+      
+      // Get file icon based on type
+      function getFileIcon(type) {
+        const icons = {
+          pdf: '📄',
+          svg: '🎨',
+          png: '🖼️',
+          jpg: '🖼️',
+          jpeg: '🖼️'
+        };
+        return icons[type] || '📄';
+      }
+      
+      // Format file size
+      function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      }
+      
+      // Open file
+      function openFile(file) {
+        window.open(`/files/${encodeURIComponent(file.path)}`, '_blank');
+      }
+      
+      // Convert PDF to SVG
+      async function convertPdfFile(filePath) {
+        showLoading(true);
+        updateStatus('Converting PDF to SVG...');
+        
+        try {
+          const response = await fetch('/api/convert-pdf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filePath })
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            updateStatus('PDF converted successfully');
+            await loadFiles();
+          } else {
+            updateStatus('Failed to convert PDF', true);
+          }
+        } catch (error) {
+          console.error('Error converting PDF:', error);
+          updateStatus('Error converting PDF', true);
+        } finally {
+          showLoading(false);
+        }
+      }
+      
+      // Convert all PDFs in current folder
+      async function convertAllPdfs() {
+        const pdfFiles = files.filter(f => f.type === 'pdf');
+        
+        if (pdfFiles.length === 0) {
+          updateStatus('No PDF files to convert');
+          return;
+        }
+        
+        showLoading(true);
+        updateStatus(`Converting ${pdfFiles.length} PDFs...`);
+        
+        let converted = 0;
+        for (const file of pdfFiles) {
+          try {
+            await convertPdfFile(file.path);
+            converted++;
+            updateStatus(`Converted ${converted}/${pdfFiles.length} PDFs...`);
+          } catch (error) {
+            console.error(`Error converting ${file.name}:`, error);
+          }
+        }
+        
+        updateStatus(`Converted ${converted} PDFs successfully`);
+        showLoading(false);
+        await loadFiles();
+      }
+      
+      // Add new folder
+      async function addFolder() {
+        const folderPath = prompt('Enter folder path to monitor:');
+        if (!folderPath) return;
+        
+        try {
+          const response = await fetch('/api/folders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: folderPath })
+          });
+          
+          if (response.ok) {
+            updateStatus('Folder added successfully');
+            await loadMonitoredFolders();
+          } else {
+            updateStatus('Failed to add folder', true);
+          }
+        } catch (error) {
+          console.error('Error adding folder:', error);
+          updateStatus('Error adding folder', true);
+        }
+      }
+      
+      // Remove folder
+      async function removeFolder(folderPath) {
+        if (!confirm(`Stop monitoring ${folderPath}?`)) return;
+        
+        // In a real implementation, you'd have a DELETE endpoint
+        monitoredFolders = monitoredFolders.filter(f => f !== folderPath);
+        if (currentFolder === folderPath) {
+          currentFolder = null;
+          files = [];
+          renderFiles();
+          breadcrumb.textContent = 'Select a folder to monitor';
+        }
+        renderFolderList();
+        updateStatus('Folder removed');
+      }
+      
+      // Switch view
+      function switchView(view) {
+        currentView = view;
+        
+        // Update button states
+        document.getElementById('grid-view-btn').classList.toggle('active-view', view === 'grid');
+        document.getElementById('list-view-btn').classList.toggle('active-view', view === 'list');
+        
+        // Show/hide views
+        gridView.style.display = view === 'grid' ? 'block' : 'none';
+        listView.style.display = view === 'list' ? 'block' : 'none';
+        
+        renderFiles();
+      }
+      
+      // Show/hide loading overlay
+      function showLoading(show) {
+        loadingOverlay.style.display = show ? 'block' : 'none';
+      }
+      
+      // Update status
+      function updateStatus(message, isError = false) {
+        statusText.textContent = message;
+        statusText.setAttribute('fill', isError ? '#ef4444' : '#94a3b8');
+        
+        if (!isError) {
+          setTimeout(() => {
+            statusText.textContent = 'Ready';
+            statusText.setAttribute('fill', '#94a3b8');
+          }, 3000);
+        }
+      }
+      
+      // Setup event listeners
+      function setupEventListeners() {
+        document.getElementById('add-folder-btn').addEventListener('click', addFolder);
+        document.getElementById('refresh-btn').addEventListener('click', loadFiles);
+        document.getElementById('grid-view-btn').addEventListener('click', () => switchView('grid'));
+        document.getElementById('list-view-btn').addEventListener('click', () => switchView('list'));
+        document.getElementById('convert-all-btn').addEventListener('click', convertAllPdfs);
+        
+        // Settings button
+        document.getElementById('settings-btn').addEventListener('click', () => {
+          alert('Settings panel coming soon!');
+        });
+        
+        // Drag and drop support
+        const mainContent = document.getElementById('main-content');
+        
+        mainContent.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          dropZone.classList.add('active');
+        });
+        
+        mainContent.addEventListener('dragleave', (e) => {
+          if (!mainContent.contains(e.relatedTarget)) {
+            dropZone.classList.remove('active');
+          }
+        });
+        
+        mainContent.addEventListener('drop', async (e) => {
+          e.preventDefault();
+          dropZone.classList.remove('active');
+          
+          const items = e.dataTransfer.items;
+          for (let item of items) {
+            if (item.kind === 'file') {
+              const entry = item.webkitGetAsEntry();
+              if (entry.isDirectory) {
+                // Add as monitored folder
+                const folderPath = entry.fullPath || entry.name;
+                await fetch('/api/folders', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ path: folderPath })
+                });
+                await loadMonitoredFolders();
+              }
+            }
+          }
+        });
+        
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+          if (currentFolder) {
+            loadFiles();
+          }
+        }, 30000);
+      }
+      
+      // Initialize app
+      init();
+    }
+  ]]></script>
+</svg>

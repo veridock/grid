@@ -339,6 +339,15 @@ if ($isCommandLine) {
             echo "🔍 Testing: $svgFile\n";
             echo str_repeat("-", 80) . "\n";
             
+            // Check file size to prevent memory exhaustion
+            $fileSize = filesize($svgFile);
+            if ($fileSize === false || $fileSize > 50 * 1024 * 1024) { // 50MB limit
+                echo "⚠️ SKIPPED: File too large (" . round($fileSize / 1024 / 1024, 1) . "MB) - would exhaust memory\n";
+                $failedFiles++;
+                echo "\n";
+                continue;
+            }
+            
             $tester = new SVGPWATester();
             $results = $tester->testSVGFile($svgFile);
             
@@ -363,7 +372,7 @@ if ($isCommandLine) {
                 // Show failed tests
                 echo "\n📋 Failed Tests:\n";
                 foreach ($results['tests'] as $test) {
-                    if (!$test['success']) {
+                    if (!$test['passed']) {
                         echo "   ❌ " . $test['name'] . ": " . $test['description'] . "\n";
                     }
                 }

@@ -1,7 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1200 800">
   <title>My Dashboard</title>
-  <desc>Generated dashboard application</desc>
+  <desc>Generated dashboard application with PHP backend integration</desc>
+  
+  <!-- JSON Application Configuration -->
+  <script type="application/json" id="app-config"><![CDATA[
+  {
+    "application": {
+      "name": "Test Dashboard PWA",
+      "version": "2.3.0",
+      "type": "analytics_dashboard",
+      "category": "business_intelligence",
+      "author": "VeriDock Grid Analytics"
+    },
+    "features": {
+      "real_time_monitoring": true,
+      "data_visualization": ["charts", "graphs", "metrics", "kpis"],
+      "alerts_system": ["threshold_alerts", "anomaly_detection"],
+      "export_capabilities": ["json", "csv", "pdf", "png"],
+      "user_management": ["authentication", "authorization", "audit_logs"]
+    },
+    "backend_services": {
+      "api_base_url": "/api/dashboard/",
+      "authentication": "jwt_bearer_tokens",
+      "database": "mysql_with_redis_cache",
+      "real_time_updates": "websocket_connections",
+      "data_refresh_interval": "30_seconds"
+    },
+    "dashboard_config": {
+      "widgets": ["system_status", "performance_metrics", "user_activity", "alerts"],
+      "refresh_rates": {"fast": 5, "normal": 30, "slow": 300},
+      "chart_types": ["line", "bar", "pie", "gauge", "heatmap"]
+    }
+  }
+  ]]></script>
+  
+  <!-- Backend PHP Implementation -->
+  <script type="application/json" id="backend-logic"><![CDATA[
+  {
+    "server_implementation": {
+      "dashboard_controller": "class DashboardController extends BaseController { private $db; private $cache; public function __construct() { $this->db = new DatabaseConnection(); $this->cache = new RedisCache(); } public function getSystemStatus() { $status = [ 'server_uptime' => $this->getServerUptime(), 'cpu_usage' => $this->getCpuUsage(), 'memory_usage' => $this->getMemoryUsage(), 'disk_space' => $this->getDiskSpace(), 'active_users' => $this->getActiveUsersCount(), 'database_status' => $this->checkDatabaseConnection() ]; $this->cache->set('system_status', $status, 60); return $status; } public function getPerformanceMetrics($timeRange = '24h') { $cacheKey = 'performance_metrics_' . $timeRange; $metrics = $this->cache->get($cacheKey); if (!$metrics) { $sql = 'SELECT metric_name, metric_value, recorded_at FROM performance_metrics WHERE recorded_at >= DATE_SUB(NOW(), INTERVAL ? HOUR) ORDER BY recorded_at DESC'; $metrics = $this->db->query($sql, [$this->timeRangeToHours($timeRange)]); $this->cache->set($cacheKey, $metrics, 300); } return $metrics; } private function getServerUptime() { return shell_exec('uptime -p'); } private function getCpuUsage() { $load = sys_getloadavg(); return round($load[0] * 100 / 4, 2); } private function getMemoryUsage() { $memInfo = file_get_contents('/proc/meminfo'); preg_match_all('/^(\w+):\s+(\d+)\s+kB$/m', $memInfo, $matches); $memData = array_combine($matches[1], $matches[2]); $totalMem = $memData['MemTotal']; $freeMem = $memData['MemFree'] + $memData['Buffers'] + $memData['Cached']; return round(($totalMem - $freeMem) / $totalMem * 100, 2); } }",
+      "metrics_service": "class MetricsService { private $db; public function __construct() { $this->db = new DatabaseConnection(); } public function recordMetric($name, $value, $tags = []) { $data = [ 'metric_name' => $name, 'metric_value' => $value, 'tags' => json_encode($tags), 'recorded_at' => date('Y-m-d H:i:s') ]; return $this->db->insert('performance_metrics', $data); } public function getMetricHistory($metricName, $timeRange = '24h') { $sql = 'SELECT metric_value, recorded_at FROM performance_metrics WHERE metric_name = ? AND recorded_at >= DATE_SUB(NOW(), INTERVAL ? HOUR) ORDER BY recorded_at ASC'; return $this->db->query($sql, [$metricName, $this->timeRangeToHours($timeRange)]); } public function calculateAverages($metricName, $interval = '1h') { $sql = 'SELECT AVG(metric_value) as avg_value, DATE_FORMAT(recorded_at, "%Y-%m-%d %H:00:00") as time_bucket FROM performance_metrics WHERE metric_name = ? AND recorded_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) GROUP BY time_bucket ORDER BY time_bucket'; return $this->db->query($sql, [$metricName]); } }",
+      "api_routes": "Route::group(['prefix' => 'api/dashboard', 'middleware' => ['auth', 'throttle:200,1']], function() { Route::get('/status', 'DashboardController@getSystemStatus'); Route::get('/metrics', 'DashboardController@getPerformanceMetrics'); Route::get('/metrics/{name}', 'DashboardController@getSpecificMetric'); Route::post('/metrics', 'MetricsController@recordMetric'); Route::get('/alerts', 'AlertController@getActiveAlerts'); Route::post('/refresh', 'DashboardController@refreshData'); Route::get('/export/{format}', 'DashboardController@exportData'); });"
+    }
+  }
+  ]]></script>
   <defs>
     <style><![CDATA[
       .header { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: white; }

@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1000 700">
+  
+  <title>Expense Tracker PWA</title>
+  <desc>Professional expense tracking application with backend integration and JSON data management</desc>
+  
+  <!-- JSON Application Configuration -->
+  <script type="application/json" id="app-config"><![CDATA[
+  {
+    "application": {
+      "name": "Expense Tracker PWA",
+      "version": "4.1.0",
+      "type": "financial_management",
+      "category": "business",
+      "license": "Enterprise",
+      "author": "VeriDock Grid Finance"
+    },
+    "features": {
+      "expense_tracking": ["income", "expenses", "categories", "recurring"],
+      "analytics": ["monthly", "yearly", "category_analysis", "trends"],
+      "export_formats": ["json", "csv", "pdf"],
+      "storage": "local_with_cloud_sync",
+      "offline_mode": true
+    },
+    "backend_services": {
+      "api_base_url": "/api/expenses/",
+      "authentication": "oauth2_jwt",
+      "database": "postgresql_with_redis",
+      "real_time_sync": "websockets",
+      "backup_strategy": "daily_automated"
+    }
+  }
+  ]]></script>
+  
+  <!-- Backend Implementation Logic -->
+  <script type="application/json" id="backend-logic"><![CDATA[
+  {
+    "server_implementation": {
+      "expense_controller": "class ExpenseController extends BaseController { private $db; public function addExpense($data) { $expense = ['amount' => $data['amount'], 'category' => $data['category'], 'type' => $data['type']]; return $this->db->insert('expenses', $expense); } public function getExpenses() { return $this->db->query('SELECT * FROM expenses ORDER BY created_at DESC'); } }",
+      "api_routes": "Route::group(['prefix' => 'api/expenses'], function() { Route::get('/', 'ExpenseController@getExpenses'); Route::post('/', 'ExpenseController@addExpense'); });"
+    }
+  }
+  ]]></script>
+
+  <defs>
+    <style><![CDATA[
+      .expense-app { font-family: system-ui, sans-serif; }
+      .main-title { fill: white; font-size: 28px; font-weight: bold; text-anchor: middle; }
+      .dashboard-card { fill: rgba(255,255,255,0.15); stroke: #4caf50; stroke-width: 2; rx: 12; }
+      .amount-income { fill: #4caf50; font-size: 20px; font-weight: bold; }
+      .amount-expense { fill: #f44336; font-size: 20px; font-weight: bold; }
+      .metric-label { fill: #b0bec5; font-size: 12px; }
+      .expense-text { fill: white; font-size: 13px; }
+      .category-text { fill: #81c784; font-size: 12px; }
+      .btn-primary { fill: #4caf50; stroke: none; rx: 6; cursor: pointer; }
+      .btn-danger { fill: #f44336; stroke: none; rx: 6; cursor: pointer; }
+      .btn-text { fill: white; font-size: 12px; text-anchor: middle; }
+      .status-connected { fill: #4caf50; }
+    ]]></style>
+    
+    <linearGradient id="appBackground" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a237e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3949ab;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="100%" height="100%" fill="url(#appBackground)"/>
+  
+  <text x="500" y="45" class="main-title">💰 Expense Tracker PWA</text>
+  
+  <!-- Dashboard Summary -->
+  <rect x="50" y="70" width="280" height="100" class="dashboard-card"/>
+  <text x="70" y="95" class="metric-label">Monthly Overview</text>
+  <text x="70" y="115" class="metric-label">Income:</text>
+  <text x="200" y="115" class="amount-income" id="total-income">$2,850.00</text>
+  <text x="70" y="135" class="metric-label">Expenses:</text>
+  <text x="200" y="135" class="amount-expense" id="total-expenses">$1,245.50</text>
+  <text x="70" y="155" class="metric-label">Balance:</text>
+  <text x="200" y="155" class="amount-income" id="net-balance">$1,604.50</text>
+  
+  <!-- Quick Add -->
+  <rect x="350" y="70" width="250" height="100" class="dashboard-card"/>
+  <text x="370" y="95" class="metric-label">Quick Add</text>
+  <text x="370" y="115" class="expense-text">Category: <tspan id="selected-category">Food</tspan></text>
+  <text x="370" y="135" class="expense-text">Amount: $<tspan id="current-amount">50.00</tspan></text>
+  
+  <rect x="370" y="145" width="60" height="20" class="btn-primary" onclick="addIncome()"/>
+  <text x="400" y="158" class="btn-text">+ Income</text>
+  
+  <rect x="440" y="145" width="60" height="20" class="btn-danger" onclick="addExpense()"/>
+  <text x="470" y="158" class="btn-text">- Expense</text>
+  
+  <rect x="510" y="145" width="60" height="20" class="btn-primary" onclick="exportData()"/>
+  <text x="540" y="158" class="btn-text">Export</text>
+  
+  <!-- Analytics -->
+  <rect x="620" y="70" width="280" height="100" class="dashboard-card"/>
+  <text x="640" y="95" class="metric-label">Analytics</text>
+  <text x="640" y="115" class="metric-label">Top Category: <tspan class="category-text" id="top-category">Food ($345)</tspan></text>
+  <text x="640" y="135" class="metric-label">Transactions: <tspan class="expense-text" id="transaction-count">24</tspan></text>
+  <text x="640" y="155" class="metric-label">Savings Rate: <tspan class="amount-income" id="savings-rate">56.3%</tspan></text>
+  
+  <!-- Transactions List -->
+  <rect x="50" y="190" width="900" height="350" class="dashboard-card"/>
+  <text x="70" y="215" class="metric-label" style="font-size:16px;">Recent Transactions</text>
+  
+  <text x="70" y="240" class="metric-label">Date</text>
+  <text x="180" y="240" class="metric-label">Description</text>
+  <text x="450" y="240" class="metric-label">Category</text>
+  <text x="600" y="240" class="metric-label">Amount</text>
+  <text x="750" y="240" class="metric-label">Actions</text>
+  
+  <rect x="60" y="250" width="880" height="280" fill="none" id="transactions-container"/>
+  
+  <!-- Status Bar -->
+  <rect x="50" y="560" width="900" height="25" fill="rgba(0,0,0,0.3)" rx="12"/>
+  <circle cx="70" cy="572" r="4" class="status-connected"/>
+  <text x="85" y="577" class="metric-label">Connected • Last Sync: <tspan id="last-update">Now</tspan></text>
+  <text x="800" y="577" class="metric-label">VeriDock Grid Finance</text>
+
+  <script><![CDATA[
+    class ExpenseTracker {
+        constructor() {
+            this.transactions = [
+                {id: '1', amount: 2500, category: 'Salary', description: 'Monthly salary', type: 'income', date: '2025-01-25'},
+                {id: '2', amount: 75.50, category: 'Food', description: 'Groceries', type: 'expense', date: '2025-01-27'},
+                {id: '3', amount: 45, category: 'Transport', description: 'Bus pass', type: 'expense', date: '2025-01-26'},
+                {id: '4', amount: 180.75, category: 'Bills', description: 'Electricity', type: 'expense', date: '2025-01-24'},
+                {id: '5', amount: 350, category: 'Freelance', description: 'Web project', type: 'income', date: '2025-01-23'}
+            ];
+            this.config = {};
+            this.backendLogic = {};
+            this.currentCategory = 'Food';
+            this.initApp();
+        }
+        
+        initApp() {
+            const configEl = document.getElementById('app-config');
+            if (configEl) this.config = JSON.parse(configEl.textContent);
+            
+            const backendEl = document.getElementById('backend-logic');
+            if (backendEl) this.backendLogic = JSON.parse(backendEl.textContent);
+            
+            this.updateUI();
+            console.log('Expense Tracker initialized:', this.config.application?.name);
+        }
+        
+        updateUI() {
+            this.updateSummary();
+            this.renderTransactions();
+        }
+        
+        updateSummary() {
+            const income = this.transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const expenses = this.transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            
+            document.getElementById('total-income').textContent = `$${income.toFixed(2)}`;
+            document.getElementById('total-expenses').textContent = `$${expenses.toFixed(2)}`;
+            document.getElementById('net-balance').textContent = `$${(income - expenses).toFixed(2)}`;
+            document.getElementById('transaction-count').textContent = this.transactions.length;
+        }
+        
+        renderTransactions() {
+            const container = document.getElementById('transactions-container');
+            while (container.children.length > 0) {
+                container.removeChild(container.lastChild);
+            }
+            
+            this.transactions.slice(0, 10).forEach((txn, i) => {
+                const y = i * 25;
+                
+                const dateText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                dateText.setAttribute('x', '20');
+                dateText.setAttribute('y', y + 15);
+                dateText.setAttribute('class', 'expense-text');
+                dateText.setAttribute('font-size', '11px');
+                dateText.textContent = txn.date;
+                container.appendChild(dateText);
+                
+                const descText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                descText.setAttribute('x', '130');
+                descText.setAttribute('y', y + 15);
+                descText.setAttribute('class', 'expense-text');
+                descText.setAttribute('font-size', '11px');
+                descText.textContent = txn.description;
+                container.appendChild(descText);
+                
+                const catText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                catText.setAttribute('x', '400');
+                catText.setAttribute('y', y + 15);
+                catText.setAttribute('class', 'category-text');
+                catText.textContent = txn.category;
+                container.appendChild(catText);
+                
+                const amountText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                amountText.setAttribute('x', '550');
+                amountText.setAttribute('y', y + 15);
+                amountText.setAttribute('class', txn.type === 'income' ? 'amount-income' : 'amount-expense');
+                amountText.setAttribute('font-size', '12px');
+                amountText.textContent = `${txn.type === 'income' ? '+' : '-'}$${txn.amount}`;
+                container.appendChild(amountText);
+                
+                const deleteBtn = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                deleteBtn.setAttribute('x', '700');
+                deleteBtn.setAttribute('y', y + 5);
+                deleteBtn.setAttribute('width', '50');
+                deleteBtn.setAttribute('height', '15');
+                deleteBtn.setAttribute('class', 'btn-danger');
+                deleteBtn.onclick = () => this.deleteTransaction(txn.id);
+                container.appendChild(deleteBtn);
+                
+                const deleteBtnText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                deleteBtnText.setAttribute('x', '725');
+                deleteBtnText.setAttribute('y', y + 14);
+                deleteBtnText.setAttribute('class', 'btn-text');
+                deleteBtnText.setAttribute('font-size', '9px');
+                deleteBtnText.textContent = 'Delete';
+                container.appendChild(deleteBtnText);
+            });
+        }
+        
+        addIncomeTransaction() {
+            const txn = {
+                id: Date.now().toString(),
+                amount: 200 + Math.random() * 800,
+                category: this.currentCategory,
+                description: 'Income transaction',
+                type: 'income',
+                date: new Date().toISOString().split('T')[0]
+            };
+            this.transactions.unshift(txn);
+            this.updateUI();
+            console.log('Income added:', txn);
+        }
+        
+        addExpenseTransaction() {
+            const txn = {
+                id: Date.now().toString(),
+                amount: 10 + Math.random() * 200,
+                category: this.currentCategory,
+                description: 'Expense transaction',
+                type: 'expense',
+                date: new Date().toISOString().split('T')[0]
+            };
+            this.transactions.unshift(txn);
+            this.updateUI();
+            console.log('Expense added:', txn);
+        }
+        
+        deleteTransaction(id) {
+            this.transactions = this.transactions.filter(t => t.id !== id);
+            this.updateUI();
+        }
+        
+        exportTransactionData() {
+            const data = {
+                app: this.config.application,
+                transactions: this.transactions,
+                exported_at: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'expense-tracker-export.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            console.log('Data exported');
+        }
+        
+        syncWithBackend() {
+            console.log('Syncing with backend...', this.config.backend_services);
+            document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+        }
+    }
+    
+    let app;
+    
+    function addIncome() { app.addIncomeTransaction(); }
+    function addExpense() { app.addExpenseTransaction(); }
+    function exportData() { app.exportTransactionData(); }
+    function syncBackend() { app.syncWithBackend(); }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        app = new ExpenseTracker();
+    });
+    
+    app = new ExpenseTracker();
+    
+  ]]></script>
+</svg>
