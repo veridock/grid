@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 400 600">
+  
+  <title>{APP_TITLE}</title>
+  <desc>{APP_DESC}</desc>
+  
+  <defs>
+    <style><![CDATA[
+      .calc-body { fill: #2c3e50; stroke: #34495e; stroke-width: 2; rx: 20; }
+      .display { fill: #1a252f; stroke: #3498db; stroke-width: 2; rx: 10; }
+      .display-text { font-family: 'Courier New', monospace; font-size: 24px; fill: #3498db; text-anchor: end; }
+      .btn { fill: #34495e; stroke: #2c3e50; stroke-width: 1; rx: 8; cursor: pointer; }
+      .btn:hover { fill: #4a6741; }
+      .btn-operator { fill: #e67e22; }
+      .btn-operator:hover { fill: #f39c12; }
+      .btn-equals { fill: #27ae60; }
+      .btn-equals:hover { fill: #2ecc71; }
+      .btn-clear { fill: #e74c3c; }
+      .btn-clear:hover { fill: #c0392b; }
+      .btn-text { font-family: Arial, sans-serif; font-size: 18px; fill: white; text-anchor: middle; font-weight: bold; }
+      .title { font-family: Arial, sans-serif; font-size: 20px; fill: white; text-anchor: middle; font-weight: bold; }
+    ]]></style>
+    
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#34495e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2c3e50;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#bgGrad)"/>
+  
+  <!-- Calculator Body -->
+  <rect x="20" y="40" width="360" height="520" class="calc-body"/>
+  
+  <!-- Title -->
+  <text x="200" y="70" class="title">{CALCULATOR_TITLE}</text>
+  
+  <!-- Display -->
+  <rect x="40" y="90" width="320" height="60" class="display"/>
+  <text x="350" y="130" class="display-text" id="display">0</text>
+  
+  <!-- Button Grid -->
+  <!-- Row 1 -->
+  <rect x="50" y="170" width="70" height="50" class="btn btn-clear" onclick="clearAll()"/>
+  <text x="85" y="200" class="btn-text">C</text>
+  
+  <rect x="140" y="170" width="70" height="50" class="btn btn-clear" onclick="clearEntry()"/>
+  <text x="175" y="200" class="btn-text">CE</text>
+  
+  <rect x="230" y="170" width="70" height="50" class="btn btn-operator" onclick="inputOperator('/')"/>
+  <text x="265" y="200" class="btn-text">÷</text>
+  
+  <rect x="320" y="170" width="70" height="50" class="btn btn-operator" onclick="inputOperator('*')"/>
+  <text x="355" y="200" class="btn-text">×</text>
+  
+  <!-- Row 2 -->
+  <rect x="50" y="240" width="70" height="50" class="btn" onclick="inputNumber('7')"/>
+  <text x="85" y="270" class="btn-text">7</text>
+  
+  <rect x="140" y="240" width="70" height="50" class="btn" onclick="inputNumber('8')"/>
+  <text x="175" y="270" class="btn-text">8</text>
+  
+  <rect x="230" y="240" width="70" height="50" class="btn" onclick="inputNumber('9')"/>
+  <text x="265" y="270" class="btn-text">9</text>
+  
+  <rect x="320" y="240" width="70" height="50" class="btn btn-operator" onclick="inputOperator('-')"/>
+  <text x="355" y="270" class="btn-text">−</text>
+  
+  <!-- Row 3 -->
+  <rect x="50" y="310" width="70" height="50" class="btn" onclick="inputNumber('4')"/>
+  <text x="85" y="340" class="btn-text">4</text>
+  
+  <rect x="140" y="310" width="70" height="50" class="btn" onclick="inputNumber('5')"/>
+  <text x="175" y="340" class="btn-text">5</text>
+  
+  <rect x="230" y="310" width="70" height="50" class="btn" onclick="inputNumber('6')"/>
+  <text x="265" y="340" class="btn-text">6</text>
+  
+  <rect x="320" y="310" width="70" height="50" class="btn btn-operator" onclick="inputOperator('+')"/>
+  <text x="355" y="340" class="btn-text">+</text>
+  
+  <!-- Row 4 -->
+  <rect x="50" y="380" width="70" height="50" class="btn" onclick="inputNumber('1')"/>
+  <text x="85" y="410" class="btn-text">1</text>
+  
+  <rect x="140" y="380" width="70" height="50" class="btn" onclick="inputNumber('2')"/>
+  <text x="175" y="410" class="btn-text">2</text>
+  
+  <rect x="230" y="380" width="70" height="50" class="btn" onclick="inputNumber('3')"/>
+  <text x="265" y="410" class="btn-text">3</text>
+  
+  <rect x="320" y="380" width="70" height="120" class="btn btn-equals" onclick="calculate()"/>
+  <text x="355" y="445" class="btn-text">=</text>
+  
+  <!-- Row 5 -->
+  <rect x="50" y="450" width="160" height="50" class="btn" onclick="inputNumber('0')"/>
+  <text x="130" y="480" class="btn-text">0</text>
+  
+  <rect x="230" y="450" width="70" height="50" class="btn" onclick="inputDecimal()"/>
+  <text x="265" y="480" class="btn-text">.</text>
+  
+  <script><![CDATA[
+    let display = document.getElementById('display');
+    let currentInput = '0';
+    let operator = null;
+    let waitingForOperand = false;
+    let previousInput = null;
+    
+    function updateDisplay() {
+      display.textContent = currentInput;
+    }
+    
+    function inputNumber(num) {
+      if (waitingForOperand) {
+        currentInput = num;
+        waitingForOperand = false;
+      } else {
+        currentInput = currentInput === '0' ? num : currentInput + num;
+      }
+      updateDisplay();
+    }
+    
+    function inputDecimal() {
+      if (waitingForOperand) {
+        currentInput = '0.';
+        waitingForOperand = false;
+      } else if (currentInput.indexOf('.') === -1) {
+        currentInput += '.';
+      }
+      updateDisplay();
+    }
+    
+    function inputOperator(nextOperator) {
+      const inputValue = parseFloat(currentInput);
+      
+      if (previousInput === null) {
+        previousInput = inputValue;
+      } else if (operator) {
+        const result = performCalculation();
+        currentInput = String(result);
+        previousInput = result;
+        updateDisplay();
+      }
+      
+      waitingForOperand = true;
+      operator = nextOperator;
+    }
+    
+    function performCalculation() {
+      const prev = previousInput;
+      const current = parseFloat(currentInput);
+      
+      switch (operator) {
+        case '+': return prev + current;
+        case '-': return prev - current;
+        case '*': return prev * current;
+        case '/': return current !== 0 ? prev / current : 0;
+        default: return current;
+      }
+    }
+    
+    function calculate() {
+      if (operator && !waitingForOperand) {
+        currentInput = String(performCalculation());
+        updateDisplay();
+        previousInput = null;
+        operator = null;
+        waitingForOperand = true;
+      }
+    }
+    
+    function clearAll() {
+      currentInput = '0';
+      previousInput = null;
+      operator = null;
+      waitingForOperand = false;
+      updateDisplay();
+    }
+    
+    function clearEntry() {
+      currentInput = '0';
+      updateDisplay();
+    }
+    
+    // Initialize
+    updateDisplay();
+    console.log('Calculator PWA initialized');
+  ]]></script>
+</svg>

@@ -10,6 +10,39 @@
 // Check if running from command line
 $isCommandLine = php_sapi_name() === 'cli';
 
+/**
+ * Recursively find all SVG files in directory
+ */
+function findSVGFilesRecursively($directory) {
+    $svgFiles = [];
+    $directory = rtrim($directory, '/');
+    
+    if (!is_dir($directory)) {
+        return $svgFiles;
+    }
+    
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($directory, RecursiveDirectoryIterator::SKIP_DOTS),
+        RecursiveIteratorIterator::LEAVES_ONLY
+    );
+    
+    foreach ($iterator as $file) {
+        if ($file->isFile() && strtolower($file->getExtension()) === 'svg') {
+            $svgFiles[] = $file->getPathname();
+        }
+    }
+    
+    // Sort files alphabetically
+    sort($svgFiles);
+    
+    return $svgFiles;
+}
+
+// CLI interface for testing SVG files
+if ($isCommandLine) {
+    // ... rest of the code remains the same ...
+}
+
 if (!$isCommandLine) {
     header('Content-Type: application/json; charset=UTF-8');
 }
@@ -95,7 +128,7 @@ class SVGPWATester {
         $this->addTest("dimensions", "Width and Height defined", $hasWidth && $hasHeight);
         
         // Test 6: No external dependencies
-        $hasExternalDeps = preg_match('/href=["'](http|https|ftp|\/\/)/', $content);
+        $hasExternalDeps = preg_match('/href=["\']((http|https|ftp):\/\/)/i', $content);
         $this->addTest("no_external_deps", "No external dependencies", !$hasExternalDeps);
         
         // Test 7: No g transform elements
@@ -262,22 +295,111 @@ if ($isCommandLine) {
     if ($argc < 2) {
         echo "🔍 SVG PWA Tester - Command Line Interface\n";
         echo "=========================================\n\n";
-        echo "Usage: php index.php <svg-file>\n";
-        echo "Example: php index.php ../devmind.svg\n";
-        echo "         php index.php ../files.svg\n\n";
+        echo "Usage: php index.php <svg-file-or-directory>\n";
+        echo "Examples:\n";
+        echo "  Single file: php index.php ../devmind.svg\n";
+        echo "  Directory:   php index.php ../correct/\n";
+        echo "  All folders: php index.php ../\n\n";
         exit(1);
     }
     
-    $svgFile = $argv[1];
+    $target = $argv[1];
     
     // If relative path, make it relative to current working directory
-    if (!file_exists($svgFile) && !str_starts_with($svgFile, '/')) {
+    if (!file_exists($target) && !str_starts_with($target, '/')) {
         // Try relative to the tester directory
-        $svgFile = '../' . $svgFile;
+        $target = '../' . $target;
     }
     
-    echo "🚀 Testing SVG file: $svgFile\n";
-    echo "=" . str_repeat("=", strlen($svgFile) + 18) . "\n\n";
+    // Check if target is directory or file
+    if (is_dir($target)) {
+        echo "🚀 Scanning directory recursively: $target\n";
+        echo "=" . str_repeat("=", strlen($target) + 32) . "\n\n";
+        
+        $svgFiles = findSVGFilesRecursively($target);
+        
+        if (empty($svgFiles)) {
+            echo "❌ No SVG files found in directory: $target\n";
+            exit(1);
+        }
+        
+        echo "📁 Found " . count($svgFiles) . " SVG files:\n";
+        foreach ($svgFiles as $file) {
+            echo "   📄 $file\n";
+        }
+        echo "\n";
+        
+        $totalFiles = count($svgFiles);
+        $passedFiles = 0;
+        $failedFiles = 0;
+        $allResults = [];
+        
+        foreach ($svgFiles as $svgFile) {
+            echo str_repeat("-", 80) . "\n";
+            echo "🔍 Testing: $svgFile\n";
+            echo str_repeat("-", 80) . "\n";
+            
+            $tester = new SVGPWATester();
+            $results = $tester->testSVGFile($svgFile);
+            
+            if ($results === false) {
+                echo "❌ Error: Could not test file\n";
+                $failedFiles++;
+                continue;
+            }
+            
+            // Quick summary for directory scan
+            $passed = $results['summary']['passed'];
+            $total = $results['summary']['total'];
+            $success = ($passed === $total);
+            
+            if ($success) {
+                echo "✅ PASSED ($passed/$total tests)\n";
+                $passedFiles++;
+            } else {
+                echo "❌ FAILED ($passed/$total tests)\n";
+                $failedFiles++;
+                
+                // Show failed tests
+                echo "\n📋 Failed Tests:\n";
+                foreach ($results['tests'] as $test) {
+                    if (!$test['success']) {
+                        echo "   ❌ " . $test['name'] . ": " . $test['description'] . "\n";
+                    }
+                }
+            }
+            
+            $allResults[$svgFile] = $results;
+            echo "\n";
+        }
+        
+        // Final summary
+        echo str_repeat("=", 80) . "\n";
+        echo "📊 DIRECTORY SCAN SUMMARY\n";
+        echo str_repeat("=", 80) . "\n";
+        echo "Total Files:  $totalFiles\n";
+        echo "Passed:       $passedFiles ✅\n";
+        echo "Failed:       $failedFiles ❌\n";
+        echo "Success Rate: " . round(($passedFiles / $totalFiles) * 100, 1) . "%\n";
+        
+        if ($failedFiles > 0) {
+            echo "\n❌ Failed Files:\n";
+            foreach ($allResults as $file => $result) {
+                if ($result['summary']['passed'] !== $result['summary']['total']) {
+                    echo "   📄 $file ({$result['summary']['passed']}/{$result['summary']['total']})\n";
+                }
+            }
+        }
+        
+        echo "\n🕒 Scan completed at: " . date('Y-m-d H:i:s') . "\n";
+        exit($failedFiles > 0 ? 1 : 0);
+        
+    } else {
+        // Single file testing
+        $svgFile = $target;
+        echo "🚀 Testing SVG file: $svgFile\n";
+        echo "=" . str_repeat("=", strlen($svgFile) + 18) . "\n\n";
+    }
     
     $tester = new SVGPWATester();
     $results = $tester->testSVGFile($svgFile);

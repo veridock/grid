@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Iframe Embedding - SVG PWA</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: Arial, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 15px; 
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 { text-align: center; color: #333; margin-bottom: 30px; }
+        .demo-grid { 
+            display: grid; 
+            gap: 30px; 
+            margin-bottom: 30px;
+        }
+        .demo-section { 
+            border: 2px solid #ddd; 
+            border-radius: 10px; 
+            padding: 20px; 
+            background: #f9f9f9;
+        }
+        .demo-title { 
+            font-size: 18px; 
+            font-weight: bold; 
+            color: #333; 
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        iframe { 
+            width: 100%; 
+            border: 2px solid #667eea; 
+            border-radius: 8px; 
+            background: white;
+        }
+        .embed-code { 
+            background: #2c3e50; 
+            color: #ecf0f1; 
+            padding: 15px; 
+            border-radius: 5px; 
+            font-family: monospace; 
+            font-size: 12px; 
+            margin-top: 10px;
+            word-break: break-all;
+        }
+        .status { 
+            display: inline-block; 
+            padding: 5px 10px; 
+            border-radius: 15px; 
+            font-size: 12px; 
+            font-weight: bold;
+        }
+        .status-working { background: #27ae60; color: white; }
+        .status-demo { background: #3498db; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Test Iframe Embedding - SVG PWA Applications</h1>
+        
+        <div class="demo-grid">
+            <!-- DevMind App -->
+            <div class="demo-section">
+                <div class="demo-title">
+                    📱 DevMind Dashboard 
+                    <span class="status status-working">✅ DZIAŁAJĄCE IFRAME</span>
+                </div>
+                <iframe src="http://localhost:8090/?action=serve&path=devmind.svg" 
+                        height="500" frameborder="0" allowfullscreen></iframe>
+                <div class="embed-code">
+&lt;iframe src="http://localhost:8090/?action=serve&path=devmind.svg" 
+        width="800" height="500" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;
+                </div>
+            </div>
+            
+            <!-- Generated Dashboard Pattern -->
+            <div class="demo-section">
+                <div class="demo-title">
+                    📊 Generated Dashboard Pattern 
+                    <span class="status status-demo">🎨 WYGENEROWANY SZABLON</span>
+                </div>
+                <iframe src="file:///home/tom/github/veridock/grid/templates/patterns/dashboard-pattern.svg" 
+                        height="400" frameborder="0" allowfullscreen></iframe>
+                <div class="embed-code">
+&lt;iframe src="templates/patterns/dashboard-pattern.svg" 
+        width="800" height="400" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;
+                </div>
+            </div>
+            
+            <!-- Calculator Pattern -->
+            <div class="demo-section">
+                <div class="demo-title">
+                    🧮 Calculator Pattern 
+                    <span class="status status-demo">🎨 INTERAKTYWNY KALKULATOR</span>
+                </div>
+                <iframe src="file:///home/tom/github/veridock/grid/templates/patterns/calculator-pattern.svg" 
+                        height="600" frameborder="0" allowfullscreen></iframe>
+                <div class="embed-code">
+&lt;iframe src="templates/patterns/calculator-pattern.svg" 
+        width="400" height="600" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;
+                </div>
+            </div>
+            
+            <!-- Data Visualization Pattern -->
+            <div class="demo-section">
+                <div class="demo-title">
+                    📈 Data Visualization Pattern 
+                    <span class="status status-demo">📊 WYKRESY INTERAKTYWNE</span>
+                </div>
+                <iframe src="file:///home/tom/github/veridock/grid/templates/patterns/data-viz-pattern.svg" 
+                        height="500" frameborder="0" allowfullscreen></iframe>
+                <div class="embed-code">
+&lt;iframe src="templates/patterns/data-viz-pattern.svg" 
+        width="800" height="500" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;
+                </div>
+            </div>
+        </div>
+        
+        <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; text-align: center;">
+            <h3>✅ Wszystkie aplikacje SVG PWA działają natychmiast przez iframe!</h3>
+            <p>Żadne dodatkowe modyfikacje nie są potrzebne - każda aplikacja jest gotowa do embedding.</p>
+            <p><strong>Backend URL:</strong> <code>http://localhost:8090</code></p>
+            <p><strong>Format iframe:</strong> <code>&lt;iframe src="SERVER_URL/?action=serve&path=APP.svg"&gt;</code></p>
+        </div>
+    </div>
+</body>
+</html>

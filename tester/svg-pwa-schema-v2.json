@@ -1,0 +1,436 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SVG PWA Application Schema v2.0",
+  "description": "Enhanced schema for SVG-based Progressive Web Applications with PHP integration, derived from gold standard examples",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "document_structure": {
+      "type": "object",
+      "description": "Core SVG document structure requirements",
+      "properties": {
+        "xml_declaration": {
+          "type": "string",
+          "description": "XML declaration with UTF-8 encoding",
+          "pattern": "^<\\?xml version=\"1\\.0\" encoding=\"UTF-8\"\\?>$",
+          "required": true
+        },
+        "svg_element": {
+          "type": "object",
+          "description": "Root SVG element specifications",
+          "properties": {
+            "namespace": {
+              "type": "string",
+              "description": "SVG namespace URI",
+              "enum": ["http://www.w3.org/2000/svg"],
+              "required": true
+            },
+            "xlink_namespace": {
+              "type": "string",
+              "description": "XLink namespace for advanced features",
+              "enum": ["http://www.w3.org/1999/xlink"],
+              "required": false
+            },
+            "viewBox": {
+              "type": "string",
+              "description": "ViewBox for responsive design (x y width height)",
+              "pattern": "^[0-9]+\\s+[0-9]+\\s+[0-9]+\\s+[0-9]+$",
+              "required": true
+            },
+            "dimensions": {
+              "type": "object",
+              "properties": {
+                "width": {
+                  "type": ["string", "number"],
+                  "description": "SVG width (pixels, percentage, or viewport units)",
+                  "examples": ["100%", "1200", "300"]
+                },
+                "height": {
+                  "type": ["string", "number"],
+                  "description": "SVG height (pixels, percentage, or viewport units)",
+                  "examples": ["100%", "800", "400"]
+                }
+              },
+              "required": ["width", "height"]
+            }
+          },
+          "required": ["namespace", "viewBox", "dimensions"]
+        }
+      },
+      "required": ["svg_element"]
+    },
+    "metadata_requirements": {
+      "type": "object",
+      "description": "SVG metadata and documentation standards",
+      "properties": {
+        "title_element": {
+          "type": "boolean",
+          "description": "Must include <title> element for accessibility",
+          "default": true
+        },
+        "desc_element": {
+          "type": "boolean",
+          "description": "Should include <description> element",
+          "default": true
+        },
+        "dublin_core_metadata": {
+          "type": "boolean",
+          "description": "Advanced metadata using Dublin Core RDF",
+          "default": false
+        },
+        "data_store": {
+          "type": "boolean",
+          "description": "Embedded JSON data store in metadata",
+          "default": false
+        }
+      }
+    },
+    "styling_requirements": {
+      "type": "object",
+      "description": "CSS and styling standards for SVG PWA",
+      "properties": {
+        "inline_styles_only": {
+          "type": "boolean",
+          "description": "All styles must be inline within <defs><style>",
+          "default": true
+        },
+        "no_external_css": {
+          "type": "boolean",
+          "description": "No external CSS file references",
+          "default": true
+        },
+        "style_organization": {
+          "type": "object",
+          "properties": {
+            "defs_section": {
+              "type": "boolean",
+              "description": "Styles organized in <defs><style> section",
+              "default": true
+            },
+            "css_classes": {
+              "type": "boolean",
+              "description": "Use CSS classes for styling consistency",
+              "default": true
+            },
+            "gradients": {
+              "type": "boolean",
+              "description": "Linear/radial gradients for visual appeal",
+              "default": true
+            }
+          }
+        },
+        "supported_css_properties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "font-family", "font-size", "font-weight", "font-style",
+            "fill", "stroke", "stroke-width", "opacity",
+            "text-anchor", "cursor", "rx", "ry",
+            "stop-color", "stop-opacity"
+          ]
+        }
+      },
+      "required": ["inline_styles_only", "no_external_css"]
+    },
+    "interactivity_standards": {
+      "type": "object",
+      "description": "JavaScript and interactivity requirements",
+      "properties": {
+        "embedded_javascript": {
+          "type": "boolean",
+          "description": "JavaScript embedded within SVG <script> tags",
+          "default": true
+        },
+        "no_external_js": {
+          "type": "boolean",
+          "description": "No external JavaScript file references",
+          "default": true
+        },
+        "event_handling": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Supported SVG events",
+          "default": ["onclick", "onmouseover", "onmouseout", "oninput", "onchange"]
+        },
+        "dom_manipulation": {
+          "type": "boolean",
+          "description": "JavaScript can manipulate SVG DOM",
+          "default": true
+        }
+      }
+    },
+    "pwa_compatibility": {
+      "type": "object",
+      "description": "Progressive Web App requirements",
+      "properties": {
+        "self_contained": {
+          "type": "boolean",
+          "description": "Must be completely self-contained",
+          "default": true
+        },
+        "offline_capable": {
+          "type": "boolean",
+          "description": "Must work without internet connection",
+          "default": true
+        },
+        "responsive_design": {
+          "type": "boolean",
+          "description": "Must adapt to different screen sizes",
+          "default": true
+        },
+        "performance_optimized": {
+          "type": "object",
+          "properties": {
+            "max_file_size": {
+              "type": "number",
+              "description": "Maximum file size in bytes",
+              "maximum": 1048576,
+              "default": 1048576
+            },
+            "minimal_dependencies": {
+              "type": "boolean",
+              "description": "Minimal external dependencies",
+              "default": true
+            }
+          }
+        }
+      },
+      "required": ["self_contained", "offline_capable", "responsive_design"]
+    },
+    "php_integration": {
+      "type": "object",
+      "description": "PHP server integration requirements",
+      "properties": {
+        "mime_type": {
+          "type": "string",
+          "description": "Correct MIME type for SVG",
+          "enum": ["image/svg+xml"],
+          "default": "image/svg+xml"
+        },
+        "encoding": {
+          "type": "string",
+          "description": "Character encoding",
+          "enum": ["UTF-8"],
+          "default": "UTF-8"
+        },
+        "no_php_tags": {
+          "type": "boolean",
+          "description": "No PHP code within SVG",
+          "default": true
+        },
+        "server_delivery": {
+          "type": "object",
+          "properties": {
+            "content_type_header": {
+              "type": "string",
+              "description": "HTTP Content-Type header",
+              "default": "image/svg+xml; charset=utf-8"
+            },
+            "cache_friendly": {
+              "type": "boolean",
+              "description": "Allows browser caching",
+              "default": true
+            }
+          }
+        }
+      },
+      "required": ["mime_type", "encoding", "no_php_tags"]
+    },
+    "forbidden_elements": {
+      "type": "object",
+      "description": "Elements and patterns that must be avoided",
+      "properties": {
+        "transform_groups": {
+          "type": "boolean",
+          "description": "No <g transform=*> elements allowed",
+          "default": true
+        },
+        "external_references": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Forbidden external reference patterns",
+          "default": [
+            "href=\"http://", "href=\"https://", "src=\"http://", "src=\"https://",
+            "url(http://", "url(https://", "@import"
+          ]
+        },
+        "problematic_elements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "SVG elements that should be avoided",
+          "default": ["foreignObject", "switch"]
+        }
+      }
+    },
+    "application_patterns": {
+      "type": "object",
+      "description": "Common application patterns from gold standard examples",
+      "properties": {
+        "dashboard_pattern": {
+          "type": "object",
+          "description": "Dashboard/monitoring application pattern (devmind.svg)",
+          "properties": {
+            "header_section": {
+              "type": "boolean",
+              "description": "Header with title and navigation",
+              "default": true
+            },
+            "card_layout": {
+              "type": "boolean", 
+              "description": "Card-based information layout",
+              "default": true
+            },
+            "status_indicators": {
+              "type": "boolean",
+              "description": "Visual status indicators",
+              "default": true
+            },
+            "interactive_buttons": {
+              "type": "boolean",
+              "description": "Clickable interactive elements",
+              "default": true
+            }
+          }
+        },
+        "data_visualization_pattern": {
+          "type": "object",
+          "description": "Data visualization pattern (example.svg)",
+          "properties": {
+            "embedded_data": {
+              "type": "boolean",
+              "description": "Data embedded in metadata",
+              "default": true
+            },
+            "charts_graphs": {
+              "type": "boolean",
+              "description": "Visual data representation",
+              "default": true
+            },
+            "dublin_core_metadata": {
+              "type": "boolean",
+              "description": "Rich metadata using Dublin Core",
+              "default": true
+            }
+          }
+        },
+        "calculator_pattern": {
+          "type": "object",
+          "description": "Interactive tool pattern (test_svg_calculator.svg)",
+          "properties": {
+            "button_grid": {
+              "type": "boolean",
+              "description": "Grid-based button layout",
+              "default": true
+            },
+            "display_screen": {
+              "type": "boolean",
+              "description": "Output display area",
+              "default": true
+            },
+            "state_management": {
+              "type": "boolean",
+              "description": "JavaScript state management",
+              "default": true
+            }
+          }
+        }
+      }
+    },
+    "validation_rules": {
+      "type": "object",
+      "description": "Validation requirements for SVG PWA",
+      "properties": {
+        "required_tests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "All tests that must pass",
+          "default": [
+            "file_exists", "valid_xml", "svg_namespace", "root_svg_element",
+            "viewbox_attribute", "dimensions", "no_external_deps", "no_g_transform",
+            "inline_styles", "responsive_design", "no_js_deps", "self_contained",
+            "no_php_conflicts", "correct_mime_type", "utf8_encoding",
+            "standard_elements", "css_compatibility", "file_size",
+            "file_readable", "correct_extension", "svg_header"
+          ]
+        },
+        "minimum_pass_rate": {
+          "type": "number",
+          "minimum": 95,
+          "maximum": 100,
+          "default": 100,
+          "description": "Minimum percentage of tests that must pass (raised to 100% for gold standard)"
+        },
+        "critical_tests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tests that must always pass",
+          "default": [
+            "file_exists", "valid_xml", "svg_namespace", "self_contained",
+            "no_external_deps", "no_g_transform", "no_php_conflicts"
+          ]
+        }
+      }
+    },
+    "development_guidelines": {
+      "type": "object",
+      "description": "Guidelines for developing SVG PWA applications",
+      "properties": {
+        "code_organization": {
+          "type": "object",
+          "properties": {
+            "structure_order": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Recommended order of SVG sections",
+              "default": [
+                "XML declaration",
+                "SVG root element with namespaces",
+                "Title and description",
+                "Metadata (if needed)",
+                "Defs section (styles, gradients, patterns)",
+                "Main content elements",
+                "JavaScript (at the end)"
+              ]
+            }
+          }
+        },
+        "naming_conventions": {
+          "type": "object",
+          "properties": {
+            "css_classes": {
+              "type": "string",
+              "description": "CSS class naming pattern",
+              "pattern": "^[a-z][a-z0-9-]*$",
+              "examples": ["header", "card", "button-text", "status-active"]
+            },
+            "element_ids": {
+              "type": "string", 
+              "description": "Element ID naming pattern",
+              "pattern": "^[a-zA-Z][a-zA-Z0-9-_]*$",
+              "examples": ["calcDisplay", "btn-1", "data-store"]
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "document_structure", "styling_requirements", "pwa_compatibility", 
+    "php_integration", "forbidden_elements", "validation_rules"
+  ],
+  "additionalProperties": false
+}

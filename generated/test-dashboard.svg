@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1200 800">
+  <title>My Dashboard</title>
+  <desc>Generated dashboard application</desc>
+  <defs>
+    <style><![CDATA[
+      .header { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: white; }
+      .card { fill: rgba(255,255,255,0.1); stroke: #64ffda; stroke-width: 1; rx: 10; }
+      .text { font-family: Arial, sans-serif; font-size: 14px; fill: white; }
+      .value { font-family: Arial, sans-serif; font-size: 18px; fill: #64ffda; font-weight: bold; }
+      .button { fill: #64ffda; stroke: none; rx: 20; cursor: pointer; }
+      .button:hover { fill: #00bcd4; }
+      .button-text { font-family: Arial, sans-serif; font-size: 12px; fill: #1a1a2e; text-anchor: middle; }]]></style>
+    
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f3460;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="100%" height="100%" fill="url(#bgGrad)"/>
+  <text x="50" y="50" class="header">Dashboard</text>
+  <rect x="50" y="120" width="250" height="120" class="card"/>
+  <text x="70" y="150" class="text">System Status</text>
+  <text x="70" y="180" class="value">Online</text>
+  <rect x="50" y="400" width="120" height="40" class="button" onclick="refresh()"/>
+  <text x="110" y="425" class="button-text">Refresh</text>
+  <script><![CDATA[
+    function refresh() {
+      console.log("Dashboard refreshed");
+      document.querySelector(".value").textContent = "Updated";
+    }
+    console.log("Dashboard PWA initialized");]]></script>
+</svg>

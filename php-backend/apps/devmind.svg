@@ -1,0 +1,439 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1200 800">
+  <defs>
+    <style>
+      .header { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; }
+      .card { fill: rgba(255,255,255,0.1); stroke: #64ffda; stroke-width: 1; rx: 10; }
+      .text { font-family: Arial, sans-serif; font-size: 14px; fill: white; }
+      .value { font-family: Arial, sans-serif; font-size: 18px; fill: #64ffda; font-weight: bold; }
+      .button { fill: #64ffda; stroke: none; rx: 20; cursor: pointer; }
+      .button:hover { fill: #00bcd4; }
+      .button-text { font-family: Arial, sans-serif; font-size: 12px; fill: #1a1a2e; text-anchor: middle; }
+      .ai-box { fill: rgba(100,255,218,0.1); stroke: #64ffda; stroke-width: 2; rx: 8; }
+      .status-active { fill: #4caf50; }
+      .status-inactive { fill: #ff9800; }
+      .emotion-bar { fill: #64ffda; }
+      .heart-rate { fill: #ff6b6b; }
+    </style>
+    
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#16213e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f3460;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#bgGrad)"/>
+
+  <!-- Header -->
+  <rect x="20" y="20" width="1160" height="80" class="card"/>
+  <text x="600" y="50" class="header" text-anchor="middle" fill="#64ffda">DevMind Pro - AI Mental Health Platform</text>
+  <text x="600" y="75" class="text" text-anchor="middle">Zaawansowana platforma wsparcia psychicznego z AI i monitoringiem biometrycznym</text>
+  
+  <!-- AI Status Indicator -->
+  <circle cx="1100" cy="40" r="5" class="status-active">
+    <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <text x="1115" y="45" class="text" font-size="12">AI Active</text>
+
+  <!-- Main Dashboard Cards -->
+  
+  <!-- Biometric Monitoring Card -->
+  <rect x="20" y="120" width="360" height="300" class="card"/>
+  <text x="200" y="145" class="text" text-anchor="middle" font-weight="bold">📊 Monitoring Biometryczny</text>
+  
+  <!-- Heart Rate -->
+  <rect x="40" y="160" width="100" height="60" class="ai-box"/>
+  <text x="90" y="180" class="text" text-anchor="middle">Tętno</text>
+  <text x="90" y="205" class="value" text-anchor="middle" id="heartRate">72</text>
+  <text x="90" y="220" class="text" text-anchor="middle" font-size="10">BPM</text>
+  
+  <!-- HRV -->
+  <rect x="150" y="160" width="100" height="60" class="ai-box"/>
+  <text x="200" y="180" class="text" text-anchor="middle">HRV</text>
+  <text x="200" y="205" class="value" text-anchor="middle" id="hrv">45</text>
+  <text x="200" y="220" class="text" text-anchor="middle" font-size="10">ms</text>
+  
+  <!-- Stress Level -->
+  <rect x="260" y="160" width="100" height="60" class="ai-box"/>
+  <text x="310" y="180" class="text" text-anchor="middle">Stres</text>
+  <text x="310" y="205" class="value" text-anchor="middle" id="stress">23</text>
+  <text x="310" y="220" class="text" text-anchor="middle" font-size="10">%</text>
+
+  <!-- Emotion Analysis -->
+  <text x="50" y="250" class="text">Analiza emocji:</text>
+  <rect x="50" y="260" width="100" height="8" fill="#333"/>
+  <rect x="50" y="260" width="60" height="8" class="emotion-bar" id="happinessBar"/>
+  <text x="160" y="268" class="text" font-size="12">😊 Radość: <tspan id="happiness">60%</tspan></text>
+  
+  <rect x="50" y="280" width="100" height="8" fill="#333"/>
+  <rect x="50" y="280" width="30" height="8" fill="#ff6b6b" id="stressBar"/>
+  <text x="160" y="288" class="text" font-size="12">😰 Stres: <tspan id="stressEmotion">30%</tspan></text>
+
+  <!-- Start Monitoring Button -->
+  <rect x="80" y="320" width="240" height="30" class="button" onclick="startMonitoring()"/>
+  <text x="200" y="340" class="button-text">🎥 Rozpocznij monitoring</text>
+
+  <!-- AI Analysis Card -->
+  <rect x="400" y="120" width="380" height="300" class="card"/>
+  <text x="590" y="145" class="text" text-anchor="middle" font-weight="bold">🤖 Analiza AI</text>
+  
+  <!-- AI Insights Box -->
+  <rect x="420" y="160" width="340" height="120" class="ai-box"/>
+  <text x="430" y="180" class="text" font-weight="bold">🧠 AI Insights:</text>
+  <text x="430" y="200" class="text" font-size="12" id="aiInsight1">• Wykryto poprawę nastroju o 15% w ostatnich 3 dniach</text>
+  <text x="430" y="220" class="text" font-size="12" id="aiInsight2">• Nieregularny wzorzec snu - zalecam korektę</text>
+  <text x="430" y="240" class="text" font-size="12" id="aiInsight3">• Optymalne okno produktywności: 9:00-11:00</text>
+  <text x="430" y="260" class="text" font-size="12" id="aiInsight4">• Rekomendacja: zwiększ dawkę magnezu</text>
+
+  <!-- Cognitive Load -->
+  <rect x="420" y="290" width="160" height="60" class="ai-box"/>
+  <text x="500" y="310" class="text" text-anchor="middle">Obciążenie kognitywne</text>
+  <text x="500" y="330" class="value" text-anchor="middle" id="cognitiveLoad">47%</text>
+
+  <!-- Attention Span -->
+  <rect x="590" y="290" width="160" height="60" class="ai-box"/>
+  <text x="670" y="310" class="text" text-anchor="middle">Span uwagi</text>
+  <text x="670" y="330" class="value" text-anchor="middle" id="attentionSpan">8.3min</text>
+
+  <!-- Ask AI Button -->
+  <rect x="450" y="370" width="280" height="30" class="button" onclick="askAI()"/>
+  <text x="590" y="390" class="button-text">🤖 Zapytaj AI o rekomendacje</text>
+
+  <!-- Therapy Recommendations Card -->
+  <rect x="800" y="120" width="380" height="300" class="card"/>
+  <text x="990" y="145" class="text" text-anchor="middle" font-weight="bold">💊 Rekomendacje terapeutyczne</text>
+  
+  <!-- Current Protocol -->
+  <rect x="820" y="160" width="340" height="100" class="ai-box"/>
+  <text x="830" y="180" class="text" font-weight="bold">Aktualny protokół:</text>
+  <text x="830" y="200" class="text" font-size="12">• Światłoterapia: 30min o 7:00</text>
+  <text x="830" y="215" class="text" font-size="12">• Magnez: 400mg wieczorem</text>
+  <text x="830" y="230" class="text" font-size="12">• Omega-3: 720mg poranną</text>
+  <text x="830" y="245" class="text" font-size="12">• Medytacja: 15min codziennie</text>
+
+  <!-- Supplement Status -->
+  <text x="830" y="285" class="text" font-weight="bold">Status suplementów:</text>
+  <circle cx="850" cy="300" r="6" class="status-active" id="omegaStatus"/>
+  <text x="865" y="305" class="text" font-size="12">Omega-3 ✓</text>
+  
+  <circle cx="980" cy="300" r="6" class="status-inactive" id="magnesiumStatus"/>
+  <text x="995" y="305" class="text" font-size="12">Magnez ⏳</text>
+
+  <!-- Start Therapy Button -->
+  <rect x="830" y="370" width="320" height="30" class="button" onclick="startTherapy()"/>
+  <text x="990" y="390" class="button-text">⚡ Rozpocznij sesję terapeutyczną</text>
+
+  <!-- Sleep Analysis Card -->
+  <rect x="20" y="440" width="360" height="200" class="card"/>
+  <text x="200" y="465" class="text" text-anchor="middle" font-weight="bold">😴 Analiza snu</text>
+
+  <!-- Sleep Quality Circle -->
+  <circle cx="120" cy="520" r="40" fill="none" stroke="#333" stroke-width="8"/>
+  <circle cx="120" cy="520" r="40" fill="none" stroke="#64ffda" stroke-width="8" 
+          stroke-dasharray="251" stroke-dashoffset="75" transform="rotate(-90 120 520)" id="sleepQualityCircle"/>
+  <text x="120" y="525" class="value" text-anchor="middle" id="sleepQuality">78%</text>
+  <text x="120" y="545" class="text" text-anchor="middle" font-size="10">Jakość snu</text>
+
+  <!-- Sleep Stats -->
+  <text x="200" y="490" class="text">Czas snu: <tspan class="value" id="sleepDuration">7.5h</tspan></text>
+  <text x="200" y="510" class="text">Przebudzenia: <tspan class="value" id="wakings">2</tspan></text>
+  <text x="200" y="530" class="text">REM: <tspan class="value" id="remSleep">22%</tspan></text>
+  <text x="200" y="550" class="text">Głęboki sen: <tspan class="value" id="deepSleep">18%</tspan></text>
+
+  <!-- Track Sleep Button -->
+  <rect x="80" y="590" width="240" height="30" class="button" onclick="startSleepTracking()"/>
+  <text x="200" y="610" class="button-text">🌙 Rozpocznij tracking snu</text>
+
+  <!-- Crisis Prevention Card -->
+  <rect x="400" y="440" width="380" height="200" class="card"/>
+  <text x="590" y="465" class="text" text-anchor="middle" font-weight="bold">🚨 Zapobieganie kryzysom</text>
+
+  <!-- Risk Assessment -->
+  <rect x="420" y="480" width="340" height="80" class="ai-box"/>
+  <text x="430" y="500" class="text" font-weight="bold">AI Risk Assessment:</text>
+  <text x="430" y="520" class="text" font-size="12">• Ryzyko kryzysu: <tspan class="value" id="crisisRisk">Niskie</tspan></text>
+  <text x="430" y="535" class="text" font-size="12">• Wycofanie społeczne: <tspan class="value" id="socialWithdrawal">23%</tspan></text>
+  <text x="430" y="550" class="text" font-size="12">• Stabilność nastroju: <tspan class="value" id="moodStability">Stabilny</tspan></text>
+
+  <!-- Emergency Contacts -->
+  <rect x="420" y="580" width="160" height="40" class="button" onclick="contactTherapist()"/>
+  <text x="500" y="605" class="button-text">👨‍⚕️ Kontakt z terapeutą</text>
+
+  <rect x="590" y="580" width="160" height="40" class="button" onclick="emergencyHelp()"/>
+  <text x="670" y="605" class="button-text">🆘 Pomoc w kryzysie</text>
+
+  <!-- Data Privacy Card -->
+  <rect x="800" y="440" width="380" height="200" class="card"/>
+  <text x="990" y="465" class="text" text-anchor="middle" font-weight="bold">🔒 Prywatność danych</text>
+
+  <!-- Privacy Status -->
+  <rect x="820" y="480" width="340" height="100" class="ai-box"/>
+  <text x="830" y="500" class="text" font-weight="bold">Status bezpieczeństwa:</text>
+  <text x="830" y="520" class="text" font-size="12">• Szyfrowanie: AES-256 ✓</text>
+  <text x="830" y="535" class="text" font-size="12">• Dane lokalne: Tak ✓</text>
+  <text x="830" y="550" class="text" font-size="12">• Anonimizacja AI: Aktywna ✓</text>
+  <text x="830" y="565" class="text" font-size="12">• Udostępnianie: Wyłączone ✓</text>
+
+  <!-- Privacy Controls -->
+  <rect x="830" y="600" width="150" height="30" class="button" onclick="exportData()"/>
+  <text x="905" y="620" class="button-text">📤 Eksport danych</text>
+
+  <rect x="990" y="600" width="150" height="30" class="button" onclick="deleteData()"/>
+  <text x="1065" y="620" class="button-text">🗑️ Usuń dane</text>
+
+  <!-- Status Bar -->
+  <rect x="20" y="660" width="1160" height="40" class="card"/>
+  <text x="50" y="685" class="text">Status: <tspan class="value" id="systemStatus">AI Monitoring Active</tspan></text>
+  <text x="400" y="685" class="text">Ostatnia analiza: <tspan id="lastAnalysis">teraz</tspan></text>
+  <text x="700" y="685" class="text">Ollama: <tspan class="value" id="ollamaStatus">Połączony</tspan></text>
+  <text x="1000" y="685" class="text">Jakość sygnału: <tspan class="value" id="signalQuality">98%</tspan></text>
+
+  <!-- Real-time Chart Area -->
+  <rect x="50" y="720" width="400" height="60" class="card"/>
+  <text x="250" y="740" class="text" text-anchor="middle" font-size="12">Real-time Heart Rate</text>
+  <polyline points="60,770 80,765 100,775 120,760 140,770 160,755 180,765 200,750 220,760 240,745 260,755 280,740 300,750 320,735 340,745 360,730 380,740 400,725 420,735 440,720"
+            fill="none" stroke="#ff6b6b" stroke-width="2" id="heartRateChart">
+    <animate attributeName="points" 
+             values="60,770 80,765 100,775 120,760 140,770 160,755 180,765 200,750 220,760 240,745 260,755 280,740 300,750 320,735 340,745 360,730 380,740 400,725 420,735 440,720;
+                     60,775 80,770 100,760 120,775 140,755 160,770 180,750 200,765 220,745 240,760 260,740 280,755 300,735 320,750 340,730 360,745 380,725 400,740 420,720 440,735;
+                     60,770 80,765 100,775 120,760 140,770 160,755 180,765 200,750 220,760 240,745 260,755 280,740 300,750 320,735 340,745 360,730 380,740 400,725 420,735 440,720" 
+             dur="3s" repeatCount="indefinite"/>
+  </polyline>
+
+  <!-- JavaScript functionality embedded in SVG -->
+  <script type="text/javascript"><![CDATA[
+    // DevMind Pro SVG Application with Ollama Integration
+    
+    let sensorData = {
+      heartRate: 72,
+      hrv: 45,
+      stress: 23,
+      happiness: 60,
+      stressEmotion: 30,
+      cognitiveLoad: 47,
+      attentionSpan: 8.3,
+      sleepQuality: 78,
+      sleepDuration: 7.5,
+      wakings: 2,
+      remSleep: 22,
+      deepSleep: 18,
+      crisisRisk: 'Niskie',
+      socialWithdrawal: 23,
+      moodStability: 'Stabilny'
+    };
+
+    let ollamaEndpoint = 'http://localhost:11434/api/generate';
+    let isMonitoring = false;
+    let aiUpdateInterval;
+
+    // Initialize the application
+    function initializeApp() {
+      updateAllDisplays();
+      startAIUpdates();
+      connectToSensorSimulator();
+    }
+
+    // Update all display elements
+    function updateAllDisplays() {
+      document.getElementById('heartRate').textContent = sensorData.heartRate;
+      document.getElementById('hrv').textContent = sensorData.hrv;
+      document.getElementById('stress').textContent = sensorData.stress;
+      document.getElementById('happiness').textContent = sensorData.happiness + '%';
+      document.getElementById('stressEmotion').textContent = sensorData.stressEmotion + '%';
+      document.getElementById('cognitiveLoad').textContent = sensorData.cognitiveLoad + '%';
+      document.getElementById('attentionSpan').textContent = sensorData.attentionSpan + 'min';
+      document.getElementById('sleepQuality').textContent = sensorData.sleepQuality + '%';
+      document.getElementById('sleepDuration').textContent = sensorData.sleepDuration + 'h';
+      document.getElementById('wakings').textContent = sensorData.wakings;
+      document.getElementById('remSleep').textContent = sensorData.remSleep + '%';
+      document.getElementById('deepSleep').textContent = sensorData.deepSleep + '%';
+      document.getElementById('crisisRisk').textContent = sensorData.crisisRisk;
+      document.getElementById('socialWithdrawal').textContent = sensorData.socialWithdrawal + '%';
+      document.getElementById('moodStability').textContent = sensorData.moodStability;
+      
+      // Update emotion bars
+      document.getElementById('happinessBar').setAttribute('width', sensorData.happiness);
+      document.getElementById('stressBar').setAttribute('width', sensorData.stressEmotion);
+      
+      // Update sleep quality circle
+      const circumference = 2 * Math.PI * 40;
+      const offset = circumference - (sensorData.sleepQuality / 100) * circumference;
+      document.getElementById('sleepQualityCircle').setAttribute('stroke-dashoffset', offset);
+    }
+
+    // Connect to sensor simulator
+    function connectToSensorSimulator() {
+      // Try to connect to sensor simulator WebSocket
+      try {
+        const ws = new WebSocket('ws://localhost:8081');
+        
+        ws.onmessage = function(event) {
+          const data = JSON.parse(event.data);
+          updateSensorData(data);
+        };
+        
+        ws.onopen = function() {
+          document.getElementById('systemStatus').textContent = 'Sensors Connected';
+        };
+        
+        ws.onerror = function() {
+          document.getElementById('systemStatus').textContent = 'Simulated Mode';
+          startSimulatedSensors();
+        };
+      } catch (error) {
+        startSimulatedSensors();
+      }
+    }
+
+    // Start simulated sensor data
+    function startSimulatedSensors() {
+      setInterval(() => {
+        // Simulate realistic sensor variations
+        sensorData.heartRate += (Math.random() - 0.5) * 4;
+        sensorData.heartRate = Math.max(60, Math.min(100, sensorData.heartRate));
+        
+        sensorData.hrv += (Math.random() - 0.5) * 5;
+        sensorData.hrv = Math.max(20, Math.min(80, sensorData.hrv));
+        
+        sensorData.stress += (Math.random() - 0.5) * 6;
+        sensorData.stress = Math.max(0, Math.min(100, sensorData.stress));
+        
+        sensorData.happiness += (Math.random() - 0.5) * 4;
+        sensorData.happiness = Math.max(0, Math.min(100, sensorData.happiness));
+        
+        updateAllDisplays();
+      }, 2000);
+    }
+
+    // Update sensor data from external source
+    function updateSensorData(data) {
+      Object.assign(sensorData, data);
+      updateAllDisplays();
+    }
+
+    // Start monitoring function
+    function startMonitoring() {
+      isMonitoring = !isMonitoring;
+      const button = document.querySelector('[onclick="startMonitoring()"]').nextElementSibling;
+      
+      if (isMonitoring) {
+        button.textContent = '⏹️ Zatrzymaj monitoring';
+        document.getElementById('systemStatus').textContent = 'Active Monitoring';
+      } else {
+        button.textContent = '🎥 Rozpocznij monitoring';
+        document.getElementById('systemStatus').textContent = 'Monitoring Stopped';
+      }
+    }
+
+    // AI Analysis with Ollama
+    async function askAI() {
+      document.getElementById('ollamaStatus').textContent = 'Processing...';
+      
+      const prompt = `Jako AI asystent zdrowia psychicznego, przeanalizuj te dane biometryczne:
+      - Tętno: ${sensorData.heartRate} BPM
+      - HRV: ${sensorData.hrv} ms
+      - Poziom stresu: ${sensorData.stress}%
+      - Poziom szczęścia: ${sensorData.happiness}%
+      - Obciążenie kognitywne: ${sensorData.cognitiveLoad}%
+      - Jakość snu: ${sensorData.sleepQuality}%
+      
+      Podaj krótkie rekomendacje terapeutyczne (max 4 punkty):`;
+
+      try {
+        const response = await fetch(ollamaEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'llama3.1',
+            prompt: prompt,
+            stream: false
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          updateAIInsights(data.response);
+          document.getElementById('ollamaStatus').textContent = 'Połączony';
+        } else {
+          throw new Error('Ollama request failed');
+        }
+      } catch (error) {
+        console.error('Ollama error:', error);
+        document.getElementById('ollamaStatus').textContent = 'Błąd połączenia';
+        updateAIInsights('Używanie offline AI insights...');
+      }
+    }
+
+    // Update AI insights display
+    function updateAIInsights(response) {
+      const insights = response.split('\n').filter(line => line.trim().length > 0);
+      
+      for (let i = 0; i < Math.min(4, insights.length); i++) {
+        const element = document.getElementById(`aiInsight${i + 1}`);
+        if (element) {
+          element.textContent = `• ${insights[i]}`;
+        }
+      }
+      
+      document.getElementById('lastAnalysis').textContent = new Date().toLocaleTimeString();
+    }
+
+    // Start therapy session
+    function startTherapy() {
+      document.getElementById('systemStatus').textContent = 'Therapy Session Active';
+      
+      // Simulate therapy session
+      setTimeout(() => {
+        document.getElementById('systemStatus').textContent = 'Therapy Complete';
+      }, 30000);
+    }
+
+    // Sleep tracking
+    function startSleepTracking() {
+      document.getElementById('systemStatus').textContent = 'Sleep Tracking Active';
+    }
+
+    // Contact therapist
+    function contactTherapist() {
+      document.getElementById('systemStatus').textContent = 'Contacting Therapist...';
+    }
+
+    // Emergency help
+    function emergencyHelp() {
+      document.getElementById('systemStatus').textContent = 'Emergency Protocol Activated';
+    }
+
+    // Data management
+    function exportData() {
+      const dataExport = {
+        timestamp: new Date().toISOString(),
+        sensorData: sensorData,
+        userProfile: 'anonymized'
+      };
+      
+      console.log('Data exported:', dataExport);
+      document.getElementById('systemStatus').textContent = 'Data Exported';
+    }
+
+    function deleteData() {
+      if (confirm('Czy na pewno chcesz usunąć wszystkie dane?')) {
+        document.getElementById('systemStatus').textContent = 'Data Deleted';
+      }
+    }
+
+    // Start periodic AI updates
+    function startAIUpdates() {
+      aiUpdateInterval = setInterval(() => {
+        if (isMonitoring) {
+          askAI();
+        }
+      }, 300000); // Every 5 minutes
+    }
+
+    // Initialize when SVG loads
+    setTimeout(initializeApp, 1000);
+  ]]></script>
+</svg>

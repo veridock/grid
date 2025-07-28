@@ -306,7 +306,7 @@ sudo cp /usr/share/applications/org.gnome.eog.desktop /usr/share/applications/sv
 sudo apt install librsvg2-bin
 
 # Test generowania miniatury
-rsvg-convert -w 128 -h 128 input.svg -o thumbnail.png
+rsvg-convert -w 128 -h 128 files.svg -o thumbnail.png
 ```
 
 ---
