@@ -6,7 +6,7 @@ A comprehensive system for creating, testing, and validating SVG-based Progressi
 
 ![SVG PWA Tester](https://img.shields.io/badge/Tests-21%20Validations-brightgreen) 
 ![Compliance](https://img.shields.io/badge/Schema-100%25%20Compliant-success) 
-![Applications](https://img.shields.io/badge/Generated%20Apps-4%20Ready-blue)
+![Applications](https://img.shields.io/badge/php%20Apps-4%20Ready-blue)
 
 ## 🎯 **Core Features**
 
@@ -44,83 +44,43 @@ A comprehensive system for creating, testing, and validating SVG-based Progressi
 
 ```bash
 # Test a single SVG PWA file
-php tester/index.php generated/expense-tracker-pwa.svg
+php tester/index.php php/expense-tracker-pwa.svg
 
 # Test all SVG files recursively
 php tester/index.php /path/to/svg/directory
 ```
 
-### **Option 2: Generate New SVG PWA**
-
+### Python (Template Processing)
 ```bash
-# Interactive PWA generator
-php generator/svg-pwa-generator.php
-
-# Follow prompts for app type, features, and backend integration
+cd python
+python svg_processor.py todo-manager-python.svg > output.svg
+# Open: output.svg in browser
 ```
 
-### **Option 3: Serve via PHP Backend**
-
+### Node.js (Template Processing)
 ```bash
-# Start the backend server
-php -S localhost:8080 -t php-backend/
-php -S localhost:8091 -t generated/
-php -S localhost:8092 -t generated/ router.php
-# Open in browser: http://localhost:8080
+cd nodejs
+node svg_processor.js todo-manager-nodejs.svg > output.svg
+# Open: output.svg in browser
 ```
 
-## 🔧 **Installation & Requirements**
+## 🎨 Features
 
-### **Prerequisites**
+- ✅ **Dynamic SVG Generation**: Embed code directly in SVG files
+- ✅ **Multi-Language Support**: PHP, Python, JavaScript
+- ✅ **CLI Processing**: Generate static SVG files from templates
+- ✅ **Web Server Support**: Live PHP+SVG rendering
+- ✅ **Pipeline Integration**: Perfect for automation
+- ✅ **Batch Processing**: Process multiple files at once
 
-- **PHP 7.4+** with extensions: `simplexml`, `mbstring`, `fileinfo`
-- **CLI Environment** for running tester and generator scripts
-- **Modern Browser** supporting SVG, JavaScript, and PWA features
-- **Local File System** with write permissions for generated apps
+## 📚 Documentation
 
-### **Project Structure**
+- 📖 [PHP Documentation](php/README-SVG-PHP.md) - Complete PHP+SVG guide
+- 📖 [Multi-Language Guide](README-SVG-SCRIPTING.md) - Comprehensive documentation
 
-```
-svg-pwa-project/
-├── tester/
-│   ├── index.php              # CLI tester with 21 validation points
-│   └── SVGPWATester.php       # Core validation logic
-├── generator/
-│   ├── svg-pwa-generator.php  # Interactive PWA generator
-│   └── templates/             # PWA templates and patterns
-├── generated/
-│   ├── expense-tracker-pwa.svg    # ✅ 100% compliant
-│   ├── inventory-manager-pwa.svg  # ✅ 100% compliant
-│   ├── project-manager-pwa.svg    # ✅ 100% compliant
-│   └── test-dashboard.svg         # ✅ 100% compliant
-├── correct/
-│   ├── devmind.svg           # Gold standard reference
-│   ├── example.svg           # Schema baseline
-│   └── test_svg_calculator.svg # Pattern template
-├── php-backend/
-│   ├── index.php             # Backend server with dashboard
-│   └── api/                  # RESTful API endpoints
-└── README.md                 # This documentation
-```
+## 🗂️ Project Structure
 
-### **Installation Steps**
-
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd svg-pwa-project
-   ```
-
-2. **Verify PHP requirements:**
-   ```bash
-   php --version  # Should be 7.4+
-   php -m | grep -E "(simplexml|mbstring|fileinfo)"  # Check extensions
-   ```
-
-3. **Test the system:**
-   ```bash
-   # Run a quick validation
-   php tester/index.php generated/expense-tracker-pwa.svg
+   php tester/index.php php/expense-tracker-pwa.svg
    ```
 
 ## 📊 **21-Point Validation Schema**
@@ -200,7 +160,7 @@ php generator/svg-pwa-generator.php
 ### **💰 Expense Tracker PWA**
 ```bash
 # Test the expense tracker
-php tester/index.php generated/expense-tracker-pwa.svg
+php tester/index.php php/expense-tracker-pwa.svg
 
 # Features:
 # - Financial transaction tracking (income/expenses)
@@ -213,7 +173,7 @@ php tester/index.php generated/expense-tracker-pwa.svg
 ### **📦 Inventory Manager PWA**
 ```bash
 # Test the inventory manager
-php tester/index.php generated/inventory-manager-pwa.svg
+php tester/index.php php/inventory-manager-pwa.svg
 
 # Features:
 # - Stock level monitoring and alerts
@@ -226,7 +186,7 @@ php tester/index.php generated/inventory-manager-pwa.svg
 ### **🚀 Project Manager PWA**
 ```bash
 # Test the project manager
-php tester/index.php generated/project-manager-pwa.svg
+php tester/index.php php/project-manager-pwa.svg
 
 # Features:
 # - Task and milestone tracking
@@ -239,7 +199,7 @@ php tester/index.php generated/project-manager-pwa.svg
 ### **📊 Test Dashboard PWA**
 ```bash
 # Test the analytics dashboard
-php tester/index.php generated/test-dashboard.svg
+php tester/index.php php/test-dashboard.svg
 
 # Features:
 # - Real-time system monitoring

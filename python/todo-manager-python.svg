@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="300" viewBox="0 0 500 300">
+  
+  <title>Todo Manager Python - <?python print(f"Czas: {current_time}") ?></title>
+  <desc>Todo Manager with embedded Python logic</desc>
+  
+  <!-- Gradient Background -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#bgGradient)"/>
+  
+  <!-- Header -->
+  <text x="20" y="30" fill="white" font-family="Arial" font-size="18" font-weight="bold">
+    🐍 Todo Manager Python
+  </text>
+  
+  <!-- Current Time -->
+  <text x="20" y="55" fill="#e0e0e0" font-family="Arial" font-size="12">
+    <?python print(f"Wygenerowano: {current_date} {current_time}") ?>
+  </text>
+  
+  <!-- Tasks Counter -->
+  <text x="20" y="80" fill="white" font-family="Arial" font-size="14">
+    <?python print(f"Zadań w systemie: {tasks_count}") ?>
+  </text>
+  
+  <!-- Python calculation example -->
+  <text x="20" y="105" fill="#ffeb3b" font-family="Arial" font-size="12">
+    <?python 
+import math
+completed = int(tasks_count * 0.6)
+pending = tasks_count - completed
+print(f"Ukończone: {completed}, Pozostałe: {pending}")
+    ?>
+  </text>
+  
+  <!-- Progress Bar -->
+  <rect x="20" y="120" width="300" height="20" fill="#333" rx="10"/>
+  <rect x="20" y="120" width="<?python print(int(300 * 0.6)) ?>" height="20" fill="#4caf50" rx="10"/>
+  
+  <!-- Tasks List -->
+  <text x="20" y="165" fill="white" font-family="Arial" font-size="14" font-weight="bold">
+    Przykładowe zadania:
+  </text>
+  
+  <?python
+tasks = [
+    "Dokończ projekt Python",
+    "Napisz testy jednostkowe", 
+    "Przygotuj dokumentację",
+    "Code review",
+    "Deploy na produkcję"
+]
+
+completed = int(tasks_count * 0.6)
+y_pos = 190
+for i, task in enumerate(tasks[:5]):
+    status = "✓" if i < completed else "○"
+    color = "#4caf50" if i < completed else "#ffeb3b"
+    print(f'<text x="30" y="{y_pos}" fill="{color}" font-family="Arial" font-size="11">{status} {task}</text>')
+    y_pos += 20
+  ?>
+  
+  <!-- Footer with Python info -->
+  <text x="20" y="280" fill="#e0e0e0" font-family="Arial" font-size="10">
+    <?python print(f"Python {sys.version.split()[0]} • Processed at {datetime.now().strftime('%H:%M:%S')}") ?>
+  </text>
+  
+</svg>

@@ -9,7 +9,7 @@ Router umożliwia uruchamianie plików SVG jako skrypty PHP w dwóch trybach:
 
 ### Uruchomienie serwera:
 ```bash
-php -S localhost:8093 -t generated/ router.php
+php -S localhost:8093 -t php/ router.php
 ```
 
 ### Dostęp do plików SVG+PHP:
@@ -58,7 +58,7 @@ php router.php todo-manager-pwa.svg > rendered-todo.svg
 ## 📁 Struktura Plików
 
 ```
-generated/
+php/
 ├── router.php              # Router obsługujący SVG+PHP
 ├── test-minimal1.svg        # Przykładowy plik testowy
 ├── todo-manager-pwa.svg     # Aplikacja TODO z PHP
@@ -100,7 +100,7 @@ generated/
 ### 1. Development i testowanie:
 ```bash
 # Uruchom serwer deweloperski
-php -S localhost:8093 -t generated/ router.php
+php -S localhost:8093 -t php/ router.php
 # Otwórz http://localhost:8093/test-minimal1.svg
 ```
 
@@ -123,8 +123,8 @@ done
 
 ### "Plik nie istnieje":
 ```bash
-# Sprawdź czy plik istnieje w katalogu generated/
-ls -la generated/test-minimal1.svg
+# Sprawdź czy plik istnieje w katalogu php/
+ls -la php/test-minimal1.svg
 ```
 
 ### "XML declaration error":
@@ -134,5 +134,5 @@ ls -la generated/test-minimal1.svg
 ### Port zajęty:
 ```bash
 # Użyj innego portu
-php -S localhost:8094 -t generated/ router.php
+php -S localhost:8094 -t php/ router.php
 ```

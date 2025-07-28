@@ -9,7 +9,7 @@ class SVGPWAGenerator {
     private $patterns = [];
     private $outputDir = '';
     
-    public function __construct($outputDir = '../generated') {
+    public function __construct($outputDir = '../php') {
         $this->outputDir = $outputDir;
         if (!is_dir($this->outputDir)) {
             mkdir($this->outputDir, 0755, true);
@@ -156,16 +156,16 @@ if (php_sapi_name() === 'cli') {
     $outputFile = $argv[2];
     $title = $argv[3] ?? ucfirst($type) . ' PWA';
     
-    $generator = new SVGPWAGenerator('./generated');
+    $generator = new SVGPWAGenerator('./php');
     $config = ['title' => $title, 'description' => "Generated $type application"];
     
     $svg = $generator->generate($type, $config);
     $generator->saveToFile($svg, $outputFile);
     
-    echo "Generated: generated/$outputFile\n";
+    echo "Generated: php/$outputFile\n";
     
     // Validate
-    $outputPath = "generated/$outputFile";
+    $outputPath = "php/$outputFile";
     $isValid = $generator->validate($outputPath);
         
     if ($isValid) {

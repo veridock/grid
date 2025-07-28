@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="300" viewBox="0 0 500 300">
+  
+  <title>Todo Manager Python - Czas: 21:23:46
+</title>
+  <desc>Todo Manager with embedded Python logic</desc>
+  
+  <!-- Gradient Background -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#bgGradient)"/>
+  
+  <!-- Header -->
+  <text x="20" y="30" fill="white" font-family="Arial" font-size="18" font-weight="bold">
+    🐍 Todo Manager Python
+  </text>
+  
+  <!-- Current Time -->
+  <text x="20" y="55" fill="#e0e0e0" font-family="Arial" font-size="12">
+    Wygenerowano: 2025-07-28 21:23:46
+
+  </text>
+  
+  <!-- Tasks Counter -->
+  <text x="20" y="80" fill="white" font-family="Arial" font-size="14">
+    Zadań w systemie: 7
+
+  </text>
+  
+  <!-- Python calculation example -->
+  <text x="20" y="105" fill="#ffeb3b" font-family="Arial" font-size="12">
+    Ukończone: 4, Pozostałe: 3
+
+  </text>
+  
+  <!-- Progress Bar -->
+  <rect x="20" y="120" width="300" height="20" fill="#333" rx="10"/>
+  <rect x="20" y="120" width="180
+" height="20" fill="#4caf50" rx="10"/>
+  
+  <!-- Tasks List -->
+  <text x="20" y="165" fill="white" font-family="Arial" font-size="14" font-weight="bold">
+    Przykładowe zadania:
+  </text>
+  
+  <text x="30" y="190" fill="#4caf50" font-family="Arial" font-size="11">✓ Dokończ projekt Python</text>
+<text x="30" y="210" fill="#4caf50" font-family="Arial" font-size="11">✓ Napisz testy jednostkowe</text>
+<text x="30" y="230" fill="#4caf50" font-family="Arial" font-size="11">✓ Przygotuj dokumentację</text>
+<text x="30" y="250" fill="#4caf50" font-family="Arial" font-size="11">✓ Code review</text>
+<text x="30" y="270" fill="#ffeb3b" font-family="Arial" font-size="11">○ Deploy na produkcję</text>
+
+  
+  <!-- Footer with Python info -->
+  <text x="20" y="280" fill="#e0e0e0" font-family="Arial" font-size="10">
+    Python 3.12.9 • Processed at 21:23:46
+
+  </text>
+  
+</svg>
+

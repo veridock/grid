@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+  
+  <title>Todo Manager Node.js - <?js print(`Czas: ${currentTime}`) ?></title>
+  <desc>Todo Manager with embedded JavaScript/Node.js logic</desc>
+  
+  <!-- Gradient Background -->
+  <defs>
+    <linearGradient id="nodeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#83a4d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b6fbff;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#nodeGradient)"/>
+  
+  <!-- Header -->
+  <text x="20" y="30" fill="#2d3748" font-family="Arial" font-size="20" font-weight="bold">
+    ⚡ Todo Manager Node.js
+  </text>
+  
+  <!-- Current Time -->
+  <text x="20" y="55" fill="#4a5568" font-family="Arial" font-size="13">
+    <?js print(`Wygenerowano: ${currentDate} ${currentTime}`) ?>
+  </text>
+  
+  <!-- Node.js Version -->
+  <text x="20" y="75" fill="#38a169" font-family="Arial" font-size="11">
+    <?js print(`Node.js ${nodeVersion}`) ?>
+  </text>
+  
+  <!-- Tasks Counter -->
+  <text x="20" y="100" fill="#2d3748" font-family="Arial" font-size="15">
+    <?js print(`Zadań w systemie: ${tasksCount}`) ?>
+  </text>
+  
+  <!-- JavaScript calculation example -->
+  <text x="20" y="125" fill="#d69e2e" font-family="Arial" font-size="12">
+    <?js 
+    const completed = Math.floor(tasksCount * 0.75);
+    const pending = tasksCount - completed;
+    const percentage = Math.round((completed / tasksCount) * 100);
+    print(`Ukończone: ${completed} (${percentage}%), Pozostałe: ${pending}`);
+    ?>
+  </text>
+  
+  <!-- Progress Bar -->
+  <rect x="20" y="140" width="400" height="25" fill="#e2e8f0" rx="12"/>
+  <rect x="20" y="140" width="<?js print(Math.floor(400 * 0.75)) ?>" height="25" fill="#48bb78" rx="12"/>
+  
+  <!-- Progress Text -->
+  <text x="225" y="157" fill="white" font-family="Arial" font-size="12" text-anchor="middle">
+    <?js print(`${Math.round((Math.floor(tasksCount * 0.75) / tasksCount) * 100)}% Complete`) ?>
+  </text>
+  
+  <!-- Tasks List -->
+  <text x="20" y="190" fill="#2d3748" font-family="Arial" font-size="16" font-weight="bold">
+    Przykładowe zadania:
+  </text>
+  
+  <?js
+  const tasks = [
+    "Zaimplementuj REST API",
+    "Napisz testy Jest", 
+    "Skonfiguruj CI/CD",
+    "Dokumentacja API",
+    "Optymalizacja performance",
+    "Security audit",
+    "Deploy na AWS",
+    "Monitoring i alerty"
+  ];
+  
+  const completed = Math.floor(tasksCount * 0.75);
+  let yPos = 215;
+  
+  for (let i = 0; i < Math.min(tasks.length, tasksCount); i++) {
+    const task = tasks[i];
+    const isCompleted = i < completed;
+    const status = isCompleted ? "✓" : "○";
+    const color = isCompleted ? "#48bb78" : "#ed8936";
+    const textDecoration = isCompleted ? "line-through" : "none";
+    
+    print(`<text x="30" y="${yPos}" fill="${color}" font-family="Arial" font-size="12" text-decoration="${textDecoration}">${status} ${task}</text>`);
+    yPos += 22;
+  }
+  ?>
+  
+  <!-- Statistics Box -->
+  <rect x="450" y="140" width="130" height="120" fill="rgba(255,255,255,0.9)" rx="8"/>
+  <text x="465" y="160" fill="#2d3748" font-family="Arial" font-size="14" font-weight="bold">
+    Statystyki
+  </text>
+  
+  <?js
+  const stats = [
+    `Total: ${tasksCount}`,
+    `Done: ${Math.floor(tasksCount * 0.75)}`,
+    `Todo: ${tasksCount - Math.floor(tasksCount * 0.75)}`,
+    `Rate: ${Math.round((Math.floor(tasksCount * 0.75) / tasksCount) * 100)}%`
+  ];
+  
+  let statsY = 180;
+  stats.forEach(stat => {
+    print(`<text x="465" y="${statsY}" fill="#4a5568" font-family="Arial" font-size="11">${stat}</text>`);
+    statsY += 18;
+  });
+  ?>
+  
+  <!-- Footer with JavaScript info -->
+  <text x="20" y="370" fill="#718096" font-family="Arial" font-size="10">
+    <?js 
+    const now = new Date();
+    print(`JavaScript/Node.js • Processed at ${now.toLocaleTimeString('pl-PL')} • ${now.toLocaleDateString('pl-PL')}`);
+    ?>
+  </text>
+  
+  <!-- JSON Data Example -->
+  <text x="20" y="390" fill="#718096" font-family="Arial" font-size="9">
+    <?js 
+    const jsonData = {
+      timestamp: new Date().toISOString(),
+      tasks: tasksCount,
+      completed: Math.floor(tasksCount * 0.75),
+      environment: "Node.js CLI"
+    };
+    print(`Data: ${JSON.stringify(jsonData)}`);
+    ?>
+  </text>
+  
+</svg>
