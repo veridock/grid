@@ -1,0 +1,322 @@
+<?php
+header('Content-Type: text/html; charset=UTF-8');
+
+// Konfiguracja
+$directory = isset($_GET['dir']) ? $_GET['dir'] : './';
+$allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'pdf', 'txt', 'php', 'js', 'html', 'css'];
+$thumbnails_per_row = 6;
+
+// Funkcja do sprawdzania czy plik jest obrazem
+function isImage($file) {
+    $image_extensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+    $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+    return in_array($extension, $image_extensions);
+}
+
+// Funkcja do generowania ikony pliku na podstawie rozszerzenia
+function getFileIcon($file) {
+    $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+    $icons = [
+        'pdf' => '📄',
+        'txt' => '📝',
+        'php' => '🐘',
+        'js' => '📜',
+        'html' => '🌐',
+        'css' => '🎨',
+        'zip' => '📦',
+        'rar' => '📦',
+        'mp3' => '🎵',
+        'mp4' => '🎬',
+        'avi' => '🎬',
+        'doc' => '📄',
+        'docx' => '📄',
+        'xls' => '📊',
+        'xlsx' => '📊'
+    ];
+    
+    return isset($icons[$extension]) ? $icons[$extension] : '📁';
+}
+
+// Skanowanie katalogu
+$files = [];
+if (is_dir($directory)) {
+    $scan = scandir($directory);
+    foreach ($scan as $file) {
+        if ($file !== '.' && $file !== '..' && is_file($directory . '/' . $file)) {
+            $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+            if (in_array($extension, $allowed_extensions)) {
+                $files[] = [
+                    'name' => $file,
+                    'path' => $directory . '/' . $file,
+                    'size' => filesize($directory . '/' . $file),
+                    'modified' => filemtime($directory . '/' . $file),
+                    'is_image' => isImage($file),
+                    'extension' => $extension,
+                    'icon' => getFileIcon($file)
+                ];
+            }
+        }
+    }
+}
+
+// Sortowanie plików
+usort($files, function($a, $b) {
+    return strcmp($a['name'], $b['name']);
+});
+
+?>
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Przeglądarka plików - Grid</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .directory-info {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .controls {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .controls input {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            min-width: 300px;
+        }
+        
+        .controls button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .controls button:hover {
+            background: #5a6fd8;
+        }
+        
+        .stats {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .file-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .file-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+        
+        .thumbnail {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .thumbnail img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+        
+        .file-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        .file-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            word-break: break-word;
+            font-size: 14px;
+        }
+        
+        .file-info {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .no-files {
+            text-align: center;
+            color: #666;
+            font-size: 1.2em;
+            margin-top: 50px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .controls input {
+                min-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗂️ Przeglądarka plików</h1>
+            <div class="directory-info">Katalog: <strong><?php echo htmlspecialchars($directory); ?></strong></div>
+        </div>
+        
+        <div class="controls">
+            <form method="GET" style="display: flex; gap: 15px; align-items: center;">
+                <input type="text" name="dir" placeholder="Wprowadź ścieżkę do katalogu..." value="<?php echo htmlspecialchars($directory); ?>">
+                <button type="submit">📁 Przeglądaj</button>
+            </form>
+        </div>
+        
+        <?php if (!empty($files)): ?>
+            <div class="stats">
+                📊 Znaleziono <strong><?php echo count($files); ?></strong> plików
+            </div>
+            
+            <div class="grid">
+                <?php foreach ($files as $file): ?>
+                    <div class="file-item" onclick="openFile('<?php echo htmlspecialchars($file['path']); ?>')">
+                        <div class="thumbnail">
+                            <?php if ($file['is_image']): ?>
+                                <img src="<?php echo htmlspecialchars($file['path']); ?>" alt="<?php echo htmlspecialchars($file['name']); ?>" 
+                                     onerror="this.style.display='none'; this.parentNode.innerHTML='<div class=\'file-icon\'><?php echo $file['icon']; ?></div>';">
+                            <?php else: ?>
+                                <div class="file-icon"><?php echo $file['icon']; ?></div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="file-name"><?php echo htmlspecialchars($file['name']); ?></div>
+                        <div class="file-info">
+                            📏 <?php echo number_format($file['size'] / 1024, 1); ?> KB<br>
+                            🕒 <?php echo date('d.m.Y H:i', $file['modified']); ?><br>
+                            📎 <?php echo strtoupper($file['extension']); ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <div class="no-files">
+                😞 Nie znaleziono plików w tym katalogu lub katalog nie istnieje.
+            </div>
+        <?php endif; ?>
+    </div>
+    
+    <script>
+        function openFile(path) {
+            // Sprawdź czy to obraz
+            const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+            const extension = path.split('.').pop().toLowerCase();
+            
+            if (imageExtensions.includes(extension)) {
+                // Otwórz obraz w nowym oknie/karcie
+                window.open(path, '_blank');
+            } else {
+                // Dla innych plików, spróbuj otworzyć lub pobierz
+                const link = document.createElement('a');
+                link.href = path;
+                link.target = '_blank';
+                link.click();
+            }
+        }
+        
+        // Dodaj obsługę drag and drop dla folderów (opcjonalne)
+        const container = document.querySelector('.container');
+        
+        container.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            container.style.background = 'rgba(255, 255, 255, 0.8)';
+        });
+        
+        container.addEventListener('dragleave', function(e) {
+            container.style.background = 'rgba(255, 255, 255, 0.95)';
+        });
+        
+        container.addEventListener('drop', function(e) {
+            e.preventDefault();
+            container.style.background = 'rgba(255, 255, 255, 0.95)';
+            
+            // Tutaj można dodać obsługę drop plików/folderów
+            console.log('Dropped files:', e.dataTransfer.files);
+        });
+    </script>
+</body>
+</html>
