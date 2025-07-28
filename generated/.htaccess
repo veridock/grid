@@ -1,0 +1,8 @@
+# Przetwarzaj pliki .svg jako PHP
+<Files "*.svg">
+    SetHandler application/x-httpd-php
+    Header set Content-Type "image/svg+xml"
+</Files>
+
+# Alternatywnie - dla wszystkich plików SVG
+AddType application/x-httpd-php .svg

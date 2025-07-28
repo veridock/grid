@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?php
-echo " ---- TESTING HYBRID SVG+PHP MODE --- \n";
-var_dump($_SERVER);
-echo(" ---- TESTING HYBRID SVG+PHP MODE --- \n");
-?>
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1000 700">
+    <?php
+    // 1. Najpierw logika PHP (bez output!)
+    $current_time = date('H:i:s');
+    $tasks_count = 5; // z bazy danych
 
-  <title>Todo Manager PWA</title>
+    ?>
+  <title>Todo Manager PWA - Czas: <?php echo $current_time; ?> - Zadań: <?php echo $tasks_count; ?></title>
   <desc>Advanced task management application with PHP backend integration, JavaScript interactivity, and JSON metadata</desc>
 
   <!-- JSON Application Configuration -->
   <script type="application/json" id="app-config"><![CDATA[
   {
     "application": {
-      "name": "Todo Manager PWA",
+      "name": "Todo Manager PWA demo",
       "version": "2.0.0",
       "type": "productivity_app",
       "category": "task_management",
@@ -81,11 +81,14 @@ echo(" ---- TESTING HYBRID SVG+PHP MODE --- \n");
     </linearGradient>
   </defs>
 
+
   <!-- Background -->
   <rect width="100%" height="100%" fill="url(#bgGradient)"/>
 
   <!-- Header Section -->
-  <text x="50" y="50" class="header">📋 Todo Manager PWA</text>
+  <text x="50" y="50" class="header">📋
+  Todo Manager PWA - Czas: <?php echo $current_time; ?> - Zadań: <?php echo $tasks_count; ?>
+  </text>
   <text x="50" y="75" class="subheader">Advanced Task Management with PHP Backend</text>
 
   <!-- Stats Section -->
