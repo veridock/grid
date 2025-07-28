@@ -145,7 +145,7 @@
           "items": {
             "type": "string"
           },
-          "default": ["foreignObject", "switch", "script"]
+          "default": ["foreignObject", "switch", "script", "g[transform]"]
         },
         "css_compatibility": {
           "type": "object",
@@ -216,6 +216,7 @@
             "viewbox_attribute",
             "dimensions",
             "no_external_deps",
+            "no_g_transform",
             "inline_styles",
             "responsive_design",
             "no_js_deps",

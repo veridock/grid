@@ -221,9 +221,30 @@ file-monitor-pwa/
 - `GET /api/thumbnail?file=path` - Get file thumbnail
 - `POST /api/remove-folder` - Remove folder from monitoring
 
+
+
+
+### Creating a New PWA.SVG App
+
+1. Create a new directory in `examples/`
+2. Create your `.pwa.svg` file with the following structure:
+   ```svg
+   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
+     <!-- SVG content -->
+     <foreignObject width="100%" height="100%">
+       <xhtml:div>
+         <!-- Your HTML/CSS/JS here -->
+       </xhtml:div>
+     </foreignObject>
+     <script><![CDATA[
+       // Your JavaScript here
+     ]]></script>
+   </svg>
+   ```
+   
 ## License
 
-MIT License - Feel free to use and modify!
+Apache 2.0 License - Feel free to use and modify!
 
 ## Contributing
 

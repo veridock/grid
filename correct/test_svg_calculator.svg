@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="400" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+  
+  <title>SVG Calculator PWA</title>
+  <desc>Pełnofunkcjonalny kalkulator napisany w SVG z JavaScript</desc>
+  
+  <defs>
+    <linearGradient id="calcGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2c3e50;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#34495e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="buttonGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ecf0f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#bdc3c7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="operatorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#3498db;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2980b9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Obudowa kalkulatora -->
+  <rect x="10" y="10" width="280" height="380" rx="20" ry="20" 
+        fill="url(#calcGrad)" stroke="#1a252f" stroke-width="2"/>
+  
+  <!-- Wyświetlacz -->
+  <rect x="30" y="30" width="240" height="60" rx="10" ry="10" 
+        fill="#1a252f" stroke="#34495e" stroke-width="1"/>
+  
+  <text id="display" x="260" y="70" text-anchor="end" 
+        fill="#ecf0f1" font-family="Courier, monospace" font-size="24" font-weight="bold">0</text>
+  
+  <!-- Przyciski -->
+  <!-- Wiersz 1 -->
+  <g class="button-row">
+    <rect class="btn clear" x="30" y="110" width="50" height="50" rx="8" ry="8" 
+          fill="url(#operatorGrad)" onclick="clearDisplay()"/>
+    <text x="55" y="140" text-anchor="middle" fill="white" font-size="16" font-weight="bold" 
+          onclick="clearDisplay()" style="pointer-events: none;">C</text>
+    
+    <rect class="btn" x="90" y="110" width="50" height="50" rx="8" ry="8" 
+          fill="url(#buttonGrad)" onclick="inputNumber('±')" />
+    <text x="115" y="140" text-anchor="middle" fill="#2c3e50" font-size="16" font-weight="bold"
+          onclick="inputNumber('±')" style="pointer-events: none;">±</text>
+    
+    <rect class="btn" x="150" y="110" width="50" height="50" rx="8" ry="8" 
+          fill="url(#buttonGrad)" onclick="inputOperator('%')" />
+    <text x="175" y="140" text-anchor="middle" fill="#2c3e50" font-size="16" font-weight="bold"
+          onclick="inputOperator('%')" style="pointer-events: none;">%</text>
+    
+    <rect class="btn operator" x="210" y="110" width="50" height="50" rx="8" ry="8" 
+          fill="url(#operatorGrad)" onclick="inputOperator('/')" />
+    <text x="235" y="140" text-anchor="middle" fill="white" font-size="16" font-weight="bold"
+          onclick="inputOperator('/')" style="pointer-events: none;">÷</text>
+  </g>
+  
+  <!-- Wiersz 2 -->
+  <g class="button-row">
+    <rect class="btn number" x="30" y="170" width="50" height="50" rx="8" ry="8" 
+          fill="url(#buttonGrad)" onclick="inputNumber('7')" />
+    <text x="55" y="200" text-anchor="middle" fill="#2c3e50" font-size="16" font-weight="bold"
+          onclick="inputNumber('7')" style="pointer-events: none;">7</text>
+    
+    <rect class="btn number" x="90" y="170" width="50" height="50" rx="8" ry="8" 
+          fill="url(#buttonGrad)" onclick="inputNumber('8')" />
+    <text x="115" y="200" text-anchor="middle" fill="#2c3e50" font-size="16" font-weight="bold"
+          onclick="inputNumber('8')" style="pointer-events: none;">8</text>
+    
+    <rect class="btn number" x="150" y="170" width="50" height="50" rx="8" ry="8" 
+          fill="url(#buttonGrad)" onclick="inputNumber('9')" />
+    <text x="175" y="200" text-anchor="middle" fill="#2c3e50" font-size="16" font-weight="bold"
+          onclick="inputNumber('9')" style="pointer-events: none;">9</text>
+    
+    <rect class="btn operator" x="210" y="170" width="50" height="50" rx="8" ry="8" 
+          fill="url(#operatorGrad)" onclick="inputOperator('*')" />
+    <text x="235" y="200" text-anchor="middle" fill="white" font-size="16" font-weight="bold"
+          onclick="inputOperator('*')" style="pointer-events: none;">×</text>
+  </g>
+  
+  <!-- Wiersz 3 -->
+  <g class="button-row">
+    <rect class="btn number" x="30" y="230" width="50" height="50" rx="8" ry="8" 
+          fill="url(#buttonGrad)" onclick="inputNumber('4')" />
+    <text x="55" y="260" text-anchor="middle" fill="#2c3e50" font-size="16" font-weight="bold"
+          onclick="inputNumber('4')" style="pointer-events: none;">4</text>
+    
+    <rect class="btn number" x="90" y="230" width="50" height="50" rx="8" ry="8" 
+          fill="url(#buttonGrad)" onclick="inputNumber('5')" />
+    <text x="115" y="260" text-anchor="middle" fill="#2c3e50" font-size="16" font-weight="bold"
+          onclick="inputNumber('5')" style="pointer-events: none;">5</text>
+    
+    <rect class="btn number" x="150" y="230" width="50" height="50" rx="8" ry="8" 
+          fill="url(#buttonGrad)" onclick="inputNumber('6')" />
+    <text x="175" y="260" text-anchor="middle" fill="#2c3e50" font-size="16" font-weight="bold"
+          onclick="inputNumber('6')" style="pointer-events: none;">6</text>
+    
+    <rect class="btn operator" x="210" y="230" width="50" height="50" rx="8" ry="8" 
+          fill="url(#operatorGrad)" onclick="inputOperator('-')" />
+    <text x="235" y="260" text-anchor="middle" fill="white" font-size="16" font-weight="bold"
+          onclick="inputOperator('-')" style="pointer-events: none;">-</text>
+  </g>
+  
+  <!-- Wiersz 4 -->
+  <g class="button-row">
+    <rect class="btn number" x="30" y="290" width="50" height="50" rx="8" ry="8" 
+          fill="url(#buttonGrad)" onclick="inputNumber('1')" />
+    <text x="55" y="320" text-anchor="middle" fill="#2c3e50" font-size="16" font-weight="bold"
+          onclick="inputNumber('1')" style="pointer-events: none;">1</text>
+    
+    <rect class="btn number" x="90" y="290" width="50" height="50" rx="8" ry="8" 
+          fill="url(#buttonGrad)" onclick="inputNumber('2')" />
+    <text x="115" y="320" text-anchor="middle" fill="#2c3e50" font-size="16" font-weight="bold"
+          onclick="inputNumber('2')" style="pointer-events: none;">2</text>
+    
+    <rect class="btn number" x="150" y="290" width="50" height="50" rx="8" ry="8" 
+          fill="url(#buttonGrad)" onclick="inputNumber('3')" />
+    <text x="175" y="320" text-anchor="middle" fill="#2c3e50" font-size="16" font-weight="bold"
+          onclick="inputNumber('3')" style="pointer-events: none;">3</text>
+    
+    <rect class="btn operator" x="210" y="290" width="50" height="50" rx="8" ry="8" 
+          fill="url(#operatorGrad)" onclick="inputOperator('+')" />
+    <text x="235" y="320" text-anchor="middle" fill="white" font-size="16" font-weight="bold"
+          onclick="inputOperator('+')" style="pointer-events: none;">+</text>
+  </g>
+  
+  <!-- Wiersz 5 -->
+  <g class="button-row">
+    <rect class="btn number" x="30" y="350" width="110" height="50" rx="8" ry="8" 
+          fill="url(#buttonGrad)" onclick="inputNumber('0')" />
+    <text x="85" y="380" text-anchor="middle" fill="#2c3e50" font-size="16" font-weight="bold"
+          onclick="inputNumber('0')" style="pointer-events: none;">0</text>
+    
+    <rect class="btn" x="150" y="350" width="50" height="50" rx="8" ry="8" 
+          fill="url(#buttonGrad)" onclick="inputNumber('.')" />
+    <text x="175" y="380" text-anchor="middle" fill="#2c3e50" font-size="16" font-weight="bold"
+          onclick="inputNumber('.')" style="pointer-events: none;">.</text>
+    
+    <rect class="btn equals" x="210" y="350" width="50" height="50" rx="8" ry="8" 
+          fill="url(#operatorGrad)" onclick="calculate()" />
+    <text x="235" y="380" text-anchor="middle" fill="white" font-size="16" font-weight="bold"
+          onclick="calculate()" style="pointer-events: none;">=</text>
+  </g>
+  
+  <script type="text/javascript">
+    <![CDATA[
+    let display = document.getElementById('display');
+    let currentValue = '0';
+    let previousValue = null;
+    let operator = null;
+    let waitingForNewValue = false;
+    
+    function updateDisplay() {
+      display.textContent = currentValue;
+    }
+    
+    function inputNumber(num) {
+      if (num === '±') {
+        currentValue = String(-parseFloat(currentValue));
+        updateDisplay();
+        return;
+      }
+      
+      if (num === '.' && currentValue.includes('.')) {
+        return;
+      }
+      
+      if (waitingForNewValue) {
+        currentValue = num === '.' ? '0.' : num;
+        waitingForNewValue = false;
+      } else {
+        currentValue = currentValue === '0' && num !== '.' ? num : currentValue + num;
+      }
+      
+      updateDisplay();
+    }
+    
+    function inputOperator(op) {
+      if (op === '%') {
+        currentValue = String(parseFloat(currentValue) / 100);
+        updateDisplay();
+        return;
+      }
+      
+      if (previousValue !== null && !waitingForNewValue) {
+        calculate();
+      }
+      
+      previousValue = currentValue;
+      operator = op;
+      waitingForNewValue = true;
+    }
+    
+    function calculate() {
+      if (operator === null || previousValue === null) {
+        return;
+      }
+      
+      const prev = parseFloat(previousValue);
+      const current = parseFloat(currentValue);
+      let result;
+      
+      switch (operator) {
+        case '+':
+          result = prev + current;
+          break;
+        case '-':
+          result = prev - current;
+          break;
+        case '*':
+          result = prev * current;
+          break;
+        case '/':
+          result = current !== 0 ? prev / current : 'Error';
+          break;
+        default:
+          return;
+      }
+      
+      currentValue = String(result);
+      previousValue = null;
+      operator = null;
+      waitingForNewValue = true;
+      
+      updateDisplay();
+    }
+    
+    function clearDisplay() {
+      currentValue = '0';
+      previousValue = null;
+      operator = null;
+      waitingForNewValue = false;
+      updateDisplay();
+    }
+    
+    // Dodanie efektów hover dla przycisków
+    document.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('mouseover', function() {
+        this.style.filter = 'brightness(1.1)';
+      });
+      
+      btn.addEventListener('mouseout', function() {
+        this.style.filter = 'brightness(1)';
+      });
+      
+      btn.addEventListener('mousedown', function() {
+        this.style.transform = 'scale(0.95)';
+      });
+      
+      btn.addEventListener('mouseup', function() {
+        this.style.transform = 'scale(1)';
+      });
+      
+      btn.style.cursor = 'pointer';
+      btn.style.transition = 'all 0.1s ease';
+    });
+    
+    // Obsługa klawiatury
+    document.addEventListener('keydown', function(event) {
+      const key = event.key;
+      
+      if ('0123456789.'.includes(key)) {
+        inputNumber(key);
+      } else if ('+-*/'.includes(key)) {
+        inputOperator(key);
+      } else if (key === 'Enter' || key === '=') {
+        calculate();
+      } else if (key === 'Escape' || key.toLowerCase() === 'c') {
+        clearDisplay();
+      }
+      
+      event.preventDefault();
+    });
+    ]]>
+  </script>
+</svg>

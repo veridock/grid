@@ -95,8 +95,12 @@ class SVGPWATester {
         $this->addTest("dimensions", "Width and Height defined", $hasWidth && $hasHeight);
         
         // Test 6: No external dependencies
-        $hasExternalDeps = preg_match('/href=["\'](http|https|ftp|\/\/)/', $content);
+        $hasExternalDeps = preg_match('/href=["'](http|https|ftp|\/\/)/', $content);
         $this->addTest("no_external_deps", "No external dependencies", !$hasExternalDeps);
+        
+        // Test 7: No g transform elements
+        $hasGTransform = preg_match('/<g[^>]*transform=/', $content);
+        $this->addTest("no_g_transform", "No g transform elements", !$hasGTransform);
         
         return true;
     }
