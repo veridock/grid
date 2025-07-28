@@ -9,7 +9,7 @@ Obsługa plików SVG z wbudowanym kodem w różnych językach programowania:
 
 ## 🚀 Szybki Start
 
-### PHP (php/)
+### PHP (Web Server)
 ```bash
 cd generated
 php -S localhost:8093 -t . router.php
@@ -17,18 +17,20 @@ php -S localhost:8093 -t . router.php
 # CLI: php router.php test-minimal1.svg
 ```
 
-### Python (python/)
+### Python (Web Server)
 ```bash
 cd python
-python svg_processor.py todo-manager-python.svg
-# Lub zapisz: python svg_processor.py todo-manager-python.svg > output.svg
+python svg_server.py 8094
+# Dostęp: http://localhost:8094/todo-manager-python.svg
+# CLI: python svg_processor.py todo-manager-python.svg > output.svg
 ```
 
-### Node.js (nodejs/)
+### Node.js (Web Server)
 ```bash
 cd nodejs
-node svg_processor.js todo-manager-nodejs.svg
-# Lub zapisz: node svg_processor.js todo-manager-nodejs.svg > output.svg
+node svg_server.js 8095
+# Dostęp: http://localhost:8095/todo-manager-nodejs.svg
+# CLI: node svg_processor.js todo-manager-nodejs.svg > output.svg
 ```
 
 ## 📁 Struktura Projektu
@@ -160,11 +162,21 @@ node svg_processor.js todo-manager-nodejs.svg | convert svg:- output.png
 
 | Funkcja | PHP | Python | Node.js |
 |---------|-----|--------|---------|
-| Serwer WWW | ✅ | ❌ | ❌ |
-| CLI | ✅ | ✅ | ✅ |
-| Moduły/Biblioteki | ✅ | ✅ | ✅ |
-| Złożoność składni | Średnia | Prosta | Prosta |
-| Performance | Dobra | Dobra | Bardzo dobra |
+| **Serwer WWW** | ✅ | ✅ | ✅ |
+| **CLI** | ✅ | ✅ | ✅ |
+| **Jednolinijkowe uruchomienie** | ✅ | ✅ | ✅ |
+| **Live rendering** | ✅ | ✅ | ✅ |
+| **Moduły/Biblioteki** | ✅ | ✅ | ✅ |
+| **Złożoność składni** | Średnia | Prosta | Prosta |
+| **Performance** | Dobra | Dobra | Bardzo dobra |
+
+### 🚀 Jednolinijkowe Uruchomienie
+
+| Język | Komenda | Port | URL |
+|-------|---------|------|---------|
+| **PHP** | `php -S localhost:8093 router.php` | 8093 | http://localhost:8093/file.svg |
+| **Python** | `python svg_server.py 8094` | 8094 | http://localhost:8094/file.svg |
+| **Node.js** | `node svg_server.js 8095` | 8095 | http://localhost:8095/file.svg |
 
 ## 🛠️ Rozwiązywanie Problemów
 

@@ -50,18 +50,27 @@ php tester/index.php php/expense-tracker-pwa.svg
 php tester/index.php /path/to/svg/directory
 ```
 
-### Python (Template Processing)
+### **Option 2: Live Web Server**
+
+#### PHP (Live Web Server)
 ```bash
-cd python
-python svg_processor.py todo-manager-python.svg > output.svg
-# Open: output.svg in browser
+cd generated
+php -S localhost:8093 router.php
+# Open: http://localhost:8093/todo-manager-pwa.svg
 ```
 
-### Node.js (Template Processing)
+#### Python (Live Web Server)
+```bash
+cd python
+python svg_server.py 8094
+# Open: http://localhost:8094/todo-manager-python.svg
+```
+
+#### Node.js (Live Web Server)
 ```bash
 cd nodejs
-node svg_processor.js todo-manager-nodejs.svg > output.svg
-# Open: output.svg in browser
+node svg_server.js 8095
+# Open: http://localhost:8095/todo-manager-nodejs.svg
 ```
 
 ## 🎨 Features
