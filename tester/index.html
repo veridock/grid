@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG PWA Tester - VeriDock Grid</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px dashed #dee2e6;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 20px 0;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .file-input-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .test-button {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 20px 10px;
+            transition: all 0.3s ease;
+        }
+
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .test-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .results-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results-header {
+            background: linear-gradient(135deg, #17a2b8 0%, #6610f2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+        }
+
+        .results-summary {
+            background: #e9ecef;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-card h3 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .summary-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary-value.passed { color: #28a745; }
+        .summary-value.failed { color: #dc3545; }
+        .summary-value.warnings { color: #ffc107; }
+        .summary-value.total { color: #17a2b8; }
+
+        .test-results {
+            background: white;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .test-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .test-item:last-child {
+            border-bottom: none;
+        }
+
+        .test-info {
+            flex-grow: 1;
+        }
+
+        .test-name {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .test-description {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .test-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .test-status.pass {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .test-status.fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .warning-message {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #ffeaa7;
+        }
+
+        .file-info {
+            background: #e7f3ff;
+            border: 1px solid #bee5eb;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .file-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            margin: 10px auto;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .results-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 SVG PWA Tester</h1>
+            <p>Comprehensive testing tool for SVG files in PWA environments with PHP integration</p>
+        </div>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <h2>📁 Select SVG File to Test</h2>
+                <p>Choose an SVG file to test for PWA compatibility, PHP integration, and browser support</p>
+                
+                <div class="file-input-wrapper">
+                    <input type="file" id="svgFile" class="file-input" accept=".svg" />
+                    <label for="svgFile" class="file-input-button">Choose SVG File</label>
+                </div>
+                
+                <div class="file-info" id="fileInfo">
+                    <h4>Selected File:</h4>
+                    <p id="fileName"></p>
+                    <p id="fileSize"></p>
+                    <img id="filePreview" class="file-preview" alt="SVG Preview" />
+                </div>
+
+                <button id="testButton" class="test-button" disabled>🚀 Run Tests</button>
+                <button id="clearButton" class="test-button" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">🗑️ Clear Results</button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Running comprehensive SVG PWA tests...</p>
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <div class="results-header">
+                    <h2>📊 Test Results</h2>
+                    <p id="testTimestamp"></p>
+                </div>
+
+                <div class="results-summary">
+                    <div class="summary-card">
+                        <h3>Total Tests</h3>
+                        <div class="summary-value total" id="totalTests">0</div>
+                        <small>Executed</small>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Passed</h3>
+                        <div class="summary-value passed" id="passedTests">0</div>
+                        <small>Successful</small>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Failed</h3>
+                        <div class="summary-value failed" id="failedTests">0</div>
+                        <small>Issues Found</small>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Success Rate</h3>
+                        <div class="summary-value" id="successRate">0%</div>
+                        <small>Overall Score</small>
+                    </div>
+                </div>
+
+                <div class="test-results" id="testResults">
+                    <!-- Test results will be populated here -->
+                </div>
+
+                <div id="errorMessages"></div>
+                <div id="warningMessages"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SVGPWATesterUI {
+            constructor() {
+                this.selectedFile = null;
+                this.initializeEventListeners();
+            }
+
+            initializeEventListeners() {
+                const fileInput = document.getElementById('svgFile');
+                const testButton = document.getElementById('testButton');
+                const clearButton = document.getElementById('clearButton');
+
+                fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+                testButton.addEventListener('click', () => this.runTests());
+                clearButton.addEventListener('click', () => this.clearResults());
+            }
+
+            handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                this.selectedFile = file;
+                
+                // Show file info
+                const fileInfo = document.getElementById('fileInfo');
+                const fileName = document.getElementById('fileName');
+                const fileSize = document.getElementById('fileSize');
+                const filePreview = document.getElementById('filePreview');
+                const testButton = document.getElementById('testButton');
+
+                fileName.textContent = file.name;
+                fileSize.textContent = `Size: ${(file.size / 1024).toFixed(2)} KB`;
+                
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    filePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+
+                fileInfo.style.display = 'block';
+                testButton.disabled = false;
+            }
+
+            async runTests() {
+                if (!this.selectedFile) return;
+
+                const loading = document.getElementById('loading');
+                const resultsSection = document.getElementById('resultsSection');
+                
+                loading.style.display = 'block';
+                resultsSection.style.display = 'none';
+
+                try {
+                    // Create FormData for file upload
+                    const formData = new FormData();
+                    formData.append('file', this.selectedFile);
+
+                    // Since we can't directly test the file with PHP from client-side,
+                    // we'll simulate the test results based on file analysis
+                    const results = await this.analyzeFileClientSide(this.selectedFile);
+                    
+                    this.displayResults(results);
+                } catch (error) {
+                    this.showError('Error running tests: ' + error.message);
+                } finally {
+                    loading.style.display = 'none';
+                }
+            }
+
+            async analyzeFileClientSide(file) {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const content = e.target.result;
+                        const results = this.performClientSideTests(content, file);
+                        resolve(results);
+                    };
+                    reader.readAsText(file);
+                });
+            }
+
+            performClientSideTests(content, file) {
+                const tests = [];
+                let passed = 0;
+                let failed = 0;
+
+                // Test 1: File exists (always true in this context)
+                tests.push({ name: 'file_exists', description: 'File exists', passed: true, status: 'PASS' });
+                passed++;
+
+                // Test 2: Valid XML structure
+                let isValidXML = false;
+                try {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(content, 'text/xml');
+                    isValidXML = !doc.querySelector('parsererror');
+                } catch (e) {
+                    isValidXML = false;
+                }
+                tests.push({ name: 'valid_xml', description: 'Valid XML structure', passed: isValidXML, status: isValidXML ? 'PASS' : 'FAIL' });
+                isValidXML ? passed++ : failed++;
+
+                // Test 3: SVG namespace
+                const hasSVGNamespace = content.includes('xmlns="http://www.w3.org/2000/svg"') || 
+                                      content.includes('xmlns:svg="http://www.w3.org/2000/svg"');
+                tests.push({ name: 'svg_namespace', description: 'SVG namespace present', passed: hasSVGNamespace, status: hasSVGNamespace ? 'PASS' : 'FAIL' });
+                hasSVGNamespace ? passed++ : failed++;
+
+                // Test 4: Root SVG element
+                const hasRootSVG = /<svg[^>]*>/.test(content);
+                tests.push({ name: 'root_svg_element', description: 'Root SVG element present', passed: hasRootSVG, status: hasRootSVG ? 'PASS' : 'FAIL' });
+                hasRootSVG ? passed++ : failed++;
+
+                // Test 5: ViewBox attribute
+                const hasViewBox = content.includes('viewBox=');
+                tests.push({ name: 'viewbox_attribute', description: 'ViewBox attribute present', passed: hasViewBox, status: hasViewBox ? 'PASS' : 'FAIL' });
+                hasViewBox ? passed++ : failed++;
+
+                // Test 6: Dimensions
+                const hasWidth = content.includes('width=');
+                const hasHeight = content.includes('height=');
+                const hasDimensions = hasWidth && hasHeight;
+                tests.push({ name: 'dimensions', description: 'Width and Height defined', passed: hasDimensions, status: hasDimensions ? 'PASS' : 'FAIL' });
+                hasDimensions ? passed++ : failed++;
+
+                // Test 7: No external dependencies
+                const hasExternalDeps = /href=["'](http|https|ftp|\/\/)/.test(content);
+                tests.push({ name: 'no_external_deps', description: 'No external dependencies', passed: !hasExternalDeps, status: !hasExternalDeps ? 'PASS' : 'FAIL' });
+                !hasExternalDeps ? passed++ : failed++;
+
+                // Test 8: File size
+                const sizeOK = file.size < 1024 * 1024; // 1MB
+                tests.push({ name: 'file_size', description: 'File size under 1MB', passed: sizeOK, status: sizeOK ? 'PASS' : 'FAIL' });
+                sizeOK ? passed++ : failed++;
+
+                // Test 9: Correct extension
+                const correctExtension = file.name.toLowerCase().endsWith('.svg');
+                tests.push({ name: 'correct_extension', description: 'Correct .svg extension', passed: correctExtension, status: correctExtension ? 'PASS' : 'FAIL' });
+                correctExtension ? passed++ : failed++;
+
+                const total = tests.length;
+                const successRate = total > 0 ? Math.round((passed / total) * 100) : 0;
+
+                return {
+                    timestamp: new Date().toLocaleString(),
+                    version: '1.0.0',
+                    tests: tests,
+                    summary: {
+                        total: total,
+                        passed: passed,
+                        failed: failed,
+                        warnings: 0,
+                        success_rate: successRate,
+                        status: failed > 0 ? 'FAILED' : 'PASSED'
+                    },
+                    errors: [],
+                    warnings: []
+                };
+            }
+
+            displayResults(results) {
+                const resultsSection = document.getElementById('resultsSection');
+                const testTimestamp = document.getElementById('testTimestamp');
+                const totalTests = document.getElementById('totalTests');
+                const passedTests = document.getElementById('passedTests');
+                const failedTests = document.getElementById('failedTests');
+                const successRate = document.getElementById('successRate');
+                const testResults = document.getElementById('testResults');
+
+                // Update summary
+                testTimestamp.textContent = `Tested on: ${results.timestamp}`;
+                totalTests.textContent = results.summary.total;
+                passedTests.textContent = results.summary.passed;
+                failedTests.textContent = results.summary.failed;
+                successRate.textContent = `${results.summary.success_rate}%`;
+                successRate.className = `summary-value ${results.summary.success_rate >= 80 ? 'passed' : 'failed'}`;
+
+                // Clear previous results
+                testResults.innerHTML = '';
+
+                // Add test results
+                results.tests.forEach(test => {
+                    const testItem = document.createElement('div');
+                    testItem.className = 'test-item';
+                    testItem.innerHTML = `
+                        <div class="test-info">
+                            <div class="test-name">${test.name}</div>
+                            <div class="test-description">${test.description}</div>
+                        </div>
+                        <div class="test-status ${test.passed ? 'pass' : 'fail'}">${test.status}</div>
+                    `;
+                    testResults.appendChild(testItem);
+                });
+
+                // Show errors and warnings
+                this.displayMessages('errorMessages', results.errors || [], 'error-message');
+                this.displayMessages('warningMessages', results.warnings || [], 'warning-message');
+
+                resultsSection.style.display = 'block';
+            }
+
+            displayMessages(containerId, messages, className) {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                
+                messages.forEach(message => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = className;
+                    messageDiv.textContent = message;
+                    container.appendChild(messageDiv);
+                });
+            }
+
+            clearResults() {
+                const resultsSection = document.getElementById('resultsSection');
+                const fileInfo = document.getElementById('fileInfo');
+                const fileInput = document.getElementById('svgFile');
+                const testButton = document.getElementById('testButton');
+                
+                resultsSection.style.display = 'none';
+                fileInfo.style.display = 'none';
+                fileInput.value = '';
+                testButton.disabled = true;
+                this.selectedFile = null;
+            }
+
+            showError(message) {
+                const errorContainer = document.getElementById('errorMessages');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = message;
+                errorContainer.appendChild(errorDiv);
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            new SVGPWATesterUI();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<?php
+// ============= HYBRID SVG+PHP MODE =============
+// Wykryj czy to żądanie z przeglądarki z obsługą PHP
+if (isset($_GET['dir']) || isset($_GET['navigate']) || 
+    (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Mozilla') !== false && 
+     isset($_SERVER['HTTP_HOST']) && !isset($_GET['static']))) {
+    // Tryb interaktywny - zwróć HTML
+    header('Content-Type: text/html; charset=UTF-8');
+    
+    $directory = isset($_GET['dir']) ? realpath($_GET['dir']) : realpath('./');
+    if (!$directory || !is_dir($directory)) $directory = realpath('./');
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal File Browser</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Courier New', monospace; background: #ffffff; color: #333333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 24px; margin-bottom: 10px; }
+        .path-bar { background: #f8f8f8; border: 1px solid #e0e0e0; padding: 10px; margin-bottom: 20px; font-size: 12px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+        .item { background: #ffffff; border: 1px solid #e0e0e0; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .item:hover { background: #f0f0f0; border-color: #0066cc; }
+        .item .icon { font-size: 32px; margin-bottom: 10px; }
+        .item .name { font-size: 12px; word-break: break-all; }
+        .footer { margin-top: 20px; text-align: center; font-size: 11px; color: #999999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📁 Minimal File Browser</h1>
+            <p>Clean • Simple • Fast</p>
+        </div>
+        
+        <div class="path-bar"><?php echo $directory; ?></div>
+        
+        <div class="grid">
+            <?php
+            if (dirname($directory) !== $directory) {
+                echo '<div class="item" onclick="window.location.href=\'?dir=' . urlencode(dirname($directory)) . '\'">
+                        <div class="icon">↩️</div>
+                        <div class="name">..</div>
+                      </div>';
+            }
+            
+            $items = scandir($directory);
+            foreach ($items as $item) {
+                if ($item === '.' || $item === '..') continue;
+                $path = $directory . '/' . $item;
+                $isDir = is_dir($path);
+                $icon = $isDir ? '📁' : '📄';
+                
+                $ext = strtolower(pathinfo($item, PATHINFO_EXTENSION));
+                $icons = ['php' => '🐘', 'html' => '🌐', 'css' => '🎨', 'js' => '📜', 'txt' => '📝', 'jpg' => '🖼️', 'png' => '🖼️'];
+                if (!$isDir && isset($icons[$ext])) $icon = $icons[$ext];
+                
+                $href = $isDir ? "?dir=" . urlencode($path) : "#";
+                echo "<div class=\"item\" onclick=\"window.location.href='$href'\">
+                        <div class=\"icon\">$icon</div>
+                        <div class=\"name\">$item</div>
+                      </div>";
+            }
+            ?>
+        </div>
+        
+        <div class="footer">Minimal Design Concept • Interactive Mode</div>
+    </div>
+</body>
+</html>
+<?php
+    exit;
+}
+// Tryb statyczny - wyświetl SVG
+header('Content-Type: image/svg+xml; charset=UTF-8');
+?>
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Minimal File Browser Concept -->
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  
+  <!-- Header -->
+  <text x="600" y="60" text-anchor="middle" font-family="monospace" font-size="24" font-weight="bold" fill="#333333">📁 Minimal File Browser</text>
+  <text x="600" y="90" text-anchor="middle" font-family="monospace" font-size="14" fill="#666666">Clean • Simple • Fast</text>
+  
+  <!-- Path bar -->
+  <rect x="100" y="120" width="1000" height="40" fill="#f8f8f8" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="120" y="145" font-family="monospace" font-size="12" fill="#333333">/home/user/documents</text>
+  
+  <!-- Grid container -->
+  <rect x="100" y="180" width="1000" height="500" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
+  
+  <!-- File items (4x3 grid) -->
+  <g transform="translate(150, 220)">
+    <!-- Row 1 -->
+    <g>
+      <!-- Parent Directory -->
+      <rect width="220" height="120" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
+      <text x="110" y="70" text-anchor="middle" font-size="32">↩️</text>
+      <text x="20" y="100" font-family="monospace" font-size="12" fill="#333333">..</text>
+      
+      <!-- Folder -->
+      <g transform="translate(250, 0)">
+        <rect width="220" height="120" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
+        <text x="110" y="70" text-anchor="middle" font-size="32">📁</text>
+        <text x="20" y="100" font-family="monospace" font-size="12" fill="#333333">projects</text>
+      </g>
+      
+      <!-- PHP File -->
+      <g transform="translate(500, 0)">
+        <rect width="220" height="120" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
+        <text x="110" y="70" text-anchor="middle" font-size="32">🐘</text>
+        <text x="20" y="100" font-family="monospace" font-size="12" fill="#333333">script.php</text>
+      </g>
+      
+      <!-- HTML File -->
+      <g transform="translate(750, 0)">
+        <rect width="220" height="120" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
+        <text x="110" y="70" text-anchor="middle" font-size="32">🌐</text>
+        <text x="20" y="100" font-family="monospace" font-size="12" fill="#333333">index.html</text>
+      </g>
+    </g>
+    
+    <!-- Row 2 -->
+    <g transform="translate(0, 140)">
+      <!-- CSS File -->
+      <rect width="220" height="120" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
+      <text x="110" y="70" text-anchor="middle" font-size="32">🎨</text>
+      <text x="20" y="100" font-family="monospace" font-size="12" fill="#333333">style.css</text>
+      
+      <!-- JS File -->
+      <g transform="translate(250, 0)">
+        <rect width="220" height="120" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
+        <text x="110" y="70" text-anchor="middle" font-size="32">📜</text>
+        <text x="20" y="100" font-family="monospace" font-size="12" fill="#333333">app.js</text>
+      </g>
+      
+      <!-- Text File -->
+      <g transform="translate(500, 0)">
+        <rect width="220" height="120" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
+        <text x="110" y="70" text-anchor="middle" font-size="32">📝</text>
+        <text x="20" y="100" font-family="monospace" font-size="12" fill="#333333">readme.txt</text>
+      </g>
+      
+      <!-- Image File -->
+      <g transform="translate(750, 0)">
+        <rect width="220" height="120" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
+        <text x="110" y="70" text-anchor="middle" font-size="32">🖼️</text>
+        <text x="20" y="100" font-family="monospace" font-size="12" fill="#333333">photo.jpg</text>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Footer -->
+  <text x="600" y="730" text-anchor="middle" font-family="monospace" font-size="11" fill="#999999">8 items • Last modified: 2025-01-28</text>
+  <text x="600" y="750" text-anchor="middle" font-family="monospace" font-size="10" fill="#cccccc">Minimal Design Concept</text>
+</svg>

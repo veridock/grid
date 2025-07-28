@@ -1,0 +1,147 @@
+<?php
+// ============= HYBRID SVG+PHP MODE =============
+if (isset($_GET['dir']) || isset($_GET['navigate']) || 
+    (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Mozilla') !== false && 
+     isset($_SERVER['HTTP_HOST']) && !isset($_GET['static']))) {
+    header('Content-Type: text/html; charset=UTF-8');
+    $directory = isset($_GET['dir']) ? realpath($_GET['dir']) : realpath('./');
+    if (!$directory || !is_dir($directory)) $directory = realpath('./');
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Theme File Browser</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background: #1a1a1a; color: #e0e0e0; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; background: linear-gradient(45deg, #00ffff, #ff00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .path-bar { background: #2d2d2d; border: 1px solid #444; padding: 15px; margin-bottom: 20px; font-size: 14px; border-radius: 8px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; }
+        .item { background: #2d2d2d; border: 1px solid #444; padding: 25px; text-align: center; cursor: pointer; transition: all 0.3s; border-radius: 12px; }
+        .item:hover { background: #333; border-color: #00ffff; box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); transform: translateY(-2px); }
+        .item .icon { font-size: 36px; margin-bottom: 15px; }
+        .item .name { font-size: 14px; word-break: break-all; color: #e0e0e0; }
+        .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌌 Dark File Browser</h1>
+            <p>Perfect for night coding sessions</p>
+        </div>
+        <div class="path-bar"><?php echo $directory; ?></div>
+        <div class="grid">
+            <?php
+            if (dirname($directory) !== $directory) {
+                echo '<div class="item" onclick="window.location.href=\'?dir=' . urlencode(dirname($directory)) . '\'">
+                        <div class="icon">↩️</div><div class="name">..</div></div>';
+            }
+            $items = scandir($directory);
+            foreach ($items as $item) {
+                if ($item === '.' || $item === '..') continue;
+                $path = $directory . '/' . $item;
+                $isDir = is_dir($path);
+                $icon = $isDir ? '💾' : '✨';
+                $ext = strtolower(pathinfo($item, PATHINFO_EXTENSION));
+                $icons = ['php' => '🐘', 'html' => '🌐', 'css' => '🎨', 'js' => '🔥', 'txt' => '📝', 'jpg' => '🖼️', 'png' => '🖼️', 'svg' => '✨'];
+                if (!$isDir && isset($icons[$ext])) $icon = $icons[$ext];
+                $href = $isDir ? "?dir=" . urlencode($path) : "#";
+                echo "<div class=\"item\" onclick=\"window.location.href='$href'\">
+                        <div class=\"icon\">$icon</div><div class=\"name\">$item</div></div>";
+            }
+            ?>
+        </div>
+        <div class="footer">Dark Theme Concept • Interactive Mode • 🌌</div>
+    </div>
+</body>
+</html>
+<?php exit; }
+header('Content-Type: image/svg+xml; charset=UTF-8');
+?>
+<svg width="100%" height="100%" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dark-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0d0d0d;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="neon-accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00ffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff00ff;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Dark Background -->
+  <rect width="100%" height="100%" fill="url(#dark-bg)"/>
+  
+  <!-- Header with neon glow -->
+  <text x="600" y="70" text-anchor="middle" font-size="36" font-weight="bold" fill="url(#neon-accent)" filter="url(#glow)">🌙 Dark File Browser</text>
+  <text x="600" y="100" text-anchor="middle" font-size="16" fill="#888888">Night Mode • Neon Theme • Developer Ready</text>
+  
+  <!-- Main container with subtle glow -->
+  <rect x="80" y="140" width="1040" height="580" rx="20" fill="#2d2d2d" stroke="url(#neon-accent)" stroke-width="1" opacity="0.9"/>
+  
+  <!-- Grid -->
+  <!-- Parent Directory -->
+  <rect x="120" y="320" width="230" height="150" rx="15" fill="#3d3d3d" stroke="#00ffff" stroke-width="1" opacity="0.8"/>
+  <text x="235" y="405" text-anchor="middle" font-size="36" fill="#00ffff">↩️</text>
+  <text x="140" y="445" font-size="14" fill="#e0e0e0" font-weight="bold">..</text>
+  <text x="140" y="460" font-size="11" fill="#888888">Parent Dir</text>
+  
+  <!-- Folder -->
+  <rect x="370" y="320" width="230" height="150" rx="15" fill="#3d3d3d" stroke="#00ffff" stroke-width="1" opacity="0.8"/>
+  <text x="485" y="405" text-anchor="middle" font-size="36" fill="#00ffff">📁</text>
+  <text x="390" y="445" font-size="14" fill="#e0e0e0" font-weight="bold">projects</text>
+  <text x="390" y="460" font-size="11" fill="#888888">Directory</text>
+  
+  <!-- PHP File -->
+  <rect x="620" y="320" width="230" height="150" rx="15" fill="#3d3d3d" stroke="#ff00ff" stroke-width="1" opacity="0.8"/>
+  <text x="735" y="405" text-anchor="middle" font-size="36" fill="#ff00ff">🐘</text>
+  <text x="640" y="445" font-size="14" fill="#e0e0e0" font-weight="bold">app.php</text>
+  <text x="640" y="460" font-size="11" fill="#888888">12.5 KB • PHP</text>
+  
+  <!-- HTML File -->
+  <rect x="870" y="320" width="230" height="150" rx="15" fill="#3d3d3d" stroke="#00ff88" stroke-width="1" opacity="0.8"/>
+  <text x="985" y="405" text-anchor="middle" font-size="36" fill="#00ff88">🌐</text>
+  <text x="890" y="445" font-size="14" fill="#e0e0e0" font-weight="bold">index.html</text>
+  <text x="890" y="460" font-size="11" fill="#888888">8.1 KB • HTML</text>
+  
+  <!-- CSS File -->
+  <rect x="120" y="490" width="230" height="150" rx="15" fill="#3d3d3d" stroke="#ff8800" stroke-width="1" opacity="0.8"/>
+  <text x="235" y="575" text-anchor="middle" font-size="36" fill="#ff8800">🎨</text>
+  <text x="140" y="615" font-size="14" fill="#e0e0e0" font-weight="bold">dark.css</text>
+  <text x="140" y="630" font-size="11" fill="#888888">4.2 KB • CSS</text>
+  
+  <!-- JS File -->
+  <rect x="370" y="490" width="230" height="150" rx="15" fill="#3d3d3d" stroke="#ffff00" stroke-width="1" opacity="0.8"/>
+  <text x="485" y="575" text-anchor="middle" font-size="36" fill="#ffff00">📜</text>
+  <text x="390" y="615" font-size="14" fill="#e0e0e0" font-weight="bold">neon.js</text>
+  <text x="390" y="630" font-size="11" fill="#888888">6.8 KB • JS</text>
+  
+  <!-- JSON Config -->
+  <rect x="620" y="490" width="230" height="150" rx="15" fill="#3d3d3d" stroke="#8800ff" stroke-width="1" opacity="0.8"/>
+  <text x="735" y="575" text-anchor="middle" font-size="36" fill="#8800ff">⚙️</text>
+  <text x="640" y="615" font-size="14" fill="#e0e0e0" font-weight="bold">config.json</text>
+  <text x="640" y="630" font-size="11" fill="#888888">1.3 KB • JSON</text>
+  
+  <!-- Image File -->
+  <rect x="870" y="490" width="230" height="150" rx="15" fill="#3d3d3d" stroke="#ff0088" stroke-width="1" opacity="0.8"/>
+  <text x="985" y="575" text-anchor="middle" font-size="36" fill="#ff0088">🖼️</text>
+  <text x="890" y="615" font-size="14" fill="#e0e0e0" font-weight="bold">neon.png</text>
+  <text x="890" y="630" font-size="11" fill="#888888">256 KB • PNG</text>
+  
+  <!-- Footer with neon accent -->
+  <text x="600" y="750" text-anchor="middle" font-size="14" fill="url(#neon-accent)">🚀 Optimized for night coding sessions</text>
+  <text x="600" y="775" text-anchor="middle" font-size="12" fill="#666666">Dark Theme Concept</text>
+</svg>

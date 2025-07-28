@@ -1,0 +1,260 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SVG PWA Schema",
+  "description": "Schema defining requirements for SVG files to work properly as PWA components with PHP",
+  "version": "1.0.0",
+  "type": "object",
+  "properties": {
+    "svg_structure": {
+      "type": "object",
+      "description": "Basic SVG structure requirements",
+      "properties": {
+        "xml_declaration": {
+          "type": "boolean",
+          "description": "SVG should start with XML declaration",
+          "default": true
+        },
+        "svg_namespace": {
+          "type": "string",
+          "description": "Required SVG namespace",
+          "enum": ["http://www.w3.org/2000/svg"],
+          "required": true
+        },
+        "root_element": {
+          "type": "string",
+          "description": "Root element must be SVG",
+          "pattern": "^svg$",
+          "required": true
+        },
+        "viewBox": {
+          "type": "string",
+          "description": "ViewBox attribute for responsive design",
+          "pattern": "^[0-9\\s.-]+$",
+          "required": true
+        },
+        "dimensions": {
+          "type": "object",
+          "properties": {
+            "width": {
+              "type": ["string", "number"],
+              "description": "SVG width (can be percentage or fixed)"
+            },
+            "height": {
+              "type": ["string", "number"], 
+              "description": "SVG height (can be percentage or fixed)"
+            }
+          },
+          "required": ["width", "height"]
+        }
+      },
+      "required": ["svg_namespace", "root_element", "viewBox", "dimensions"]
+    },
+    "pwa_compatibility": {
+      "type": "object",
+      "description": "PWA compatibility requirements",
+      "properties": {
+        "self_contained": {
+          "type": "boolean",
+          "description": "SVG must be self-contained without external dependencies",
+          "default": true
+        },
+        "inline_styles": {
+          "type": "boolean",
+          "description": "All styles must be inline, no external CSS",
+          "default": true
+        },
+        "no_external_scripts": {
+          "type": "boolean",
+          "description": "No external JavaScript dependencies",
+          "default": true
+        },
+        "responsive_design": {
+          "type": "boolean",
+          "description": "Must support responsive design",
+          "default": true
+        },
+        "file_size_limit": {
+          "type": "number",
+          "description": "Maximum file size in bytes for PWA",
+          "maximum": 1048576,
+          "default": 1048576
+        }
+      },
+      "required": ["self_contained", "inline_styles", "no_external_scripts"]
+    },
+    "php_integration": {
+      "type": "object",
+      "description": "PHP integration compatibility",
+      "properties": {
+        "mime_type": {
+          "type": "string",
+          "description": "Correct MIME type",
+          "enum": ["image/svg+xml", "text/xml", "application/xml"]
+        },
+        "encoding": {
+          "type": "string",
+          "description": "Character encoding",
+          "enum": ["UTF-8"],
+          "default": "UTF-8"
+        },
+        "no_php_conflicts": {
+          "type": "boolean",
+          "description": "No PHP tag conflicts",
+          "default": true
+        },
+        "server_compatibility": {
+          "type": "object",
+          "properties": {
+            "apache": {
+              "type": "boolean",
+              "default": true
+            },
+            "nginx": {
+              "type": "boolean", 
+              "default": true
+            },
+            "php_version": {
+              "type": "string",
+              "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$",
+              "description": "Minimum PHP version"
+            }
+          }
+        }
+      },
+      "required": ["mime_type", "encoding", "no_php_conflicts"]
+    },
+    "browser_compatibility": {
+      "type": "object",
+      "description": "Browser compatibility requirements",
+      "properties": {
+        "supported_browsers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["Chrome", "Firefox", "Safari", "Edge", "Opera"]
+          },
+          "minItems": 3
+        },
+        "standard_elements_only": {
+          "type": "boolean",
+          "description": "Use only standard SVG elements",
+          "default": true
+        },
+        "forbidden_elements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": ["foreignObject", "switch", "script"]
+        },
+        "css_compatibility": {
+          "type": "object",
+          "properties": {
+            "supported_properties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": ["fill", "stroke", "transform", "opacity", "filter"]
+            },
+            "avoid_properties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": ["position", "float", "display"]
+            }
+          }
+        }
+      },
+      "required": ["supported_browsers", "standard_elements_only"]
+    },
+    "linux_preview": {
+      "type": "object",
+      "description": "Linux system preview compatibility",
+      "properties": {
+        "file_permissions": {
+          "type": "string",
+          "pattern": "^[0-7]{3}$",
+          "description": "Minimum file permissions (octal)",
+          "default": "644"
+        },
+        "file_extension": {
+          "type": "string",
+          "pattern": "^\\.svg$",
+          "default": ".svg"
+        },
+        "preview_applications": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": ["eog", "gwenview", "inkscape", "firefox", "chromium"]
+        },
+        "thumbnail_generation": {
+          "type": "boolean",
+          "description": "Should generate thumbnails in file managers",
+          "default": true
+        }
+      },
+      "required": ["file_extension"]
+    },
+    "validation_rules": {
+      "type": "object",
+      "description": "Validation rules for testing",
+      "properties": {
+        "required_tests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "file_exists",
+            "valid_xml",
+            "svg_namespace", 
+            "root_svg_element",
+            "viewbox_attribute",
+            "dimensions",
+            "no_external_deps",
+            "inline_styles",
+            "responsive_design",
+            "no_js_deps",
+            "self_contained",
+            "no_php_conflicts",
+            "correct_mime_type",
+            "utf8_encoding",
+            "standard_elements",
+            "css_compatibility",
+            "file_size",
+            "file_readable",
+            "correct_extension",
+            "svg_header"
+          ]
+        },
+        "minimum_pass_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 85,
+          "description": "Minimum percentage of tests that must pass"
+        },
+        "critical_tests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "file_exists",
+            "valid_xml",
+            "svg_namespace",
+            "root_svg_element",
+            "self_contained"
+          ],
+          "description": "Tests that must pass for SVG to be considered valid"
+        }
+      }
+    }
+  },
+  "required": ["svg_structure", "pwa_compatibility", "php_integration", "browser_compatibility", "validation_rules"],
+  "additionalProperties": false
+}

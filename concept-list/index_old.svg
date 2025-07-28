@@ -1,0 +1,98 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- List View File Browser Concept -->
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#ffffff"/>
+  
+  <!-- Header -->
+  <text x="600" y="50" text-anchor="middle" font-size="24" font-weight="bold" fill="#323130">📋 List View File Browser</text>
+  <text x="600" y="75" text-anchor="middle" font-size="14" fill="#605e5c">Detailed • Sortable • Information Dense</text>
+  
+  <!-- Toolbar -->
+  <rect x="80" y="100" width="1040" height="40" fill="#f0f0f0" stroke="#d1d1d1" stroke-width="1"/>
+  <text x="100" y="125" font-size="12" fill="#323130">View: List | Sort by: Name ↑ | 8 items</text>
+  
+  <!-- Table Header -->
+  <rect x="80" y="160" width="1040" height="35" fill="#f0f0f0" stroke="#d1d1d1" stroke-width="1"/>
+  <text x="100" y="182" font-size="12" font-weight="bold" fill="#323130">Name</text>
+  <text x="500" y="182" font-size="12" font-weight="bold" fill="#323130">Size</text>
+  <text x="650" y="182" font-size="12" font-weight="bold" fill="#323130">Type</text>
+  <text x="800" y="182" font-size="12" font-weight="bold" fill="#323130">Modified</text>
+  <text x="1050" y="182" font-size="12" font-weight="bold" fill="#323130">Permissions</text>
+  
+  <!-- File Rows -->
+  <g transform="translate(80, 195)">
+    <!-- Parent Directory -->
+    <rect width="1040" height="30" fill="#ffffff" stroke="#e1dfdd" stroke-width="0.5"/>
+    <text x="20" y="20" font-size="14" fill="#323130">↩️ ..</text>
+    <text x="420" y="20" font-size="12" fill="#605e5c">-</text>
+    <text x="570" y="20" font-size="12" fill="#605e5c">Directory</text>
+    <text x="720" y="20" font-size="12" fill="#605e5c">Today, 14:30</text>
+    <text x="970" y="20" font-size="12" fill="#605e5c">drwxr-xr-x</text>
+    
+    <!-- Folder - Projects -->
+    <rect y="30" width="1040" height="30" fill="#f8f8f8" stroke="#e1dfdd" stroke-width="0.5"/>
+    <text x="20" y="50" font-size="14" fill="#323130">📁 projects</text>
+    <text x="420" y="50" font-size="12" fill="#605e5c">12 items</text>
+    <text x="570" y="50" font-size="12" fill="#605e5c">Folder</text>
+    <text x="720" y="50" font-size="12" fill="#605e5c">Jan 25, 10:15</text>
+    <text x="970" y="50" font-size="12" fill="#605e5c">drwxr-xr-x</text>
+    
+    <!-- File - app.php -->
+    <rect y="60" width="1040" height="30" fill="#ffffff" stroke="#e1dfdd" stroke-width="0.5"/>
+    <text x="20" y="80" font-size="14" fill="#323130">🐘 app.php</text>
+    <text x="420" y="80" font-size="12" fill="#605e5c">15.2 KB</text>
+    <text x="570" y="80" font-size="12" fill="#605e5c">PHP Script</text>
+    <text x="720" y="80" font-size="12" fill="#605e5c">Jan 28, 14:45</text>
+    <text x="970" y="80" font-size="12" fill="#605e5c">-rw-r--r--</text>
+    
+    <!-- File - index.html -->
+    <rect y="90" width="1040" height="30" fill="#f8f8f8" stroke="#e1dfdd" stroke-width="0.5"/>
+    <text x="20" y="110" font-size="14" fill="#323130">🌐 index.html</text>
+    <text x="420" y="110" font-size="12" fill="#605e5c">8.4 KB</text>
+    <text x="570" y="110" font-size="12" fill="#605e5c">HTML Document</text>
+    <text x="720" y="110" font-size="12" fill="#605e5c">Jan 28, 12:30</text>
+    <text x="970" y="110" font-size="12" fill="#605e5c">-rw-r--r--</text>
+    
+    <!-- File - style.css -->
+    <rect y="120" width="1040" height="30" fill="#ffffff" stroke="#e1dfdd" stroke-width="0.5"/>
+    <text x="20" y="140" font-size="14" fill="#323130">🎨 style.css</text>
+    <text x="420" y="140" font-size="12" fill="#605e5c">4.1 KB</text>
+    <text x="570" y="140" font-size="12" fill="#605e5c">Stylesheet</text>
+    <text x="720" y="140" font-size="12" fill="#605e5c">Jan 27, 16:20</text>
+    <text x="970" y="140" font-size="12" fill="#605e5c">-rw-r--r--</text>
+    
+    <!-- File - script.js -->
+    <rect y="150" width="1040" height="30" fill="#f8f8f8" stroke="#e1dfdd" stroke-width="0.5"/>
+    <text x="20" y="170" font-size="14" fill="#323130">📜 script.js</text>
+    <text x="420" y="170" font-size="12" fill="#605e5c">6.8 KB</text>
+    <text x="570" y="170" font-size="12" fill="#605e5c">JavaScript</text>
+    <text x="720" y="170" font-size="12" fill="#605e5c">Jan 26, 09:45</text>
+    <text x="970" y="170" font-size="12" fill="#605e5c">-rw-r--r--</text>
+    
+    <!-- File - photo.jpg -->
+    <rect y="180" width="1040" height="30" fill="#ffffff" stroke="#e1dfdd" stroke-width="0.5"/>
+    <text x="20" y="200" font-size="14" fill="#323130">🖼️ photo.jpg</text>
+    <text x="420" y="200" font-size="12" fill="#605e5c">2.1 MB</text>
+    <text x="570" y="200" font-size="12" fill="#605e5c">JPEG Image</text>
+    <text x="720" y="200" font-size="12" fill="#605e5c">Jan 24, 14:15</text>
+    <text x="970" y="200" font-size="12" fill="#605e5c">-rw-r--r--</text>
+    
+    <!-- File - config.json -->
+    <rect y="210" width="1040" height="30" fill="#f8f8f8" stroke="#e1dfdd" stroke-width="0.5"/>
+    <text x="20" y="230" font-size="14" fill="#323130">⚙️ config.json</text>
+    <text x="420" y="230" font-size="12" fill="#605e5c">892 B</text>
+    <text x="570" y="230" font-size="12" fill="#605e5c">JSON Config</text>
+    <text x="720" y="230" font-size="12" fill="#605e5c">Jan 20, 11:30</text>
+    <text x="970" y="230" font-size="12" fill="#605e5c">-rw-r--r--</text>
+  </g>
+  
+  <!-- Status Bar -->
+  <rect x="80" y="450" width="1040" height="25" fill="#f0f0f0" stroke="#d1d1d1" stroke-width="1"/>
+  <text x="100" y="467" font-size="11" fill="#605e5c">8 items selected • 2.2 MB total • /home/user/documents</text>
+  <text x="1050" y="467" font-size="10" fill="#a19f9d">List View Concept</text>
+  
+  <!-- Instructions -->
+  <text x="600" y="520" text-anchor="middle" font-size="14" fill="#605e5c">💡 Click column headers to sort • Double-click to open</text>
+  <text x="600" y="540" text-anchor="middle" font-size="12" fill="#a19f9d">Keyboard navigation: ↑↓ to select, Enter to open, Space to preview</text>
+</svg>
