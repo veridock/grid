@@ -43,15 +43,15 @@
 
 1. **Skopiuj pliki do katalogu serwera:**
    ```bash
-   cp svg-pwa-tester.php /var/www/html/
-   cp svg-pwa-tester.html /var/www/html/
+   cp index.php /var/www/html/
+   cp index.html /var/www/html/
    cp svg-pwa-schema.json /var/www/html/
    ```
 
 2. **Ustaw odpowiednie uprawnienia:**
    ```bash
-   chmod 644 svg-pwa-tester.php
-   chmod 644 svg-pwa-tester.html
+   chmod 644 index.php
+   chmod 644 index.html
    chmod 644 svg-pwa-schema.json
    ```
 
@@ -60,7 +60,7 @@
    RewriteEngine On
    RewriteCond %{REQUEST_FILENAME} !-f
    RewriteCond %{REQUEST_FILENAME} !-d
-   RewriteRule ^api/test$ svg-pwa-tester.php [L]
+   RewriteRule ^api/test$ index.php [L]
    
    # Dodaj obsługę SVG
    AddType image/svg+xml .svg
@@ -74,7 +74,7 @@
    }
    
    location /api/test {
-       try_files $uri /svg-pwa-tester.php;
+       try_files $uri /index.php;
    }
    ```
 
@@ -84,7 +84,7 @@
 
 ### 1. **Interfejs Webowy**
 
-Otwórz w przeglądarce: `http://localhost/svg-pwa-tester.html`
+Otwórz w przeglądarce: `http://localhost/index.html`
 
 **Kroki:**
 1. Kliknij **"Choose SVG File"** i wybierz plik SVG
@@ -94,12 +94,12 @@ Otwórz w przeglądarce: `http://localhost/svg-pwa-tester.html`
 
 ### 2. **API REST - GET Request**
 ```bash
-curl "http://localhost/svg-pwa-tester.php?file=path/to/your/file.svg"
+curl "http://localhost/index.php?file=path/to/your/file.svg"
 ```
 
 ### 3. **API REST - POST Request**
 ```bash
-curl -X POST http://localhost/svg-pwa-tester.php \
+curl -X POST http://localhost/index.php \
   -H "Content-Type: application/json" \
   -d '{"file": "path/to/your/file.svg"}'
 ```
@@ -107,7 +107,7 @@ curl -X POST http://localhost/svg-pwa-tester.php \
 ### 4. **Integracja z PHP**
 ```php
 <?php
-require_once 'svg-pwa-tester.php';
+require_once 'index.php';
 
 $tester = new SVGPWATester();
 $results = $tester->testSVGFile('./my-icon.svg');

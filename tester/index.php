@@ -7,7 +7,12 @@
  * @version 1.0.0
  */
 
-header('Content-Type: application/json; charset=UTF-8');
+// Check if running from command line
+$isCommandLine = php_sapi_name() === 'cli';
+
+if (!$isCommandLine) {
+    header('Content-Type: application/json; charset=UTF-8');
+}
 
 class SVGPWATester {
     
@@ -247,46 +252,129 @@ class SVGPWATester {
     }
 }
 
-// Handle HTTP requests
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $input = json_decode(file_get_contents('php://input'), true);
-    
-    if (!isset($input['file'])) {
-        http_response_code(400);
-        echo json_encode(['error' => 'File path is required']);
-        exit;
+// Handle CLI arguments or HTTP requests
+if ($isCommandLine) {
+    // Command line interface
+    if ($argc < 2) {
+        echo "🔍 SVG PWA Tester - Command Line Interface\n";
+        echo "=========================================\n\n";
+        echo "Usage: php index.php <svg-file>\n";
+        echo "Example: php index.php ../devmind.svg\n";
+        echo "         php index.php ../files.svg\n\n";
+        exit(1);
     }
     
-    $tester = new SVGPWATester();
-    $results = $tester->testSVGFile($input['file']);
+    $svgFile = $argv[1];
     
-    echo json_encode($results, JSON_PRETTY_PRINT);
-} elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['file'])) {
-    $tester = new SVGPWATester();
-    $results = $tester->testSVGFile($_GET['file']);
+    // If relative path, make it relative to current working directory
+    if (!file_exists($svgFile) && !str_starts_with($svgFile, '/')) {
+        // Try relative to the tester directory
+        $svgFile = '../' . $svgFile;
+    }
     
-    echo json_encode($results, JSON_PRETTY_PRINT);
+    echo "🚀 Testing SVG file: $svgFile\n";
+    echo "=" . str_repeat("=", strlen($svgFile) + 18) . "\n\n";
+    
+    $tester = new SVGPWATester();
+    $results = $tester->testSVGFile($svgFile);
+    
+    if ($results === false) {
+        echo "❌ Error: Could not test file\n";
+        if (!empty($results['errors'])) {
+            foreach ($results['errors'] as $error) {
+                echo "   $error\n";
+            }
+        }
+        exit(1);
+    }
+    
+    // Display results in CLI format
+    echo "📊 Test Results Summary:\n";
+    echo "------------------------\n";
+    echo "Total Tests:  " . $results['summary']['total'] . "\n";
+    echo "Passed:      " . $results['summary']['passed'] . " ✅\n";
+    echo "Failed:      " . $results['summary']['failed'] . " ❌\n";
+    echo "Warnings:    " . $results['summary']['warnings'] . " ⚠️\n";
+    echo "Success Rate: " . $results['summary']['success_rate'] . "%\n";
+    echo "Status:      " . ($results['summary']['status'] === 'PASSED' ? '✅ PASSED' : '❌ FAILED') . "\n\n";
+    
+    // Display detailed test results
+    echo "📋 Detailed Test Results:\n";
+    echo "--------------------------\n";
+    foreach ($results['tests'] as $test) {
+        $status = $test['passed'] ? '✅' : '❌';
+        echo sprintf("%-20s %s %s\n", $test['name'], $status, $test['description']);
+    }
+    
+    // Display errors if any
+    if (!empty($results['errors'])) {
+        echo "\n🔴 Errors:\n";
+        echo "----------\n";
+        foreach ($results['errors'] as $error) {
+            echo "• $error\n";
+        }
+    }
+    
+    // Display warnings if any
+    if (!empty($results['warnings'])) {
+        echo "\n⚠️  Warnings:\n";
+        echo "-------------\n";
+        foreach ($results['warnings'] as $warning) {
+            echo "• $warning\n";
+        }
+    }
+    
+    echo "\n🕒 Test completed at: " . $results['timestamp'] . "\n";
+    
+    // Exit with appropriate code
+    exit($results['summary']['failed'] > 0 ? 1 : 0);
+    
 } else {
-    // Return API documentation
-    $apiDoc = [
-        'name' => 'SVG PWA Tester API',
-        'version' => '1.0.0',
-        'description' => 'API for testing SVG files for PWA and PHP compatibility',
-        'endpoints' => [
-            [
-                'method' => 'GET',
-                'url' => '?file=path/to/file.svg',
-                'description' => 'Test SVG file via GET parameter'
+    // HTTP interface (original web API)
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $input = json_decode(file_get_contents('php://input'), true);
+        
+        if (!isset($input['file'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'File path is required']);
+            exit;
+        }
+        
+        $tester = new SVGPWATester();
+        $results = $tester->testSVGFile($input['file']);
+        
+        echo json_encode($results, JSON_PRETTY_PRINT);
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['file'])) {
+        $tester = new SVGPWATester();
+        $results = $tester->testSVGFile($_GET['file']);
+        
+        echo json_encode($results, JSON_PRETTY_PRINT);
+    } else {
+        // Return API documentation
+        $apiDoc = [
+            'name' => 'SVG PWA Tester API',
+            'version' => '1.0.0',
+            'description' => 'API for testing SVG files for PWA and PHP compatibility',
+            'endpoints' => [
+                [
+                    'method' => 'GET',
+                    'url' => '?file=path/to/file.svg',
+                    'description' => 'Test SVG file via GET parameter'
+                ],
+                [
+                    'method' => 'POST',
+                    'url' => '/',
+                    'description' => 'Test SVG file via POST JSON',
+                    'body' => ['file' => 'path/to/file.svg']
+                ]
             ],
-            [
-                'method' => 'POST',
-                'url' => '/',
-                'description' => 'Test SVG file via POST JSON',
-                'body' => ['file' => 'path/to/file.svg']
+            'cli_usage' => [
+                'command' => 'php index.php <svg-file>',
+                'example' => 'php index.php ../devmind.svg'
             ]
-        ]
-    ];
-    
-    echo json_encode($apiDoc, JSON_PRETTY_PRINT);
+        ];
+        
+        echo json_encode($apiDoc, JSON_PRETTY_PRINT);
+    }
 }
 ?>
