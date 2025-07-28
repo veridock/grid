@@ -24,6 +24,7 @@ A Progressive Web App for monitoring folders, converting PDFs to SVG, and managi
 2. Run the server:
    ```bash
    node file-monitor.js
+   
    ```
 
 3. Open in browser: http://localhost:3000

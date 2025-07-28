@@ -25,7 +25,7 @@ if (typeof module !== 'undefined' && module.exports) { // Node.js execution
   const fileCache = new Map();
   
   // Find available port
-  async function findAvailablePort(startPort = 3000) {
+  async function findAvailablePort(startPort = 3030) {
     const net = require('net');
     
     return new Promise((resolve) => {
@@ -51,7 +51,7 @@ if (typeof module !== 'undefined' && module.exports) { // Node.js execution
     });
   }
   
-  let PORT = 3000;
+  let PORT = 3030;
   
   // Read this file content for serving
   const svgContent = fs.readFileSync(__filename, 'utf8')
@@ -355,7 +355,7 @@ if (typeof module !== 'undefined' && module.exports) { // Node.js execution
           // Generate thumbnail from first page of PDF using ImageMagick
           const tempPng = filePath.replace(/\.pdf$/i, '_thumb_temp.png');
           await new Promise((resolve, reject) => {
-            exec(`convert -density 72 -quality 80 "${filePath}[0]" -resize 200x200 -background white -flatten "${tempPng}"`, (error) => {
+            exec(`magick convert -density 72 -quality 80 "${filePath}[0]" -resize 200x200 -background white -flatten "${tempPng}"`, (error) => {
               if (error) reject(error);
               else resolve();
             });
@@ -401,15 +401,15 @@ if (typeof module !== 'undefined' && module.exports) { // Node.js execution
   
   // Start server
   async function startServer() {
-    PORT = await findAvailablePort(process.env.PORT || 3000);
+    PORT = await findAvailablePort(process.env.PORT || 3030);
     
     server.listen(PORT, () => {
-      const portInfo = PORT !== 3000 ? ` (port ${PORT})` : '';
+      const portInfo = PORT !== 3030 ? ` (port ${PORT})` : '';
       console.log(`
 ╔═══════════════════════════════════════════╗
 ║        File Monitor PWA Server            ║
 ║                                           ║
-║  Running at: http://localhost:${PORT}${' '.repeat(12 - PORT.toString().length - portInfo.length)}║
+║  Running at: http://localhost:${PORT}${' '.repeat(12 - PORT.toString().length - portInfo.length)}   ║
 ║                                           ║
 ║  Features:                                ║
 ║  • Monitor folders for changes            ║
@@ -421,8 +421,8 @@ if (typeof module !== 'undefined' && module.exports) { // Node.js execution
 ╚═══════════════════════════════════════════╝
 `);
       
-      if (PORT !== 3000) {
-        console.log(`Note: Port 3000 was busy, using port ${PORT} instead.\n`);
+      if (PORT !== 3030) {
+        console.log(`Note: Port 3030 was busy, using port ${PORT} instead.\n`);
       }
       
       // Add current directory as default monitored folder
@@ -456,10 +456,10 @@ if (typeof module !== 'undefined' && module.exports) { // Node.js execution
         <ol style="text-align: left; max-width: 500px; margin: 20px auto;">
           <li>Save this file as <code>file-monitor.svg</code></li>
           <li>Open terminal and run: <code>node file-monitor.svg</code></li>
-          <li>Open browser at: <a href="http://localhost:3000">http://localhost:3000</a></li>
+          <li>Open browser at: <a href="http://localhost:3030">http://localhost:3030</a></li>
         </ol>
         <p style="color: #666; margin-top: 30px;">
-          The application will find an available port if 3000 is busy.
+          The application will find an available port if 3030 is busy.
         </p>
       </div>
     `;
@@ -467,874 +467,283 @@ if (typeof module !== 'undefined' && module.exports) { // Node.js execution
     throw new Error('Redirect message shown');
   }
 }
-]]></script>
-<!--</svg>-->
-<!--<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-     width="100%" height="100%" viewBox="0 0 1400 900">
+
+// Client-side code for browser
+if (typeof window !== 'undefined' && window.document) {
+  // Global variables
+  let files = [];
+  let currentFolder = '';
+  let monitoredFolders = [];
+  let currentView = 'grid';
+  let searchQuery = '';
   
-  <defs>
-    <!-- Embedded CSS -->
-    <style type="text/css"><![CDATA[
-      body { margin: 0; padding: 0; overflow: hidden; }
-      .toolbar { fill: #1e293b; }
-      .button { fill: #3b82f6; cursor: pointer; transition: all 0.2s; }
-      .button:hover { fill: #2563eb; transform: translateY(-1px); }
-      .button:active { transform: translateY(0); }
-      .button-text { fill: white; font-family: system-ui, -apple-system, sans-serif; font-size: 13px; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
-      .active-view { fill: #10b981 !important; }
-      .folder-item { fill: #f8fafc; stroke: #e2e8f0; stroke-width: 1; cursor: pointer; transition: all 0.2s; }
-      .folder-item:hover { fill: #f1f5f9; stroke: #cbd5e1; }
-      .folder-item-active { fill: #dbeafe !important; stroke: #3b82f6 !important; stroke-width: 2 !important; }
-      .file-item { fill: white; stroke: #e5e7eb; stroke-width: 1; cursor: pointer; transition: all 0.2s; }
-      .file-item:hover { fill: #f9fafb; stroke: #d1d5db; transform: translateY(-2px); }
-      .pdf-file { stroke: #dc2626; }
-      .image-file { stroke: #10b981; }
-      .svg-file { stroke: #8b5cf6; }
-      .status-text { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #64748b; }
-      .header-text { font-family: system-ui, -apple-system, sans-serif; font-size: 18px; font-weight: 600; fill: white; }
-      .path-text { font-family: monospace; font-size: 12px; fill: #475569; }
-      .loading-spinner { animation: spin 1s linear infinite; transform-origin: center; }
-      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      .thumbnail { border-radius: 8px; overflow: hidden; }
-      .drop-zone { fill: none; stroke: #3b82f6; stroke-width: 2; stroke-dasharray: 8 4; opacity: 0; transition: opacity 0.2s; }
-      .drop-zone.active { opacity: 1; fill: rgba(59, 130, 246, 0.1); }
-      .placeholder-icon { fill: #9ca3af; }
-    ]]></style>
-    
-    <!-- Filter definitions -->
-    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
-      <feOffset dx="0" dy="2" result="offsetblur"/>
-      <feFlood flood-color="#000000" flood-opacity="0.1"/>
-      <feComposite in2="offsetblur" operator="in"/>
-      <feMerge>
-        <feMergeNode/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-  </defs>
+  // DOM elements
+  const folderList = document.getElementById('folder-list');
+  const gridView = document.getElementById('grid-view');
+  const listView = document.getElementById('list-view');
+  const breadcrumb = document.getElementById('breadcrumb');
+  const statusText = document.getElementById('status-text');
+  const fileCount = document.getElementById('file-count');
+  const loadingOverlay = document.getElementById('loading-overlay');
   
-  <!-- Background -->
-  <rect width="100%" height="100%" fill="#f8fafc"/>
+  // Initialize
+  async function init() {
+    await loadMonitoredFolders();
+    setupEventListeners();
+    updateStatus('Ready to monitor files');
+    
+    // Auto-refresh every 10 seconds
+    setInterval(() => {
+      if (currentFolder) {
+        loadFiles(false);
+      }
+    }, 10000);
+  }
   
-  <!-- Header Toolbar -->
-  <rect class="toolbar" x="0" y="0" width="1400" height="70"/>
-  
-  <!-- App Title and Logo -->
-  <g transform="translate(20, 35)">
-    <circle cx="0" cy="0" r="20" fill="#3b82f6"/>
-    <text x="0" y="0" class="button-text" font-size="16" font-weight="bold">FM</text>
-  </g>
-  <text class="header-text" x="65" y="40">File Monitor PWA</text>
-  
-  <!-- Toolbar Buttons -->
-  <g id="toolbar-buttons" transform="translate(250, 15)">
-    <!-- Add Folder Button -->
-    <rect class="button" id="add-folder-btn" x="0" y="0" width="120" height="40" rx="6"/>
-    <text class="button-text" x="60" y="20">+ Add Folder</text>
-    
-    <!-- Refresh Button -->
-    <rect class="button" id="refresh-btn" x="130" y="0" width="100" height="40" rx="6"/>
-    <text class="button-text" x="180" y="20">⟳ Refresh</text>
-    
-    <!-- Grid View Button -->
-    <rect class="button active-view" id="grid-view-btn" x="240" y="0" width="80" height="40" rx="6"/>
-    <text class="button-text" x="280" y="20">⊞ Grid</text>
-    
-    <!-- List View Button -->
-    <rect class="button" id="list-view-btn" x="330" y="0" width="80" height="40" rx="6"/>
-    <text class="button-text" x="370" y="20">☰ List</text>
-    
-    <!-- Convert All PDFs Button -->
-    <rect class="button" id="convert-all-btn" x="420" y="0" width="140" height="40" rx="6"/>
-    <text class="button-text" x="490" y="20">⚡ Convert PDFs</text>
-  </g>
-  
-  <!-- Search Box -->
-  <g transform="translate(950, 15)">
-    <rect fill="white" x="0" y="0" width="300" height="40" rx="20" stroke="#e5e7eb" stroke-width="1"/>
-    <text id="search-placeholder" x="20" y="25" fill="#9ca3af" font-family="system-ui" font-size="14" cursor="pointer">🔍 Search files...</text>
-  </g>
-  
-  <!-- Status Indicator -->
-  <g transform="translate(1270, 15)">
-    <rect id="status-indicator" fill="#10b981" x="0" y="10" width="20" height="20" rx="10"/>
-    <text x="30" y="25" class="status-text">Monitoring</text>
-  </g>
-  
-  <!-- Main Content Area -->
-  <g id="main-content">
-    <!-- Sidebar - Monitored Folders -->
-    <rect fill="#f1f5f9" x="0" y="70" width="250" height="790"/>
-    <rect fill="#e2e8f0" x="0" y="70" width="250" height="50"/>
-    <text x="20" y="100" font-family="system-ui" font-size="16" font-weight="600" fill="#1e293b">Monitored Folders</text>
-    
-    <!-- Folder List Container -->
-    <g id="folder-list" transform="translate(10, 130)">
-      <!-- Folders will be dynamically added here -->
-    </g>
-    
-    <!-- Content Area -->
-    <rect fill="white" x="250" y="70" width="1150" height="790"/>
-    
-    <!-- Breadcrumb -->
-    <rect fill="#f8fafc" x="250" y="70" width="1150" height="50" stroke="#e5e7eb" stroke-width="1"/>
-    <text id="breadcrumb" x="270" y="100" class="path-text" fill="#64748b">Select a folder to monitor</text>
-    
-    <!-- File Grid/List Container -->
-    <g id="file-container" transform="translate(270, 140)">
-      <!-- Grid View (default) -->
-      <g id="grid-view" style="display: block;">
-        <!-- Files will be dynamically added here -->
-      </g>
+  // Load monitored folders
+  async function loadMonitoredFolders() {
+    addLog('Loading monitored folders...', 'INFO');
+    try {
+      const response = await fetch('/api/folders');
+      const data = await response.json();
+      monitoredFolders = data.folders || [];
+      renderFolderList();
       
-      <!-- List View (hidden) -->
-      <g id="list-view" style="display: none;">
-        <!-- List headers -->
-        <rect fill="#f8fafc" x="0" y="0" width="1100" height="40" stroke="#e5e7eb" stroke-width="1"/>
-        <text x="50" y="25" font-family="system-ui" font-size="13" font-weight="600" fill="#475569">Name</text>
-        <text x="400" y="25" font-family="system-ui" font-size="13" font-weight="600" fill="#475569">Type</text>
-        <text x="550" y="25" font-family="system-ui" font-size="13" font-weight="600" fill="#475569">Size</text>
-        <text x="700" y="25" font-family="system-ui" font-size="13" font-weight="600" fill="#475569">Modified</text>
-        <text x="900" y="25" font-family="system-ui" font-size="13" font-weight="600" fill="#475569">Actions</text>
-        
-        <!-- List items container -->
-        <g id="list-items" transform="translate(0, 50)">
-          <!-- Files will be dynamically added here -->
-        </g>
-      </g>
-    </g>
-    
-    <!-- Drop Zone Overlay -->
-    <rect id="drop-zone" class="drop-zone" x="260" y="130" width="1130" height="720" rx="10" pointer-events="none"/>
-    
-    <!-- Loading Overlay -->
-    <g id="loading-overlay" style="display: none;">
-      <rect fill="rgba(255,255,255,0.9)" x="250" y="120" width="1150" height="740"/>
-      <g transform="translate(825, 480)">
-        <circle class="loading-spinner" cx="0" cy="0" r="30" fill="none" stroke="#3b82f6" stroke-width="4" stroke-dasharray="70 30"/>
-        <text x="0" y="60" text-anchor="middle" font-family="system-ui" font-size="16" fill="#64748b">Processing files...</text>
-      </g>
-    </g>
-  </g>
-  
-  <!-- Status Bar -->
-  <rect fill="#1e293b" x="0" y="860" width="1400" height="40"/>
-  <text id="status-text" x="20" y="882" class="status-text" fill="#94a3b8">Ready</text>
-  <text id="file-count" x="1380" y="882" text-anchor="end" class="status-text" fill="#94a3b8">0 files</text>
-  
-  <script type="text/javascript"><![CDATA[
-    // Client-side code for browser
-    if (typeof window !== 'undefined' && window.document) {
-      // PWA Registration
-      if ('serviceWorker' in navigator) {
-        const swCode = `
-          const CACHE_NAME = 'file-monitor-v1';
-          
-          self.addEventListener('install', (e) => {
-            e.waitUntil(
-              caches.open(CACHE_NAME).then((cache) => {
-                return cache.addAll(['/']);
-              })
-            );
-          });
-          
-          self.addEventListener('fetch', (e) => {
-            e.respondWith(
-              caches.match(e.request).then((response) => {
-                return response || fetch(e.request);
-              })
-            );
-          });
-        `;
-        
-        const blob = new Blob([swCode], { type: 'application/javascript' });
-        const swUrl = URL.createObjectURL(blob);
-        navigator.serviceWorker.register(swUrl).catch(console.error);
+      if (!currentFolder && monitoredFolders.length > 0) {
+        addLog(`Auto-selecting first folder: ${monitoredFolders[0]}`, 'INFO');
+        await selectFolder(monitoredFolders[0]);
       }
-      
-      // App State
-      let currentView = 'grid';
-      let currentFolder = null;
-      let files = [];
-      let monitoredFolders = [];
-      let searchQuery = '';
-      
-      // Elements
-      const folderList = document.getElementById('folder-list');
-      const fileContainer = document.getElementById('file-container');
-      const gridView = document.getElementById('grid-view');
-      const listView = document.getElementById('list-view');
-      const listItems = document.getElementById('list-items');
-      const breadcrumb = document.getElementById('breadcrumb');
-      const statusText = document.getElementById('status-text');
-      const fileCount = document.getElementById('file-count');
-      const loadingOverlay = document.getElementById('loading-overlay');
-      const dropZone = document.getElementById('drop-zone');
-      
-      // Initialize
-      async function init() {
-        await loadMonitoredFolders();
-        setupEventListeners();
-        updateStatus('Ready to monitor files');
-        
-        // Auto-refresh every 10 seconds
-        setInterval(() => {
-          if (currentFolder) {
-            loadFiles(false); // Silent refresh
-          }
-        }, 10000);
-      }
-      
-      // Load monitored folders
-      async function loadMonitoredFolders() {
-        try {
-          const response = await fetch('/api/folders');
-          const data = await response.json();
-          monitoredFolders = data.folders || [];
-          renderFolderList();
-        } catch (error) {
-          console.error('Error loading folders:', error);
-          updateStatus('Failed to load folders', true);
-        }
-      }
-      
-      // Render folder list
-      function renderFolderList() {
-        folderList.innerHTML = '';
-        
-        if (monitoredFolders.length === 0) {
-          const emptyMsg = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          emptyMsg.setAttribute('x', '115');
-          emptyMsg.setAttribute('y', '100');
-          emptyMsg.setAttribute('text-anchor', 'middle');
-          emptyMsg.setAttribute('font-family', 'system-ui');
-          emptyMsg.setAttribute('font-size', '13');
-          emptyMsg.setAttribute('fill', '#94a3b8');
-          emptyMsg.textContent = 'No folders monitored';
-          folderList.appendChild(emptyMsg);
-          return;
-        }
-        
-        monitoredFolders.forEach((folder, index) => {
-          const folderGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-          folderGroup.setAttribute('transform', `translate(0, ${index * 60})`);
-          
-          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-          rect.setAttribute('class', currentFolder === folder ? 'folder-item folder-item-active' : 'folder-item');
-          rect.setAttribute('width', '230');
-          rect.setAttribute('height', '50');
-          rect.setAttribute('rx', '6');
-          
-          const folderIcon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          folderIcon.setAttribute('x', '15');
-          folderIcon.setAttribute('y', '30');
-          folderIcon.setAttribute('font-size', '20');
-          folderIcon.textContent = '📁';
-          
-          const folderName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          folderName.setAttribute('x', '45');
-          folderName.setAttribute('y', '20');
-          folderName.setAttribute('font-family', 'system-ui');
-          folderName.setAttribute('font-size', '13');
-          folderName.setAttribute('font-weight', '500');
-          folderName.setAttribute('fill', '#1e293b');
-          
-          const parts = folder.split(/[\\/]/);
-          const name = parts[parts.length - 1] || folder;
-          folderName.textContent = name.length > 18 ? name.substring(0, 18) + '...' : name;
-          
-          // Full path (smaller text)
-          const fullPath = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          fullPath.setAttribute('x', '45');
-          fullPath.setAttribute('y', '35');
-          fullPath.setAttribute('font-family', 'monospace');
-          fullPath.setAttribute('font-size', '10');
-          fullPath.setAttribute('fill', '#94a3b8');
-          fullPath.textContent = folder.length > 25 ? '...' + folder.substring(folder.length - 22) : folder;
-          
-          const removeBtn = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          removeBtn.setAttribute('x', '210');
-          removeBtn.setAttribute('y', '30');
-          removeBtn.setAttribute('font-size', '20');
-          removeBtn.setAttribute('fill', '#ef4444');
-          removeBtn.setAttribute('cursor', 'pointer');
-          removeBtn.textContent = '×';
-          
-          // Event listeners
-          rect.addEventListener('click', () => selectFolder(folder));
-          folderIcon.addEventListener('click', () => selectFolder(folder));
-          folderName.addEventListener('click', () => selectFolder(folder));
-          removeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            removeFolder(folder);
-          });
-          
-          folderGroup.appendChild(rect);
-          folderGroup.appendChild(folderIcon);
-          folderGroup.appendChild(folderName);
-          folderGroup.appendChild(fullPath);
-          folderGroup.appendChild(removeBtn);
-          
-          folderList.appendChild(folderGroup);
-        });
-      }
-      
-      // Select folder
-      async function selectFolder(folder) {
-        currentFolder = folder;
-        breadcrumb.textContent = folder;
-        renderFolderList();
-        await loadFiles();
-      }
-      
-      // Load files from selected folder
-      async function loadFiles(showLoader = true) {
-        if (!currentFolder) return;
-        
-        if (showLoader) showLoading(true);
-        
-        try {
-          const response = await fetch(`/api/files?folder=${encodeURIComponent(currentFolder)}`);
-          const data = await response.json();
-          files = data.files || [];
-          
-          // Apply search filter
-          if (searchQuery) {
-            files = files.filter(file => 
-              file.name.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-          }
-          
-          renderFiles();
-          fileCount.textContent = `${files.length} files`;
-          document.getElementById('status-indicator').setAttribute('fill', '#10b981');
-        } catch (error) {
-          console.error('Error loading files:', error);
-          updateStatus('Failed to load files', true);
-          document.getElementById('status-indicator').setAttribute('fill', '#ef4444');
-        } finally {
-          if (showLoader) showLoading(false);
-        }
-      }
-      
-      // Render files based on current view
-      function renderFiles() {
-        if (currentView === 'grid') {
-          renderGridView();
-        } else {
-          renderListView();
-        }
-      }
-      
-      // Render grid view
-      function renderGridView() {
-        gridView.innerHTML = '';
-        
-        if (files.length === 0) {
-          const emptyMsg = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          emptyMsg.setAttribute('x', '550');
-          emptyMsg.setAttribute('y', '300');
-          emptyMsg.setAttribute('text-anchor', 'middle');
-          emptyMsg.setAttribute('font-family', 'system-ui');
-          emptyMsg.setAttribute('font-size', '16');
-          emptyMsg.setAttribute('fill', '#94a3b8');
-          emptyMsg.textContent = searchQuery ? 'No files match your search' : 'No supported files in this folder';
-          gridView.appendChild(emptyMsg);
-          return;
-        }
-        
-        files.forEach((file, index) => {
-          const col = index % 5;
-          const row = Math.floor(index / 5);
-          const x = col * 220;
-          const y = row * 250;
-          
-          const fileGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-          fileGroup.setAttribute('transform', `translate(${x}, ${y})`);
-          
-          // Card background
-          const card = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-          card.setAttribute('class', 'file-item ' + file.type + '-file');
-          card.setAttribute('width', '200');
-          card.setAttribute('height', '230');
-          card.setAttribute('rx', '8');
-          card.setAttribute('filter', 'url(#shadow)');
-          
-          // Thumbnail container
-          const thumbContainer = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-          thumbContainer.setAttribute('x', '10');
-          thumbContainer.setAttribute('y', '10');
-          thumbContainer.setAttribute('width', '180');
-          thumbContainer.setAttribute('height', '160');
-          thumbContainer.setAttribute('rx', '4');
-          thumbContainer.setAttribute('fill', '#f3f4f6');
-          
-          // Thumbnail or placeholder
-          if (['png', 'jpg', 'jpeg', 'svg'].includes(file.type)) {
-            const thumbnail = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-            thumbnail.setAttribute('x', '10');
-            thumbnail.setAttribute('y', '10');
-            thumbnail.setAttribute('width', '180');
-            thumbnail.setAttribute('height', '160');
-            thumbnail.setAttribute('href', `/api/thumbnail?file=${encodeURIComponent(file.path)}`);
-            thumbnail.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-            fileGroup.appendChild(thumbnail);
-          } else {
-            // File type placeholder
-            const placeholder = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            placeholder.setAttribute('x', '100');
-            placeholder.setAttribute('y', '90');
-            placeholder.setAttribute('text-anchor', 'middle');
-            placeholder.setAttribute('font-family', 'system-ui');
-            placeholder.setAttribute('font-size', '48');
-            placeholder.setAttribute('font-weight', 'bold');
-            placeholder.setAttribute('class', 'placeholder-icon');
-            placeholder.textContent = file.type.toUpperCase();
-            fileGroup.appendChild(placeholder);
-          }
-          
-          // File type icon
-          const typeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          typeIcon.setAttribute('x', '20');
-          typeIcon.setAttribute('y', '195');
-          typeIcon.setAttribute('font-size', '24');
-          typeIcon.textContent = getFileIcon(file.type);
-          
-          // File name
-          const fileName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          fileName.setAttribute('x', '50');
-          fileName.setAttribute('y', '190');
-          fileName.setAttribute('font-family', 'system-ui');
-          fileName.setAttribute('font-size', '13');
-          fileName.setAttribute('fill', '#1e293b');
-          fileName.textContent = file.name.length > 20 ? file.name.substring(0, 17) + '...' : file.name;
-          
-          // File size
-          const fileSize = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          fileSize.setAttribute('x', '50');
-          fileSize.setAttribute('y', '210');
-          fileSize.setAttribute('font-family', 'system-ui');
-          fileSize.setAttribute('font-size', '11');
-          fileSize.setAttribute('fill', '#64748b');
-          fileSize.textContent = formatFileSize(file.size);
-          
-          // Actions for PDF
-          if (file.type === 'pdf') {
-            const convertBtn = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            convertBtn.setAttribute('transform', 'translate(160, 190)');
-            convertBtn.setAttribute('cursor', 'pointer');
-            
-            const btnBg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            btnBg.setAttribute('cx', '0');
-            btnBg.setAttribute('cy', '0');
-            btnBg.setAttribute('r', '15');
-            btnBg.setAttribute('fill', '#3b82f6');
-            
-            const btnText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            btnText.setAttribute('x', '0');
-            btnText.setAttribute('y', '0');
-            btnText.setAttribute('text-anchor', 'middle');
-            btnText.setAttribute('dominant-baseline', 'middle');
-            btnText.setAttribute('fill', 'white');
-            btnText.setAttribute('font-size', '10');
-            btnText.setAttribute('font-weight', 'bold');
-            btnText.textContent = 'SVG';
-            
-            convertBtn.appendChild(btnBg);
-            convertBtn.appendChild(btnText);
-            
-            convertBtn.addEventListener('click', (e) => {
-              e.stopPropagation();
-              convertPdfFile(file.path);
-            });
-            
-            fileGroup.appendChild(convertBtn);
-          }
-          
-          // Event listeners
-          card.addEventListener('click', () => openFile(file));
-          thumbContainer.addEventListener('click', () => openFile(file));
-          
-          fileGroup.appendChild(card);
-          fileGroup.appendChild(thumbContainer);
-          fileGroup.appendChild(typeIcon);
-          fileGroup.appendChild(fileName);
-          fileGroup.appendChild(fileSize);
-          
-          gridView.appendChild(fileGroup);
-        });
-      }
-      
-      // Render list view
-      function renderListView() {
-        listItems.innerHTML = '';
-        
-        if (files.length === 0) {
-          const emptyMsg = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          emptyMsg.setAttribute('x', '550');
-          emptyMsg.setAttribute('y', '100');
-          emptyMsg.setAttribute('text-anchor', 'middle');
-          emptyMsg.setAttribute('font-family', 'system-ui');
-          emptyMsg.setAttribute('font-size', '16');
-          emptyMsg.setAttribute('fill', '#94a3b8');
-          emptyMsg.textContent = searchQuery ? 'No files match your search' : 'No supported files in this folder';
-          listItems.appendChild(emptyMsg);
-          return;
-        }
-        
-        files.forEach((file, index) => {
-          const y = index * 50;
-          
-          const itemGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-          itemGroup.setAttribute('transform', `translate(0, ${y})`);
-          itemGroup.setAttribute('class', 'list-item');
-          
-          // Row background
-          const rowBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-          rowBg.setAttribute('width', '1100');
-          rowBg.setAttribute('height', '50');
-          rowBg.setAttribute('fill', index % 2 === 0 ? 'white' : '#f9fafb');
-          rowBg.setAttribute('cursor', 'pointer');
-          
-          // File icon
-          const icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          icon.setAttribute('x', '20');
-          icon.setAttribute('y', '30');
-          icon.setAttribute('font-size', '20');
-          icon.textContent = getFileIcon(file.type);
-          
-          // File name
-          const name = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          name.setAttribute('x', '50');
-          name.setAttribute('y', '30');
-          name.setAttribute('font-family', 'system-ui');
-          name.setAttribute('font-size', '14');
-          name.setAttribute('fill', '#1e293b');
-          name.textContent = file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name;
-          
-          // File type
-          const type = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          type.setAttribute('x', '400');
-          type.setAttribute('y', '30');
-          type.setAttribute('font-family', 'system-ui');
-          type.setAttribute('font-size', '13');
-          type.setAttribute('fill', '#64748b');
-          type.textContent = file.type.toUpperCase();
-          
-          // File size
-          const size = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          size.setAttribute('x', '550');
-          size.setAttribute('y', '30');
-          size.setAttribute('font-family', 'system-ui');
-          size.setAttribute('font-size', '13');
-          size.setAttribute('fill', '#64748b');
-          size.textContent = formatFileSize(file.size);
-          
-          // Modified date
-          const modified = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-          modified.setAttribute('x', '700');
-          modified.setAttribute('y', '30');
-          modified.setAttribute('font-family', 'system-ui');
-          modified.setAttribute('font-size', '13');
-          modified.setAttribute('fill', '#64748b');
-          try {
-            const date = new Date(file.modified);
-            modified.textContent = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-          } catch {
-            modified.textContent = 'Unknown';
-          }
-          
-          // Actions
-          const actions = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-          actions.setAttribute('transform', 'translate(900, 15)');
-          
-          // View button
-          const viewBtn = createButton('View', 0, () => openFile(file));
-          actions.appendChild(viewBtn);
-          
-          // Convert button (for PDFs)
-          if (file.type === 'pdf') {
-            const convertBtn = createButton('Convert', 60, () => convertPdfFile(file.path));
-            actions.appendChild(convertBtn);
-          }
-          
-          // Event listener
-          rowBg.addEventListener('click', () => openFile(file));
-          
-          itemGroup.appendChild(rowBg);
-          itemGroup.appendChild(icon);
-          itemGroup.appendChild(name);
-          itemGroup.appendChild(type);
-          itemGroup.appendChild(size);
-          itemGroup.appendChild(modified);
-          itemGroup.appendChild(actions);
-          
-          listItems.appendChild(itemGroup);
-        });
-      }
-      
-      // Helper function to create buttons
-      function createButton(text, x, onClick) {
-        const btnGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        btnGroup.setAttribute('transform', `translate(${x}, 0)`);
-        btnGroup.setAttribute('cursor', 'pointer');
-        
-        const btnBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        btnBg.setAttribute('width', '50');
-        btnBg.setAttribute('height', '20');
-        btnBg.setAttribute('rx', '4');
-        btnBg.setAttribute('fill', '#3b82f6');
-        
-        const btnText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        btnText.setAttribute('x', '25');
-        btnText.setAttribute('y', '14');
-        btnText.setAttribute('text-anchor', 'middle');
-        btnText.setAttribute('fill', 'white');
-        btnText.setAttribute('font-family', 'system-ui');
-        btnText.setAttribute('font-size', '11');
-        btnText.textContent = text;
-        
-        btnGroup.appendChild(btnBg);
-        btnGroup.appendChild(btnText);
-        
-        btnGroup.addEventListener('click', (e) => {
-          e.stopPropagation();
-          onClick();
-        });
-        
-        return btnGroup;
-      }
-      
-      // Get file icon based on type
-      function getFileIcon(type) {
-        const icons = {
-          pdf: '📄',
-          svg: '🎨',
-          png: '🖼️',
-          jpg: '🖼️',
-          jpeg: '🖼️'
-        };
-        return icons[type] || '📄';
-      }
-      
-      // Format file size
-      function formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-      }
-      
-      // Open file
-      function openFile(file) {
-        window.open(`/files/${encodeURIComponent(file.path)}`, '_blank');
-      }
-      
-      // Convert PDF to SVG
-      async function convertPdfFile(filePath) {
-        showLoading(true);
-        updateStatus('Converting PDF to SVG...');
-        
-        try {
-          const response = await fetch('/api/convert-pdf', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ filePath })
-          });
-          
-          const result = await response.json();
-          
-          if (result.success) {
-            updateStatus('PDF converted successfully');
-            await loadFiles();
-          } else {
-            updateStatus(result.error || 'Failed to convert PDF', true);
-          }
-        } catch (error) {
-          console.error('Error converting PDF:', error);
-          updateStatus('Error converting PDF', true);
-        } finally {
-          showLoading(false);
-        }
-      }
-      
-      // Convert all PDFs in current folder
-      async function convertAllPdfs() {
-        const pdfFiles = files.filter(f => f.type === 'pdf');
-        
-        if (pdfFiles.length === 0) {
-          updateStatus('No PDF files to convert');
-          return;
-        }
-        
-        if (!confirm(`Convert ${pdfFiles.length} PDF files to SVG?`)) {
-          return;
-        }
-        
-        showLoading(true);
-        updateStatus(`Converting ${pdfFiles.length} PDFs...`);
-        
-        let converted = 0;
-        let failed = 0;
-        
-        for (const file of pdfFiles) {
-          try {
-            const response = await fetch('/api/convert-pdf', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ filePath: file.path })
-            });
-            
-            const result = await response.json();
-            if (result.success) {
-              converted++;
-            } else {
-              failed++;
-            }
-            
-            updateStatus(`Progress: ${converted + failed}/${pdfFiles.length} (${converted} converted, ${failed} failed)`);
-          } catch (error) {
-            console.error(`Error converting ${file.name}:`, error);
-            failed++;
-          }
-        }
-        
-        updateStatus(`Conversion complete: ${converted} successful, ${failed} failed`);
-        showLoading(false);
-        await loadFiles();
-      }
-      
-      // Add new folder
-      async function addFolder() {
-        const folderPath = prompt('Enter folder path to monitor:');
-        if (!folderPath || !folderPath.trim()) return;
-        
-        try {
-          const response = await fetch('/api/folders', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ path: folderPath.trim() })
-          });
-          
-          const result = await response.json();
-          
-          if (response.ok && result.success) {
-            updateStatus('Folder added successfully');
-            await loadMonitoredFolders();
-          } else {
-            updateStatus(result.error || 'Failed to add folder', true);
-          }
-        } catch (error) {
-          console.error('Error adding folder:', error);
-          updateStatus('Error adding folder', true);
-        }
-      }
-      
-      // Remove folder
-      async function removeFolder(folderPath) {
-        if (!confirm(`Stop monitoring "${folderPath}"?`)) return;
-        
-        try {
-          const response = await fetch('/api/remove-folder', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ path: folderPath })
-          });
-          
-          if (response.ok) {
-            if (currentFolder === folderPath) {
-              currentFolder = null;
-              files = [];
-              renderFiles();
-              breadcrumb.textContent = 'Select a folder to monitor';
-            }
-            updateStatus('Folder removed');
-            await loadMonitoredFolders();
-          } else {
-            updateStatus('Failed to remove folder', true);
-          }
-        } catch (error) {
-          console.error('Error removing folder:', error);
-          updateStatus('Error removing folder', true);
-        }
-      }
-      
-      // Switch view
-      function switchView(view) {
-        currentView = view;
-        
-        // Update button states
-        document.getElementById('grid-view-btn').classList.toggle('active-view', view === 'grid');
-        document.getElementById('list-view-btn').classList.toggle('active-view', view === 'list');
-        
-        // Show/hide views
-        gridView.style.display = view === 'grid' ? 'block' : 'none';
-        listView.style.display = view === 'list' ? 'block' : 'none';
-        
-        renderFiles();
-      }
-      
-      // Show/hide loading overlay
-      function showLoading(show) {
-        loadingOverlay.style.display = show ? 'block' : 'none';
-      }
-      
-      // Update status
-      function updateStatus(message, isError = false) {
-        statusText.textContent = message;
-        statusText.setAttribute('fill', isError ? '#ef4444' : '#94a3b8');
-        
-        if (!isError) {
-          setTimeout(() => {
-            statusText.textContent = 'Ready';
-            statusText.setAttribute('fill', '#94a3b8');
-          }, 3000);
-        }
-      }
-      
-      // Setup event listeners
-      function setupEventListeners() {
-        document.getElementById('add-folder-btn').addEventListener('click', addFolder);
-        document.getElementById('refresh-btn').addEventListener('click', () => {
-          if (currentFolder) loadFiles();
-        });
-        document.getElementById('grid-view-btn').addEventListener('click', () => switchView('grid'));
-        document.getElementById('list-view-btn').addEventListener('click', () => switchView('list'));
-        document.getElementById('convert-all-btn').addEventListener('click', convertAllPdfs);
-        
-        // Search functionality
-        const searchBox = document.getElementById('search-placeholder');
-        searchBox.addEventListener('click', () => {
-          const query = prompt('Search files:', searchQuery);
-          if (query !== null) {
-            searchQuery = query.trim();
-            searchBox.textContent = searchQuery ? `🔍 ${searchQuery}` : '🔍 Search files...';
-            if (currentFolder) loadFiles();
-          }
-        });
-        
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-          if (e.ctrlKey || e.metaKey) {
-            switch(e.key) {
-              case 'f':
-                e.preventDefault();
-                searchBox.click();
-                break;
-              case 'r':
-                e.preventDefault();
-                if (currentFolder) loadFiles();
-                break;
-            }
-          }
-        });
-      }
-      
-      // Initialize app
-      init();
+    } catch (error) {
+      console.error('Error loading folders:', error);
+      updateStatus('Failed to load folders', true);
     }
-  ]]></script>
+  }
+  
+  // Select folder
+  async function selectFolder(folder) {
+    currentFolder = folder;
+    breadcrumb.textContent = folder;
+    renderFolderList();
+    await loadFiles();
+    addLog(`Selected folder: ${folder}`, 'INFO');
+  }
+  
+  // Load files from selected folder
+  async function loadFiles(showLoader = true) {
+    if (!currentFolder) return;
+    
+    if (showLoader) showLoading(true);
+    addLog(`Loading files from: ${currentFolder}`, 'INFO');
+    
+    try {
+      const response = await fetch(`/api/files?folder=${encodeURIComponent(currentFolder)}`);
+      const data = await response.json();
+      files = data.files || [];
+      
+      renderFiles();
+      updateStatus(`Found ${files.length} files`);
+      fileCount.textContent = `${files.length} files`;
+      addLog(`Loaded ${files.length} files`, 'SUCCESS');
+    } catch (error) {
+      console.error('Error loading files:', error);
+      updateStatus('Failed to load files', true);
+      addLog(`Error loading files: ${error.message}`, 'ERROR');
+    } finally {
+      if (showLoader) showLoading(false);
+    }
+  }
+  
+  // Render files based on current view
+  function renderFiles() {
+    if (currentView === 'grid') {
+      gridView.style.display = 'block';
+      listView.style.display = 'none';
+      renderGridView();
+    } else {
+      gridView.style.display = 'none';
+      listView.style.display = 'block';
+      renderListView();
+    }
+  }
+  
+  // Render folder list
+  function renderFolderList() {
+    folderList.innerHTML = '';
+    
+    if (monitoredFolders.length === 0) {
+      const emptyMsg = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      emptyMsg.setAttribute('x', '115');
+      emptyMsg.setAttribute('y', '100');
+      emptyMsg.setAttribute('text-anchor', 'middle');
+      emptyMsg.setAttribute('font-family', 'system-ui');
+      emptyMsg.setAttribute('font-size', '13');
+      emptyMsg.setAttribute('fill', '#94a3b8');
+      emptyMsg.textContent = 'No folders monitored';
+      folderList.appendChild(emptyMsg);
+      return;
+    }
+    
+    monitoredFolders.forEach((folder, index) => {
+      const folderGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      folderGroup.setAttribute('transform', `translate(0, ${index * 60})`);
+      
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('class', currentFolder === folder ? 'folder-item folder-item-active' : 'folder-item');
+      rect.setAttribute('width', '230');
+      rect.setAttribute('height', '50');
+      rect.setAttribute('rx', '6');
+      
+      const folderIcon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      folderIcon.setAttribute('x', '15');
+      folderIcon.setAttribute('y', '30');
+      folderIcon.setAttribute('font-size', '20');
+      folderIcon.textContent = '📁';
+      
+      const folderName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      folderName.setAttribute('x', '45');
+      folderName.setAttribute('y', '20');
+      folderName.setAttribute('font-family', 'system-ui');
+      folderName.setAttribute('font-size', '13');
+      folderName.setAttribute('font-weight', '500');
+      folderName.setAttribute('fill', '#1e293b');
+      
+      const parts = folder.split(/[\/]/);
+      const name = parts[parts.length - 1] || folder;
+      folderName.textContent = name.length > 18 ? name.substring(0, 18) + '...' : name;
+      
+      const folderPath = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      folderPath.setAttribute('x', '45');
+      folderPath.setAttribute('y', '38');
+      folderPath.setAttribute('font-family', 'system-ui');
+      folderPath.setAttribute('font-size', '11');
+      folderPath.setAttribute('fill', '#64748b');
+      folderPath.textContent = '...' + folder.slice(-25);
+      
+      folderGroup.addEventListener('click', () => selectFolder(folder));
+      
+      folderGroup.appendChild(rect);
+      folderGroup.appendChild(folderIcon);
+      folderGroup.appendChild(folderName);
+      folderGroup.appendChild(folderPath);
+      
+      folderList.appendChild(folderGroup);
+    });
+  }
+  
+  // Render grid view
+  function renderGridView() {
+    gridView.innerHTML = '';
+    
+    if (files.length === 0) {
+      const emptyMsg = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      emptyMsg.setAttribute('x', '550');
+      emptyMsg.setAttribute('y', '300');
+      emptyMsg.setAttribute('text-anchor', 'middle');
+      emptyMsg.setAttribute('font-family', 'system-ui');
+      emptyMsg.setAttribute('font-size', '16');
+      emptyMsg.setAttribute('fill', '#94a3b8');
+      emptyMsg.textContent = 'No files found';
+      gridView.appendChild(emptyMsg);
+      return;
+    }
+    
+    files.forEach((file, index) => {
+      const col = index % 5;
+      const row = Math.floor(index / 5);
+      const x = col * 220;
+      const y = row * 250;
+      
+      const fileGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      fileGroup.setAttribute('transform', `translate(${x}, ${y})`);
+      
+      const card = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      card.setAttribute('class', 'file-item');
+      card.setAttribute('width', '200');
+      card.setAttribute('height', '230');
+      card.setAttribute('rx', '8');
+      card.setAttribute('fill', 'white');
+      card.setAttribute('stroke', '#e2e8f0');
+      
+      const thumbContainer = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      thumbContainer.setAttribute('x', '10');
+      thumbContainer.setAttribute('y', '10');
+      thumbContainer.setAttribute('width', '180');
+      thumbContainer.setAttribute('height', '160');
+      thumbContainer.setAttribute('rx', '4');
+      thumbContainer.setAttribute('fill', '#f3f4f6');
+      
+      if (['png', 'jpg', 'jpeg', 'svg', 'pdf'].includes(file.type)) {
+        const thumbnail = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+        thumbnail.setAttribute('x', '10');
+        thumbnail.setAttribute('y', '10');
+        thumbnail.setAttribute('width', '180');
+        thumbnail.setAttribute('height', '160');
+        thumbnail.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        
+        fetch(`/api/thumbnail?file=${encodeURIComponent(file.path)}`)
+          .then(response => response.blob())
+          .then(blob => {
+            const reader = new FileReader();
+            reader.onload = () => thumbnail.setAttribute('href', reader.result);
+            reader.readAsDataURL(blob);
+          })
+          .catch(() => {
+            thumbnail.setAttribute('href', 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJzeXN0ZW0tdWkiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM5NGEzYjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGRvbWluYW50LWJhc2VsaW5lPSJtaWRkbGUiPu+4jzwvdGV4dD48L3N2Zz4=');
+          });
+        
+        fileGroup.appendChild(thumbnail);
+      }
+      
+      const fileName = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      fileName.setAttribute('x', '20');
+      fileName.setAttribute('y', '190');
+      fileName.setAttribute('font-family', 'system-ui');
+      fileName.setAttribute('font-size', '13');
+      fileName.setAttribute('fill', '#1e293b');
+      fileName.textContent = file.name.length > 20 ? file.name.substring(0, 17) + '...' : file.name;
+      
+      fileGroup.appendChild(card);
+      fileGroup.appendChild(thumbContainer);
+      fileGroup.appendChild(fileName);
+      
+      gridView.appendChild(fileGroup);
+    });
+  }
+  
+  // Render list view
+  function renderListView() {
+    if (listView) {
+      listView.innerHTML = '';
+    }
+  }
+  
+  // Update status
+  function updateStatus(message, isError = false) {
+    if (statusText) {
+      statusText.textContent = message;
+      statusText.setAttribute('fill', isError ? '#ef4444' : '#64748b');
+    }
+  }
+  
+  // Show/hide loading
+  function showLoading(show) {
+    if (loadingOverlay) {
+      loadingOverlay.style.display = show ? 'block' : 'none';
+    }
+  }
+  
+  // Add log entry
+  function addLog(message, type = 'INFO') {
+    console.log(`[${type}] ${message}`);
+  }
+  
+  // Setup event listeners
+  function setupEventListeners() {
+    // Add any additional event listeners here
+  }
+  
+  // Initialize app
+  init();
+}
+]]></script>
 </svg>
