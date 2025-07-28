@@ -27,10 +27,38 @@ if (php_sapi_name() === 'cli') {
     $current_time = date('H:i:s');
     $tasks_count = 5;
     
+    // Environment variables for template compatibility
+    $APP_TITLE = $_ENV['APP_TITLE'] ?? getenv('APP_TITLE') ?: 'PHP SVG Calculator';
+    $APP_DESC = $_ENV['APP_DESC'] ?? getenv('APP_DESC') ?: 'Interactive calculator built with PHP+SVG';
+    $CALCULATOR_TITLE = $_ENV['CALCULATOR_TITLE'] ?? getenv('CALCULATOR_TITLE') ?: 'PHP Calculator';
+    $USER_NAME = $_ENV['USER_NAME'] ?? getenv('USER_NAME') ?: (getenv('USER') ?: 'User');
+    $HOST_NAME = $_ENV['HOSTNAME'] ?? getenv('HOSTNAME') ?: 'localhost';
+    $PHP_VERSION = PHP_VERSION;
+    $SERVER_PORT = '8097';
+    
     echo "<!-- SVG+PHP renderowany przez CLI: $svg_file o $current_time -->\n";
     
-    // Wykonaj plik SVG jako PHP i wyświetl wynik
-    include $svg_path;
+    // Read and process SVG file with placeholders
+    $svg_content = file_get_contents($svg_path);
+    
+    // Replace environment variable placeholders
+    $replacements = [
+        '{APP_TITLE}' => $APP_TITLE,
+        '{APP_DESC}' => $APP_DESC,
+        '{CALCULATOR_TITLE}' => $CALCULATOR_TITLE,
+        '{USER_NAME}' => $USER_NAME,
+        '{HOST_NAME}' => $HOST_NAME,
+        '{PHP_VERSION}' => $PHP_VERSION,
+        '{SERVER_PORT}' => $SERVER_PORT
+    ];
+    
+    $svg_content = str_replace(array_keys($replacements), array_values($replacements), $svg_content);
+    
+    // Create temporary processed file and include it
+    $temp_file = sys_get_temp_dir() . '/processed_' . basename($svg_file);
+    file_put_contents($temp_file, $svg_content);
+    include $temp_file;
+    unlink($temp_file);
     exit(0);
 }
 
@@ -47,11 +75,39 @@ if (preg_match('/\.svg$/', $uri) && file_exists($path)) {
     $current_time = date('H:i:s');
     $tasks_count = 5;
     
+    // Environment variables for template compatibility
+    $APP_TITLE = $_ENV['APP_TITLE'] ?? getenv('APP_TITLE') ?: 'PHP SVG Calculator';
+    $APP_DESC = $_ENV['APP_DESC'] ?? getenv('APP_DESC') ?: 'Interactive calculator built with PHP+SVG';
+    $CALCULATOR_TITLE = $_ENV['CALCULATOR_TITLE'] ?? getenv('CALCULATOR_TITLE') ?: 'PHP Calculator';
+    $USER_NAME = $_ENV['USER_NAME'] ?? getenv('USER_NAME') ?: (getenv('USER') ?: 'User');
+    $HOST_NAME = $_ENV['HOSTNAME'] ?? getenv('HOSTNAME') ?: 'localhost';
+    $PHP_VERSION = PHP_VERSION;
+    $SERVER_PORT = $_SERVER['SERVER_PORT'] ?? '8097';
+    
     // Debug
     error_log("SVG+PHP processed: $uri at $current_time");
     
-    // Przetwórz plik SVG jako PHP
-    include $path;
+    // Read and process SVG file with placeholders
+    $svg_content = file_get_contents($path);
+    
+    // Replace environment variable placeholders
+    $replacements = [
+        '{APP_TITLE}' => $APP_TITLE,
+        '{APP_DESC}' => $APP_DESC,
+        '{CALCULATOR_TITLE}' => $CALCULATOR_TITLE,
+        '{USER_NAME}' => $USER_NAME,
+        '{HOST_NAME}' => $HOST_NAME,
+        '{PHP_VERSION}' => $PHP_VERSION,
+        '{SERVER_PORT}' => $SERVER_PORT
+    ];
+    
+    $svg_content = str_replace(array_keys($replacements), array_values($replacements), $svg_content);
+    
+    // Create temporary processed file and include it
+    $temp_file = sys_get_temp_dir() . '/processed_' . basename($path);
+    file_put_contents($temp_file, $svg_content);
+    include $temp_file;
+    unlink($temp_file);
     return true;
 }
 
