@@ -47,6 +47,21 @@ class SVGPythonHandler(http.server.SimpleHTTPRequestHandler):
             current_date = datetime.now().strftime("%Y-%m-%d")
             tasks_count = 7  # Example value
             
+            # Environment variables for PHP compatibility
+            env_vars = {
+                'APP_TITLE': os.getenv('APP_TITLE', 'Python SVG Calculator'),
+                'APP_DESC': os.getenv('APP_DESC', 'Interactive calculator built with Python+SVG'),
+                'CALCULATOR_TITLE': os.getenv('CALCULATOR_TITLE', 'Python Calculator'),
+                'USER_NAME': os.getenv('USER_NAME', os.getenv('USER', 'User')),
+                'HOST_NAME': os.getenv('HOSTNAME', 'localhost'),
+                'PYTHON_VERSION': sys.version.split()[0],
+                'SERVER_PORT': '8094'
+            }
+            
+            # Replace environment variable placeholders first
+            for key, value in env_vars.items():
+                content = content.replace(f'{{{key}}}', str(value))
+            
             # Process Python code blocks
             def execute_python_code(match):
                 python_code = match.group(1).strip()
@@ -58,7 +73,9 @@ class SVGPythonHandler(http.server.SimpleHTTPRequestHandler):
                     'tasks_count': tasks_count,
                     'datetime': datetime,
                     'os': os,
-                    'sys': sys
+                    'sys': sys,
+                    # Add env vars to Python context
+                    **env_vars
                 }
                 
                 # Capture output

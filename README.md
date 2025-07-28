@@ -1,76 +1,35 @@
-# SVG PWA Tester and Generator
+# Multi-Language SVG Scripting System
 
-🚀 **Advanced SVG Progressive Web Applications with PHP Backend Integration**
+🚀 **Dynamic SVG Generation** with embedded **PHP**, **Python**, and **Node.js** code
 
-A comprehensive system for creating, testing, and validating SVG-based Progressive Web Applications that embed PHP backend logic, JavaScript interactivity, and JSON metadata while maintaining full schema compliance.
+## 🎯 Overview
 
-![SVG PWA Tester](https://img.shields.io/badge/Tests-21%20Validations-brightgreen) 
-![Compliance](https://img.shields.io/badge/Schema-100%25%20Compliant-success) 
-![Applications](https://img.shields.io/badge/php%20Apps-4%20Ready-blue)
+This project enables **execution of SVG files with embedded scripting languages** both via web server and CLI, providing seamless workflows for dynamic SVG generation.
 
-## 🎯 **Core Features**
+## ⚡ Quick Start
 
-- 🧪 **Advanced SVG Testing** - 21-point validation system for schema compliance
-- 🔄 **Recursive Validation** - Batch testing of entire directory structures
-- 🚀 **PWA Generation** - Automated creation of compliant SVG PWA applications
-- 📱 **PHP Integration** - Backend logic embedded as JSON strings (XML-safe)
-- ⚡ **JavaScript Embedding** - Interactive functionality within SVG constraints
-- 📊 **JSON Metadata** - Application configuration and API definitions
-- 🛡️ **Security Compliance** - No external dependencies, self-contained apps
-- 📐 **iframe Embedding** - Ready-to-embed applications for any platform
-
-## 📋 **Generated SVG PWA Applications (All 100% Compliant)**
-
-### 🎯 **Production-Ready Applications:**
-
-| Application | Status | Tests Passed | Features |
-|-------------|---------|--------------|----------|
-| 💰 **Expense Tracker PWA** | ✅ Ready | 21/21 (100%) | Financial tracking, categories, analytics, JSON export |
-| 📦 **Inventory Manager PWA** | ✅ Ready | 21/21 (100%) | Stock management, alerts, reporting, database integration |
-| 🚀 **Project Manager PWA** | ✅ Ready | 21/21 (100%) | Task management, team collaboration, metrics dashboard |
-| 📊 **Test Dashboard PWA** | ✅ Ready | 21/21 (100%) | Analytics dashboard with PHP backend, real-time monitoring |
-
-### 🔧 **Technical Implementation:**
-
-- **Backend PHP Logic**: Embedded as JSON strings to avoid XML conflicts
-- **JavaScript Interactivity**: Inline SVG-compatible event handling
-- **JSON Metadata**: Complete application configuration and API definitions
-- **Schema Compliance**: All applications pass 21 rigorous validation tests
-- **iframe Ready**: Immediate embedding capability for any platform
-
-## 🚀 **Quick Start**
-
-### **Option 1: Test Existing Applications**
-
-```bash
-# Test a single SVG PWA file
-php tester/index.php php/expense-tracker-pwa.svg
-
-# Test all SVG files recursively
-php tester/index.php /path/to/svg/directory
-```
-
-### **Option 2: Live Web Server**
-
-#### PHP (Live Web Server)
+### PHP (Web Server)
 ```bash
 cd generated
-php -S localhost:8093 router.php
-# Open: http://localhost:8093/todo-manager-pwa.svg
+php -S localhost:8093 -t . router.php
+# Dostęp: http://localhost:8093/test-minimal1.svg
+# CLI: php router.php test-minimal1.svg
 ```
 
-#### Python (Live Web Server)
+### Python (Web Server)
 ```bash
 cd python
 python svg_server.py 8094
-# Open: http://localhost:8094/todo-manager-python.svg
+# Dostęp: http://localhost:8094/todo-manager-python.svg
+# CLI: python svg_processor.py todo-manager-python.svg > output.svg
 ```
 
-#### Node.js (Live Web Server)
+### Node.js (Web Server)
 ```bash
 cd nodejs
 node svg_server.js 8095
-# Open: http://localhost:8095/todo-manager-nodejs.svg
+# Dostęp: http://localhost:8095/todo-manager-nodejs.svg
+# CLI: node svg_processor.js todo-manager-nodejs.svg > output.svg
 ```
 
 ## 🎨 Features
@@ -82,15 +41,79 @@ node svg_server.js 8095
 - ✅ **Pipeline Integration**: Perfect for automation
 - ✅ **Batch Processing**: Process multiple files at once
 
+## 🗂️ Project Structure
+
+```
+├── generated/
+│   ├── router.php                  # PHP router (WWW + CLI)
+│   ├── todo-manager-pwa.svg        # SVG z PHP kodem
+│   ├── test-minimal1.svg           # Prosty przykład PHP
+│   └── README-SVG-PHP.md           # Dokumentacja PHP
+├── python/
+│   ├── svg_processor.py            # Python processor (CLI)
+│   ├── svg_server.py               # Python HTTP server
+│   └── todo-manager-python.svg     # SVG z Python kodem
+└── nodejs/
+    ├── svg_processor.js            # Node.js processor (CLI)
+    ├── svg_server.js               # Node.js HTTP server
+    └── todo-manager-nodejs.svg     # SVG z JavaScript kodem
+```
+
+## 🔧 Language Syntax
+
+### PHP
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg">
+  <text x="10" y="20"><?php echo date('H:i:s'); ?></text>
+  <text x="10" y="40">Zadań: <?php echo $tasks_count; ?></text>
+</svg>
+```
+
+### Python
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg">
+  <text x="10" y="20"><?python print(current_time) ?></text>
+  <text x="10" y="40">Zadań: <?python print(tasks_count) ?></text>
+</svg>
+```
+
+### Node.js
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg">
+  <text x="10" y="20"><?js print(currentTime) ?></text>
+  <text x="10" y="40">Zadań: <?js print(tasksCount) ?></text>
+</svg>
+```
+
+## 🎯 Available Variables
+
+### PHP
+- `$current_time` - aktualny czas (H:i:s)
+- `$tasks_count` - liczba zadań
+- `$_SERVER` - zmienne serwera
+- Wszystkie funkcje PHP
+
+### Python
+- `current_time` - aktualny czas
+- `current_date` - aktualna data
+- `tasks_count` - liczba zadań
+- `datetime`, `os`, `sys` - moduły Python
+
+### Node.js
+- `currentTime` - aktualny czas
+- `currentDate` - aktualna data
+- `tasksCount` - liczba zadań
+- `nodeVersion` - wersja Node.js
+- `Date`, `Math`, `JSON` - obiekty JavaScript
+
 ## 📚 Documentation
 
 - 📖 [PHP Documentation](php/README-SVG-PHP.md) - Complete PHP+SVG guide
 - 📖 [Multi-Language Guide](README-SVG-SCRIPTING.md) - Comprehensive documentation
 
-## 🗂️ Project Structure
-
-   php tester/index.php php/expense-tracker-pwa.svg
-   ```
 
 ## 📊 **21-Point Validation Schema**
 
@@ -395,10 +418,10 @@ The application consists of two parts:
 ### Architecture
 
 ```
-┌─────────────────┐     ┌─────────────────┐
+┌─────────────────┐      ┌─────────────────┐
 │   Browser       │────▶│   Node.js       │
 │   (SVG App)     │◀────│   Server        │
-└─────────────────┘     └─────────────────┘
+└─────────────────┘      └─────────────────┘
                               │
                               ▼
                         ┌─────────────┐

@@ -1,17 +1,19 @@
 <?php
-// 1. Najpierw logika PHP (bez output!)
-$current_time = date('H:i:s');
-$tasks_count = 5; // z bazy danych
+        // 1. Najpierw logika PHP (bez output!)
+        $current_time = date('H:i:s');
+        $tasks_count = 5; // z bazy danych
 
-?>
+        ?>
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1000 700">
 
-  <title>Todo Manager PWA - Czas: <?php echo $current_time; ?> - Zadań: <?php echo $tasks_count; ?></title>
-  <desc>Advanced task management application with PHP backend integration, JavaScript interactivity, and JSON metadata</desc>
+    <title>Todo Manager PWA - Czas: <?php echo $current_time; ?> - Zadań: <?php echo $tasks_count; ?></title>
+    <desc>Advanced task management application with PHP backend integration, JavaScript interactivity, and JSON
+        metadata
+    </desc>
 
-  <!-- JSON Application Configuration -->
-  <script type="application/json" id="app-config"><![CDATA[
+    <!-- JSON Application Configuration -->
+    <script type="application/json" id="app-config"><![CDATA[
   {
     "application": {
       "name": "Todo Manager PWA demo",
@@ -41,8 +43,8 @@ $tasks_count = 5; // z bazy danych
   }
   ]]></script>
 
-  <!-- Backend PHP Implementation -->
-  <script type="application/json" id="backend-logic"><![CDATA[
+    <!-- Backend PHP Implementation -->
+    <script type="application/json" id="backend-logic"><![CDATA[
   {
     "server_implementation": {
       "todo_controller": "class TodoController extends BaseController { private $dataFile = 'todos.json'; public function getAllTasks() { if (file_exists($this->dataFile)) { return json_decode(file_get_contents($this->dataFile), true); } return []; } public function addTask($data) { $tasks = $this->getAllTasks(); $newTask = [ 'id' => uniqid(), 'text' => $data['text'], 'priority' => $data['priority'], 'status' => 'pending', 'created_at' => date('Y-m-d H:i:s'), 'completed_at' => null ]; $tasks[] = $newTask; file_put_contents($this->dataFile, json_encode($tasks, JSON_PRETTY_PRINT)); return $newTask; } public function updateTask($id, $data) { $tasks = $this->getAllTasks(); foreach ($tasks as &$task) { if ($task['id'] === $id) { $task = array_merge($task, $data); if ($data['status'] === 'completed') { $task['completed_at'] = date('Y-m-d H:i:s'); } break; } } file_put_contents($this->dataFile, json_encode($tasks, JSON_PRETTY_PRINT)); return true; } public function deleteTask($id) { $tasks = $this->getAllTasks(); $tasks = array_filter($tasks, function($task) use ($id) { return $task['id'] !== $id; }); file_put_contents($this->dataFile, json_encode(array_values($tasks), JSON_PRETTY_PRINT)); return true; } }",
@@ -52,8 +54,8 @@ $tasks_count = 5; // z bazy danych
   }
   ]]></script>
 
-  <defs>
-    <style><![CDATA[
+    <defs>
+        <style><![CDATA[
       .header { font-family: Arial, sans-serif; font-size: 28px; font-weight: bold; fill: white; }
       .subheader { font-family: Arial, sans-serif; font-size: 16px; fill: #bbbbbb; }
       .card { fill: rgba(255,255,255,0.1); stroke: #4caf50; stroke-width: 2; rx: 12; }
@@ -71,75 +73,79 @@ $tasks_count = 5; // z bazy danych
       .counter-text { font-family: Arial, sans-serif; font-size: 16px; fill: #4caf50; font-weight: bold; }
     ]]></style>
 
-    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
-    </linearGradient>
+        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#16213e;stop-opacity:1"/>
+        </linearGradient>
 
-    <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:rgba(76,175,80,0.2);stop-opacity:1" />
-      <stop offset="100%" style="stop-color:rgba(76,175,80,0.1);stop-opacity:1" />
-    </linearGradient>
-  </defs>
+        <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:rgba(76,175,80,0.2);stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:rgba(76,175,80,0.1);stop-opacity:1"/>
+        </linearGradient>
+    </defs>
 
 
-  <!-- Background -->
-  <rect width="100%" height="100%" fill="url(#bgGradient)"/>
+    <!-- Background -->
+    <rect width="100%" height="100%" fill="url(#bgGradient)"/>
 
-  <!-- Header Section -->
-  <text x="50" y="50" class="header">📋
-  Todo Manager PWA - Czas: <?php echo $current_time; ?> - Zadań: <?php echo $tasks_count; ?>
-  </text>
-  <text x="50" y="75" class="subheader">Advanced Task Management with PHP Backend</text>
+    <!-- Header Section -->
+    <text x="50" y="50" class="header">📋
+        Todo Manager PWA - Czas: <?php echo $current_time; ?> - Zadań: <?php echo $tasks_count; ?>
+    </text>
+    <text x="50" y="75" class="subheader">Advanced Task Management with PHP Backend</text>
 
-  <!-- Stats Section -->
-  <rect x="50" y="90" width="900" height="60" class="card"/>
-  <text x="70" y="115" class="task-text">Task Statistics:</text>
-  <text x="70" y="135" class="counter-text" id="pending-count">Pending: 0</text>
-  <text x="200" y="135" class="counter-text" id="completed-count">Completed: 0</text>
-  <text x="350" y="135" class="counter-text" id="total-count">Total: 0</text>
+    <!-- Stats Section -->
+    <rect x="50" y="90" width="900" height="60" class="card"/>
+    <text x="70" y="115" class="task-text">Task Statistics:</text>
+    <text x="70" y="135" class="counter-text" id="pending-count">Pending: 0</text>
+    <text x="200" y="135" class="counter-text" id="completed-count">Completed: 0</text>
+    <text x="350" y="135" class="counter-text" id="total-count">Total: 0</text>
 
-  <!-- Add Task Section -->
-  <rect x="50" y="170" width="900" height="80" class="card"/>
-  <text x="70" y="195" class="task-text">Add New Task:</text>
+    <!-- Add Task Section -->
+    <rect x="50" y="170" width="900" height="80" class="card"/>
+    <text x="70" y="195" class="task-text">Add New Task:</text>
 
-  <!-- Task Input Area (SVG-based) -->
-  <rect x="70" y="205" width="500" height="35" class="input-area" id="task-input-area" onclick="focusTaskInput()"/>
-  <text x="80" y="227" class="task-text" id="task-input-text">Click to enter task description...</text>
+    <!-- Task Input Area (SVG-based) -->
+    <rect x="70" y="205" width="500" height="35" class="input-area" id="task-input-area" onclick="focusTaskInput()"/>
+    <text x="80" y="227" class="task-text" id="task-input-text">Click to enter task description...</text>
 
-  <!-- Priority Selection -->
-  <g id="priority-selector">
-    <text x="590" y="220" class="task-text">Priority:</text>
-    <rect x="650" y="205" width="50" height="35" class="priority-low" rx="6" onclick="setPriority('low')" id="priority-low"/>
-    <text x="675" y="227" class="btn-text">Low</text>
-    <rect x="710" y="205" width="60" height="35" class="priority-medium" rx="6" onclick="setPriority('medium')" id="priority-medium"/>
-    <text x="740" y="227" class="btn-text">Med</text>
-    <rect x="780" y="205" width="50" height="35" class="priority-high" rx="6" onclick="setPriority('high')" id="priority-high"/>
-    <text x="805" y="227" class="btn-text">High</text>
-    <rect x="840" y="205" width="60" height="35" class="priority-urgent" rx="6" onclick="setPriority('urgent')" id="priority-urgent"/>
-    <text x="870" y="227" class="btn-text">Urgent</text>
-  </g>
+    <!-- Priority Selection -->
+    <g id="priority-selector">
+        <text x="590" y="220" class="task-text">Priority:</text>
+        <rect x="650" y="205" width="50" height="35" class="priority-low" rx="6" onclick="setPriority('low')"
+              id="priority-low"/>
+        <text x="675" y="227" class="btn-text">Low</text>
+        <rect x="710" y="205" width="60" height="35" class="priority-medium" rx="6" onclick="setPriority('medium')"
+              id="priority-medium"/>
+        <text x="740" y="227" class="btn-text">Med</text>
+        <rect x="780" y="205" width="50" height="35" class="priority-high" rx="6" onclick="setPriority('high')"
+              id="priority-high"/>
+        <text x="805" y="227" class="btn-text">High</text>
+        <rect x="840" y="205" width="60" height="35" class="priority-urgent" rx="6" onclick="setPriority('urgent')"
+              id="priority-urgent"/>
+        <text x="870" y="227" class="btn-text">Urgent</text>
+    </g>
 
-  <!-- Add Button -->
-  <rect x="850" y="260" width="100" height="35" class="btn" onclick="addNewTask()"/>
-  <text x="900" y="282" class="btn-text">Add Task</text>
+    <!-- Add Button -->
+    <rect x="850" y="260" width="100" height="35" class="btn" onclick="addNewTask()"/>
+    <text x="900" y="282" class="btn-text">Add Task</text>
 
-  <!-- Tasks List Container -->
-  <g id="tasks-container">
-    <!-- Dynamic tasks will be rendered here -->
-  </g>
+    <!-- Tasks List Container -->
+    <g id="tasks-container">
+        <!-- Dynamic tasks will be rendered here -->
+    </g>
 
-  <!-- Action Buttons -->
-  <rect x="50" y="630" width="120" height="35" class="btn" onclick="clearCompleted()"/>
-  <text x="110" y="652" class="btn-text">Clear Done</text>
+    <!-- Action Buttons -->
+    <rect x="50" y="630" width="120" height="35" class="btn" onclick="clearCompleted()"/>
+    <text x="110" y="652" class="btn-text">Clear Done</text>
 
-  <rect x="180" y="630" width="120" height="35" class="btn" onclick="exportTasks()"/>
-  <text x="240" y="652" class="btn-text">Export JSON</text>
+    <rect x="180" y="630" width="120" height="35" class="btn" onclick="exportTasks()"/>
+    <text x="240" y="652" class="btn-text">Export JSON</text>
 
-  <rect x="310" y="630" width="120" height="35" class="btn" onclick="syncWithBackend()"/>
-  <text x="370" y="652" class="btn-text">Sync Backend</text>
+    <rect x="310" y="630" width="120" height="35" class="btn" onclick="syncWithBackend()"/>
+    <text x="370" y="652" class="btn-text">Sync Backend</text>
 
-  <script><![CDATA[
+    <script><![CDATA[
     // Todo Manager PWA JavaScript Implementation
     let tasks = [];
     let currentPriority = 'medium';

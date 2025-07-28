@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1000 700">
-  
-  <title>Todo Manager PWA</title>
-  <desc>Advanced task management application with PHP backend integration, JavaScript interactivity, and JSON metadata</desc>
-  
-  <!-- JSON Metadata -->
-  <script type="application/json" id="app-metadata"><![CDATA[
+
+    <title>Todo Manager PWA</title>
+    <desc>Advanced task management application with PHP backend integration, JavaScript interactivity, and JSON
+        metadata
+    </desc>
+
+    <!-- JSON Metadata -->
+    <script type="application/json" id="app-metadata"><![CDATA[
   {
     "name": "Todo Manager PWA",
     "version": "1.0.0",
@@ -36,9 +38,9 @@
     }
   }
   ]]></script>
-  
-  <!-- PHP Backend Implementation -->
-  <script type="application/json" id="backend-logic"><![CDATA[
+
+    <!-- PHP Backend Implementation -->
+    <script type="application/json" id="backend-logic"><![CDATA[
   {
     "server_implementation": {
       "todo_controller": "class TodoAPI { private $dataFile = 'tasks.json'; public function getTasks() { if (file_exists($this->dataFile)) { return json_decode(file_get_contents($this->dataFile), true);
@@ -101,9 +103,9 @@
   }
   ?>
   ]]></script>
-  
-  <defs>
-    <style><![CDATA[
+
+    <defs>
+        <style><![CDATA[
       .app-container { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
       .header { fill: white; font-size: 24px; font-weight: bold; text-anchor: middle; }
       .subheader { fill: #e0e0e0; font-size: 14px; text-anchor: middle; }
@@ -121,67 +123,83 @@
       .input-field { fill: rgba(255,255,255,0.2); stroke: #4caf50; stroke-width: 2; rx: 5; }
       .stats-text { fill: #4caf50; font-size: 12px; font-weight: bold; }
     ]]></style>
-    
-    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1a237e;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#283593;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#3949ab;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  
-  <!-- Background -->
-  <rect width="100%" height="100%" fill="url(#bgGradient)"/>
-  
-  <!-- Header -->
-  <text x="500" y="40" class="header">📝 Todo Manager PWA</text>
-  <text x="500" y="60" class="subheader">Advanced Task Management with PHP + JavaScript + JSON</text>
-  
-  <!-- Stats Panel -->
-  <rect x="50" y="80" width="900" height="60" fill="rgba(255,255,255,0.1)" stroke="#4caf50" stroke-width="1" rx="10"/>
-  <text x="100" y="105" class="stats-text">Total: <tspan id="total-count">0</tspan></text>
-  <text x="250" y="105" class="stats-text">Completed: <tspan id="completed-count">0</tspan></text>
-  <text x="400" y="105" class="stats-text">Pending: <tspan id="pending-count">0</tspan></text>
-  <text x="550" y="105" class="stats-text">High Priority: <tspan id="high-priority-count">0</tspan></text>
-  
-  <!-- Add Task Section -->
-  <rect x="50" y="160" width="900" height="80" fill="rgba(255,255,255,0.1)" stroke="#4caf50" stroke-width="1" rx="10"/>
-  <text x="70" y="180" class="task-text">Add New Task:</text>
-  
-  <!-- Input Fields (Standard SVG Elements) -->
-  <rect x="70" y="190" width="400" height="30" fill="white" stroke="#4a9eff" stroke-width="1" rx="4"/>
-  <text x="80" y="210" class="input-placeholder" font-family="Arial, sans-serif" font-size="12" fill="#888">Click to add new task...</text>
-  
-  <rect x="490" y="190" width="120" height="30" fill="white" stroke="#4a9eff" stroke-width="1" rx="4"/>
-  <text x="500" y="210" class="priority-label" font-family="Arial, sans-serif" font-size="12" fill="#333">Priority: Medium</text>
-  
-  <!-- Priority Selection Buttons -->
-  <g id="priority-buttons">
-    <rect x="620" y="190" width="30" height="30" fill="#28a745" stroke="none" rx="4" class="priority-btn" data-priority="low" onclick="setPriority('low')"/>
-    <text x="635" y="210" font-family="Arial, sans-serif" font-size="10" fill="white" text-anchor="middle">L</text>
-    <rect x="655" y="190" width="30" height="30" fill="#ffc107" stroke="none" rx="4" class="priority-btn" data-priority="medium" onclick="setPriority('medium')"/>
-    <text x="670" y="210" font-family="Arial, sans-serif" font-size="10" fill="white" text-anchor="middle">M</text>
-    <rect x="690" y="190" width="30" height="30" fill="#dc3545" stroke="none" rx="4" class="priority-btn" data-priority="high" onclick="setPriority('high')"/>
-    <text x="705" y="210" font-family="Arial, sans-serif" font-size="10" fill="white" text-anchor="middle">H</text>
-  </g>
-  
-  <rect x="630" y="190" width="80" height="30" class="btn" onclick="addTask()"/>
-  <text x="670" y="210" class="btn-text">Add Task</text>
-  
-  <rect x="730" y="190" width="100" height="30" class="btn" onclick="exportTasks()"/>
-  <text x="780" y="210" class="btn-text">Export JSON</text>
-  
-  <rect x="850" y="190" width="80" height="30" class="btn" onclick="syncWithPHP()"/>
-  <text x="890" y="210" class="btn-text">Sync PHP</text>
-  
-  <!-- Tasks Container -->
-  <g id="tasks-container">
-    <!-- Tasks will be dynamically added here -->
-  </g>
-  
-  <!-- Footer -->
-  <text x="500" y="680" class="subheader">Powered by VeriDock Grid • SVG PWA Technology</text>
-  
-  <script><![CDATA[
+
+        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#1a237e;stop-opacity:1"/>
+            <stop offset="50%" style="stop-color:#283593;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#3949ab;stop-opacity:1"/>
+        </linearGradient>
+    </defs>
+
+    <!-- Background -->
+    <rect width="100%" height="100%" fill="url(#bgGradient)"/>
+
+    <!-- Header -->
+    <text x="500" y="40" class="header">📝 Todo Manager PWA</text>
+    <text x="500" y="60" class="subheader">Advanced Task Management with PHP + JavaScript + JSON</text>
+
+    <!-- Stats Panel -->
+    <rect x="50" y="80" width="900" height="60" fill="rgba(255,255,255,0.1)" stroke="#4caf50" stroke-width="1" rx="10"/>
+    <text x="100" y="105" class="stats-text">Total:
+        <tspan id="total-count">0</tspan>
+    </text>
+    <text x="250" y="105" class="stats-text">Completed:
+        <tspan id="completed-count">0</tspan>
+    </text>
+    <text x="400" y="105" class="stats-text">Pending:
+        <tspan id="pending-count">0</tspan>
+    </text>
+    <text x="550" y="105" class="stats-text">High Priority:
+        <tspan id="high-priority-count">0</tspan>
+    </text>
+
+    <!-- Add Task Section -->
+    <rect x="50" y="160" width="900" height="80" fill="rgba(255,255,255,0.1)" stroke="#4caf50" stroke-width="1"
+          rx="10"/>
+    <text x="70" y="180" class="task-text">Add New Task:</text>
+
+    <!-- Input Fields (Standard SVG Elements) -->
+    <rect x="70" y="190" width="400" height="30" fill="white" stroke="#4a9eff" stroke-width="1" rx="4"/>
+    <text x="80" y="210" class="input-placeholder" font-family="Arial, sans-serif" font-size="12" fill="#888">Click to
+        add new task...
+    </text>
+
+    <rect x="490" y="190" width="120" height="30" fill="white" stroke="#4a9eff" stroke-width="1" rx="4"/>
+    <text x="500" y="210" class="priority-label" font-family="Arial, sans-serif" font-size="12" fill="#333">Priority:
+        Medium
+    </text>
+
+    <!-- Priority Selection Buttons -->
+    <g id="priority-buttons">
+        <rect x="620" y="190" width="30" height="30" fill="#28a745" stroke="none" rx="4" class="priority-btn"
+              data-priority="low" onclick="setPriority('low')"/>
+        <text x="635" y="210" font-family="Arial, sans-serif" font-size="10" fill="white" text-anchor="middle">L</text>
+        <rect x="655" y="190" width="30" height="30" fill="#ffc107" stroke="none" rx="4" class="priority-btn"
+              data-priority="medium" onclick="setPriority('medium')"/>
+        <text x="670" y="210" font-family="Arial, sans-serif" font-size="10" fill="white" text-anchor="middle">M</text>
+        <rect x="690" y="190" width="30" height="30" fill="#dc3545" stroke="none" rx="4" class="priority-btn"
+              data-priority="high" onclick="setPriority('high')"/>
+        <text x="705" y="210" font-family="Arial, sans-serif" font-size="10" fill="white" text-anchor="middle">H</text>
+    </g>
+
+    <rect x="630" y="190" width="80" height="30" class="btn" onclick="addTask()"/>
+    <text x="670" y="210" class="btn-text">Add Task</text>
+
+    <rect x="730" y="190" width="100" height="30" class="btn" onclick="exportTasks()"/>
+    <text x="780" y="210" class="btn-text">Export JSON</text>
+
+    <rect x="850" y="190" width="80" height="30" class="btn" onclick="syncWithPHP()"/>
+    <text x="890" y="210" class="btn-text">Sync PHP</text>
+
+    <!-- Tasks Container -->
+    <g id="tasks-container">
+        <!-- Tasks will be dynamically added here -->
+    </g>
+
+    <!-- Footer -->
+    <text x="500" y="680" class="subheader">Powered by VeriDock Grid • SVG PWA Technology</text>
+
+    <script><![CDATA[
     // Todo Manager JavaScript Application
     class TodoManager {
         constructor() {

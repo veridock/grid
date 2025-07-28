@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1200 800">
-  <title>My Dashboard</title>
-  <desc>Generated dashboard application with PHP backend integration</desc>
-  
-  <!-- JSON Application Configuration -->
-  <script type="application/json" id="app-config"><![CDATA[
+    <title>My Dashboard</title>
+    <desc>Generated dashboard application with PHP backend integration</desc>
+
+    <!-- JSON Application Configuration -->
+    <script type="application/json" id="app-config"><![CDATA[
   {
     "application": {
       "name": "Test Dashboard PWA",
@@ -34,9 +34,9 @@
     }
   }
   ]]></script>
-  
-  <!-- Backend PHP Implementation -->
-  <script type="application/json" id="backend-logic"><![CDATA[
+
+    <!-- Backend PHP Implementation -->
+    <script type="application/json" id="backend-logic"><![CDATA[
   {
     "server_implementation": {
       "dashboard_controller": "class DashboardController extends BaseController { private $db; private $cache; public function __construct() { $this->db = new DatabaseConnection(); $this->cache = new RedisCache(); } public function getSystemStatus() { $status = [ 'server_uptime' => $this->getServerUptime(), 'cpu_usage' => $this->getCpuUsage(), 'memory_usage' => $this->getMemoryUsage(), 'disk_space' => $this->getDiskSpace(), 'active_users' => $this->getActiveUsersCount(), 'database_status' => $this->checkDatabaseConnection() ]; $this->cache->set('system_status', $status, 60); return $status; } public function getPerformanceMetrics($timeRange = '24h') { $cacheKey = 'performance_metrics_' . $timeRange; $metrics = $this->cache->get($cacheKey); if (!$metrics) { $sql = 'SELECT metric_name, metric_value, recorded_at FROM performance_metrics WHERE recorded_at >= DATE_SUB(NOW(), INTERVAL ? HOUR) ORDER BY recorded_at DESC'; $metrics = $this->db->query($sql, [$this->timeRangeToHours($timeRange)]); $this->cache->set($cacheKey, $metrics, 300); } return $metrics; } private function getServerUptime() { return shell_exec('uptime -p'); } private function getCpuUsage() { $load = sys_getloadavg(); return round($load[0] * 100 / 4, 2); } private function getMemoryUsage() { $memInfo = file_get_contents('/proc/meminfo'); preg_match_all('/^(\w+):\s+(\d+)\s+kB$/m', $memInfo, $matches); $memData = array_combine($matches[1], $matches[2]); $totalMem = $memData['MemTotal']; $freeMem = $memData['MemFree'] + $memData['Buffers'] + $memData['Cached']; return round(($totalMem - $freeMem) / $totalMem * 100, 2); } }",
@@ -45,8 +45,8 @@
     }
   }
   ]]></script>
-  <defs>
-    <style><![CDATA[
+    <defs>
+        <style><![CDATA[
       .header { font-family: Arial, sans-serif; font-size: 24px; font-weight: bold; fill: white; }
       .card { fill: rgba(255,255,255,0.1); stroke: #64ffda; stroke-width: 1; rx: 10; }
       .text { font-family: Arial, sans-serif; font-size: 14px; fill: white; }
@@ -54,21 +54,21 @@
       .button { fill: #64ffda; stroke: none; rx: 20; cursor: pointer; }
       .button:hover { fill: #00bcd4; }
       .button-text { font-family: Arial, sans-serif; font-size: 12px; fill: #1a1a2e; text-anchor: middle; }]]></style>
-    
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0f3460;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  
-  <rect width="100%" height="100%" fill="url(#bgGrad)"/>
-  <text x="50" y="50" class="header">Dashboard</text>
-  <rect x="50" y="120" width="250" height="120" class="card"/>
-  <text x="70" y="150" class="text">System Status</text>
-  <text x="70" y="180" class="value">Online</text>
-  <rect x="50" y="400" width="120" height="40" class="button" onclick="refresh()"/>
-  <text x="110" y="425" class="button-text">Refresh</text>
-  <script><![CDATA[
+
+        <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#0f3460;stop-opacity:1"/>
+        </linearGradient>
+    </defs>
+
+    <rect width="100%" height="100%" fill="url(#bgGrad)"/>
+    <text x="50" y="50" class="header">Dashboard</text>
+    <rect x="50" y="120" width="250" height="120" class="card"/>
+    <text x="70" y="150" class="text">System Status</text>
+    <text x="70" y="180" class="value">Online</text>
+    <rect x="50" y="400" width="120" height="40" class="button" onclick="refresh()"/>
+    <text x="110" y="425" class="button-text">Refresh</text>
+    <script><![CDATA[
     function refresh() {
       console.log("Dashboard refreshed");
       document.querySelector(".value").textContent = "Updated";

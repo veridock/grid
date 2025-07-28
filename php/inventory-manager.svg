@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1000 700">
-  
-  <title>Inventory Manager PWA</title>
-  <desc>Professional inventory management system with backend integration</desc>
-  
-  <!-- JSON Metadata -->
-  <script type="application/json" id="app-config"><![CDATA[
+
+    <title>Inventory Manager PWA</title>
+    <desc>Professional inventory management system with backend integration</desc>
+
+    <!-- JSON Metadata -->
+    <script type="application/json" id="app-config"><![CDATA[
   {
     "app": {
       "name": "Inventory Manager PWA",
@@ -20,16 +20,16 @@
     }
   }
   ]]></script>
-  
-  <!-- Backend Logic (encoded to avoid conflicts) -->
-  <script type="application/json" id="server-code"><![CDATA[
+
+    <!-- Backend Logic (encoded to avoid conflicts) -->
+    <script type="application/json" id="server-code"><![CDATA[
   {
     "backend_implementation": "class InventoryAPI { private db; public function getItems() { return db->query('SELECT * FROM inventory'); } public function addItem(data) { return db->insert('inventory', data); } public function updateStock(id, quantity) { return db->update('inventory', ['quantity' => quantity], ['id' => id]); } }"
   }
   ]]></script>
 
-  <defs>
-    <style><![CDATA[
+    <defs>
+        <style><![CDATA[
       .app-font { font-family: system-ui, sans-serif; }
       .title { fill: white; font-size: 28px; font-weight: bold; text-anchor: middle; }
       .card { fill: rgba(255,255,255,0.1); stroke: #4caf50; stroke-width: 1; rx: 8; }
@@ -39,64 +39,66 @@
       .btn { fill: #2196f3; stroke: none; rx: 4; cursor: pointer; }
       .btn-text { fill: white; font-size: 12px; text-anchor: middle; }
     ]]></style>
-    
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1a237e;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#3949ab;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  
-  <rect width="100%" height="100%" fill="url(#bg)"/>
-  
-  <!-- Header -->
-  <text x="500" y="40" class="title">📦 Inventory Manager PWA</text>
-  
-  <!-- Dashboard Cards -->
-  <rect x="50" y="70" width="200" height="100" class="card"/>
-  <text x="70" y="95" class="item-text">Total Items</text>
-  <text x="70" y="120" class="item-text" style="font-size:24px;" id="total-items">0</text>
-  
-  <rect x="270" y="70" width="200" height="100" class="card"/>
-  <text x="290" y="95" class="item-text">Low Stock</text>
-  <text x="290" y="120" class="stock-low" style="font-size:24px;" id="low-stock">0</text>
-  
-  <rect x="490" y="70" width="200" height="100" class="card"/>
-  <text x="510" y="95" class="item-text">Total Value</text>
-  <text x="510" y="120" class="stock-ok" style="font-size:24px;" id="total-value">$0</text>
-  
-  <!-- Quick Actions -->
-  <rect x="720" y="70" width="80" height="30" class="btn" onclick="addItem()"/>
-  <text x="760" y="88" class="btn-text">Add Item</text>
-  
-  <rect x="810" y="70" width="80" height="30" class="btn" onclick="exportData()"/>
-  <text x="850" y="88" class="btn-text">Export</text>
-  
-  <rect x="720" y="110" width="80" height="30" class="btn" onclick="syncBackend()"/>
-  <text x="760" y="128" class="btn-text">Sync</text>
-  
-  <rect x="810" y="110" width="80" height="30" class="btn" onclick="generateReport()"/>
-  <text x="850" y="128" class="btn-text">Report</text>
-  
-  <!-- Items List -->
-  <rect x="50" y="190" width="900" height="400" class="card"/>
-  <text x="70" y="215" class="item-text" style="font-weight:bold;">Inventory Items</text>
-  
-  <!-- Table Headers -->
-  <text x="70" y="240" class="item-text" style="font-size:12px;">Product</text>
-  <text x="300" y="240" class="item-text" style="font-size:12px;">SKU</text>
-  <text x="450" y="240" class="item-text" style="font-size:12px;">Stock</text>
-  <text x="550" y="240" class="item-text" style="font-size:12px;">Price</text>
-  <text x="650" y="240" class="item-text" style="font-size:12px;">Status</text>
-  <text x="750" y="240" class="item-text" style="font-size:12px;">Actions</text>
-  
-  <!-- Items Container -->
-  <rect x="60" y="250" width="880" height="2" fill="#4caf50" opacity="0.5"/>
-  <rect x="60" y="260" width="880" height="320" fill="none" id="items-container"/>
-  
-  <!-- Status Bar -->
-  <text x="500" y="630" class="item-text" style="text-anchor:middle;">Connected to Backend • Last Sync: <tspan id="last-sync">Never</tspan></text>
-  
-  <script><![CDATA[
+
+        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#1a237e;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#3949ab;stop-opacity:1"/>
+        </linearGradient>
+    </defs>
+
+    <rect width="100%" height="100%" fill="url(#bg)"/>
+
+    <!-- Header -->
+    <text x="500" y="40" class="title">📦 Inventory Manager PWA</text>
+
+    <!-- Dashboard Cards -->
+    <rect x="50" y="70" width="200" height="100" class="card"/>
+    <text x="70" y="95" class="item-text">Total Items</text>
+    <text x="70" y="120" class="item-text" style="font-size:24px;" id="total-items">0</text>
+
+    <rect x="270" y="70" width="200" height="100" class="card"/>
+    <text x="290" y="95" class="item-text">Low Stock</text>
+    <text x="290" y="120" class="stock-low" style="font-size:24px;" id="low-stock">0</text>
+
+    <rect x="490" y="70" width="200" height="100" class="card"/>
+    <text x="510" y="95" class="item-text">Total Value</text>
+    <text x="510" y="120" class="stock-ok" style="font-size:24px;" id="total-value">$0</text>
+
+    <!-- Quick Actions -->
+    <rect x="720" y="70" width="80" height="30" class="btn" onclick="addItem()"/>
+    <text x="760" y="88" class="btn-text">Add Item</text>
+
+    <rect x="810" y="70" width="80" height="30" class="btn" onclick="exportData()"/>
+    <text x="850" y="88" class="btn-text">Export</text>
+
+    <rect x="720" y="110" width="80" height="30" class="btn" onclick="syncBackend()"/>
+    <text x="760" y="128" class="btn-text">Sync</text>
+
+    <rect x="810" y="110" width="80" height="30" class="btn" onclick="generateReport()"/>
+    <text x="850" y="128" class="btn-text">Report</text>
+
+    <!-- Items List -->
+    <rect x="50" y="190" width="900" height="400" class="card"/>
+    <text x="70" y="215" class="item-text" style="font-weight:bold;">Inventory Items</text>
+
+    <!-- Table Headers -->
+    <text x="70" y="240" class="item-text" style="font-size:12px;">Product</text>
+    <text x="300" y="240" class="item-text" style="font-size:12px;">SKU</text>
+    <text x="450" y="240" class="item-text" style="font-size:12px;">Stock</text>
+    <text x="550" y="240" class="item-text" style="font-size:12px;">Price</text>
+    <text x="650" y="240" class="item-text" style="font-size:12px;">Status</text>
+    <text x="750" y="240" class="item-text" style="font-size:12px;">Actions</text>
+
+    <!-- Items Container -->
+    <rect x="60" y="250" width="880" height="2" fill="#4caf50" opacity="0.5"/>
+    <rect x="60" y="260" width="880" height="320" fill="none" id="items-container"/>
+
+    <!-- Status Bar -->
+    <text x="500" y="630" class="item-text" style="text-anchor:middle;">Connected to Backend • Last Sync:
+        <tspan id="last-sync">Never</tspan>
+    </text>
+
+    <script><![CDATA[
     class InventoryManager {
         constructor() {
             this.items = [];

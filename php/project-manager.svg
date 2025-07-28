@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1000 700">
-  
-  <title>Project Manager PWA</title>
-  <desc>Professional project management application with team collaboration and backend integration</desc>
-  
-  <!-- JSON Application Configuration -->
-  <script type="application/json" id="app-metadata"><![CDATA[
+
+    <title>Project Manager PWA</title>
+    <desc>Professional project management application with team collaboration and backend integration</desc>
+
+    <!-- JSON Application Configuration -->
+    <script type="application/json" id="app-metadata"><![CDATA[
   {
     "application": {
       "name": "Project Manager PWA",
@@ -43,9 +43,9 @@
     }
   }
   ]]></script>
-  
-  <!-- Backend Implementation Logic -->
-  <script type="application/json" id="backend-logic"><![CDATA[
+
+    <!-- Backend Implementation Logic -->
+    <script type="application/json" id="backend-logic"><![CDATA[
   {
     "server_implementation": {
       "project_api_class": "class ProjectAPI extends BaseController { private $db; private $auth; public function __construct() { $this->db = new Database(); $this->auth = new AuthService(); } public function createProject($data) { $userId = $this->auth->getCurrentUserId(); $project = [ 'name' => $data['name'], 'description' => $data['description'], 'owner_id' => $userId, 'status' => 'active', 'created_at' => date('Y-m-d H:i:s'), 'updated_at' => date('Y-m-d H:i:s') ]; $projectId = $this->db->insert('projects', $project); return $this->getProject($projectId); } public function getProjects($filters = []) { $sql = 'SELECT p.*, u.name as owner_name FROM projects p JOIN users u ON p.owner_id = u.id WHERE 1=1'; $params = []; if (isset($filters['status'])) { $sql .= ' AND p.status = ?'; $params[] = $filters['status']; } if (isset($filters['owner_id'])) { $sql .= ' AND p.owner_id = ?'; $params[] = $filters['owner_id']; } $sql .= ' ORDER BY p.updated_at DESC'; return $this->db->query($sql, $params); } public function updateProject($id, $data) { $updates = []; $params = []; foreach (['name', 'description', 'status'] as $field) { if (isset($data[$field])) { $updates[] = $field . ' = ?'; $params[] = $data[$field]; } } if (!empty($updates)) { $params[] = $id; $sql = 'UPDATE projects SET ' . implode(', ', $updates) . ', updated_at = NOW() WHERE id = ?'; $this->db->execute($sql, $params); } return $this->getProject($id); } public function deleteProject($id) { $this->db->execute('DELETE FROM project_tasks WHERE project_id = ?', [$id]); $this->db->execute('DELETE FROM projects WHERE id = ?', [$id]); return ['success' => true]; } }",
@@ -55,8 +55,8 @@
   }
   ]]></script>
 
-  <defs>
-    <style><![CDATA[
+    <defs>
+        <style><![CDATA[
       .app-base { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; }
       .main-title { fill: white; font-size: 30px; font-weight: 800; text-anchor: middle; }
       .section-title { fill: #81c784; font-size: 18px; font-weight: 600; }
@@ -80,70 +80,75 @@
       .metric-value { fill: white; font-size: 18px; font-weight: bold; }
       .user-avatar { fill: #64b5f6; stroke: white; stroke-width: 2; }
     ]]></style>
-    
-    <linearGradient id="appGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1a237e;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#283593;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#3949ab;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  
-  <!-- Main Background -->
-  <rect width="100%" height="100%" fill="url(#appGradient)"/>
-  
-  <!-- Header -->
-  <text x="500" y="45" class="main-title">🚀 Project Manager PWA</text>
-  <text x="500" y="70" class="project-desc" style="text-anchor:middle;">Team Collaboration • Backend Integration • Real-time Updates</text>
-  
-  <!-- Dashboard Metrics -->
-  <rect x="50" y="90" width="180" height="80" class="card"/>
-  <text x="70" y="110" class="metric-label">Active Projects</text>
-  <text x="70" y="135" class="metric-value" id="active-projects">3</text>
-  <text x="70" y="155" class="metric-label">85% Complete</text>
-  
-  <rect x="250" y="90" width="180" height="80" class="card"/>
-  <text x="270" y="110" class="metric-label">Total Tasks</text>
-  <text x="270" y="135" class="metric-value" id="total-tasks">24</text>
-  <text x="270" y="155" class="metric-label">18 Completed</text>
-  
-  <rect x="450" y="90" width="180" height="80" class="card"/>
-  <text x="470" y="110" class="metric-label">Team Members</text>
-  <text x="470" y="135" class="metric-value" id="team-count">7</text>
-  <text x="470" y="155" class="metric-label">Online: 5</text>
-  
-  <rect x="650" y="90" width="180" height="80" class="card"/>
-  <text x="670" y="110" class="metric-label">This Week</text>
-  <text x="670" y="135" class="metric-value" id="week-progress">12</text>
-  <text x="670" y="155" class="metric-label">Tasks Done</text>
-  
-  <!-- Action Buttons -->
-  <rect x="850" y="95" width="90" height="25" class="btn-primary" onclick="createProject()"/>
-  <text x="895" y="110" class="btn-text">New Project</text>
-  
-  <rect x="850" y="125" width="90" height="25" class="btn-secondary" onclick="exportData()"/>
-  <text x="895" y="140" class="btn-text">Export Data</text>
-  
-  <rect x="850" y="155" width="90" height="25" class="btn-secondary" onclick="syncBackend()"/>
-  <text x="895" y="170" class="btn-text">Sync Backend</text>
-  
-  <!-- Projects Section -->
-  <text x="60" y="210" class="section-title">📋 Active Projects</text>
-  
-  <!-- Project Cards Container -->
-  <rect x="50" y="220" width="900" height="200" class="card"/>
-  <rect x="60" y="230" width="880" height="180" fill="none" id="projects-container"/>
-  
-  <!-- Tasks Section -->
-  <text x="60" y="450" class="section-title">✅ Recent Tasks</text>
-  
-  <!-- Tasks Container -->
-  <rect x="50" y="460" width="900" height="180" class="card"/>
-  <rect x="60" y="470" width="880" height="160" fill="none" id="tasks-container"/>
-  
-  <!-- Footer Status -->
-  <text x="500" y="670" class="project-desc" style="text-anchor:middle;">Backend Connected • Real-time Sync • Last Update: <tspan id="last-update">Now</tspan></text>
-  
-  <script><![CDATA[
+
+        <linearGradient id="appGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#1a237e;stop-opacity:1"/>
+            <stop offset="50%" style="stop-color:#283593;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:#3949ab;stop-opacity:1"/>
+        </linearGradient>
+    </defs>
+
+    <!-- Main Background -->
+    <rect width="100%" height="100%" fill="url(#appGradient)"/>
+
+    <!-- Header -->
+    <text x="500" y="45" class="main-title">🚀 Project Manager PWA</text>
+    <text x="500" y="70" class="project-desc" style="text-anchor:middle;">Team Collaboration • Backend Integration •
+        Real-time Updates
+    </text>
+
+    <!-- Dashboard Metrics -->
+    <rect x="50" y="90" width="180" height="80" class="card"/>
+    <text x="70" y="110" class="metric-label">Active Projects</text>
+    <text x="70" y="135" class="metric-value" id="active-projects">3</text>
+    <text x="70" y="155" class="metric-label">85% Complete</text>
+
+    <rect x="250" y="90" width="180" height="80" class="card"/>
+    <text x="270" y="110" class="metric-label">Total Tasks</text>
+    <text x="270" y="135" class="metric-value" id="total-tasks">24</text>
+    <text x="270" y="155" class="metric-label">18 Completed</text>
+
+    <rect x="450" y="90" width="180" height="80" class="card"/>
+    <text x="470" y="110" class="metric-label">Team Members</text>
+    <text x="470" y="135" class="metric-value" id="team-count">7</text>
+    <text x="470" y="155" class="metric-label">Online: 5</text>
+
+    <rect x="650" y="90" width="180" height="80" class="card"/>
+    <text x="670" y="110" class="metric-label">This Week</text>
+    <text x="670" y="135" class="metric-value" id="week-progress">12</text>
+    <text x="670" y="155" class="metric-label">Tasks Done</text>
+
+    <!-- Action Buttons -->
+    <rect x="850" y="95" width="90" height="25" class="btn-primary" onclick="createProject()"/>
+    <text x="895" y="110" class="btn-text">New Project</text>
+
+    <rect x="850" y="125" width="90" height="25" class="btn-secondary" onclick="exportData()"/>
+    <text x="895" y="140" class="btn-text">Export Data</text>
+
+    <rect x="850" y="155" width="90" height="25" class="btn-secondary" onclick="syncBackend()"/>
+    <text x="895" y="170" class="btn-text">Sync Backend</text>
+
+    <!-- Projects Section -->
+    <text x="60" y="210" class="section-title">📋 Active Projects</text>
+
+    <!-- Project Cards Container -->
+    <rect x="50" y="220" width="900" height="200" class="card"/>
+    <rect x="60" y="230" width="880" height="180" fill="none" id="projects-container"/>
+
+    <!-- Tasks Section -->
+    <text x="60" y="450" class="section-title">✅ Recent Tasks</text>
+
+    <!-- Tasks Container -->
+    <rect x="50" y="460" width="900" height="180" class="card"/>
+    <rect x="60" y="470" width="880" height="160" fill="none" id="tasks-container"/>
+
+    <!-- Footer Status -->
+    <text x="500" y="670" class="project-desc" style="text-anchor:middle;">Backend Connected • Real-time Sync • Last
+        Update:
+        <tspan id="last-update">Now</tspan>
+    </text>
+
+    <script><![CDATA[
     // Project Manager Application
     class ProjectManager {
         constructor() {

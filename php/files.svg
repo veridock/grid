@@ -83,13 +83,13 @@
 if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Mozilla') !== false)) {
     // Tryb interaktywny - zwróć HTML
     header('Content-Type: text/html; charset=UTF-8');
-    
+
     // Konfiguracja
     $directory = isset($_GET['dir']) ? realpath($_GET['dir']) : realpath('./');
     if (!$directory || !is_dir($directory)) {
         $directory = realpath('./');
     }
-    
+
     $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'pdf', 'txt', 'php', 'js', 'html', 'css', 'json', 'xml', 'md'];
 
     // Funkcja do sprawdzania czy plik jest obrazem
@@ -114,14 +114,14 @@ if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USE
     // Skanowanie katalogu - pliki i foldery
     $files = [];
     $directories = [];
-    
+
     if (is_dir($directory)) {
         $scan = scandir($directory);
         foreach ($scan as $item) {
             if ($item === '.') continue;
-            
+
             $itemPath = $directory . '/' . $item;
-            
+
             if ($item === '..') {
                 // Folder nadrzędny
                 $parentDir = dirname($directory);
@@ -156,7 +156,7 @@ if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USE
             }
         }
     }
-    
+
     // Sortowanie
     usort($directories, function($a, $b) {
         if ($a['is_parent']) return -1;
@@ -164,7 +164,7 @@ if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USE
         return strcmp($a['name'], $b['name']);
     });
     usort($files, function($a, $b) { return strcmp($a['name'], $b['name']); });
-    
+
     // Breadcrumb - ścieżka nawigacji
     $pathParts = explode('/', str_replace('\\', '/', $directory));
     $breadcrumbs = [];
@@ -178,7 +178,7 @@ if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USE
             ];
         }
     }
-    
+
     echo '<!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -286,9 +286,9 @@ if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USE
         .dir-item {
             background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
         }
-        
+
         /* Enhanced hover effects for better Linux compatibility */
-        .file-item:hover, 
+        .file-item:hover,
         .dir-item:hover,
         .file-item:focus,
         .dir-item:focus {
@@ -297,7 +297,7 @@ if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USE
             border-color: #667eea;
             background: rgba(255, 255, 255, 1);
         }
-        
+
         /* Linux-specific fixes */
         @media screen and (-webkit-min-device-pixel-ratio: 0) {
             .file-item:hover, .dir-item:hover {
@@ -305,7 +305,7 @@ if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USE
                 -webkit-box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             }
         }
-        
+
         /* Firefox-specific fixes for Linux */
         @-moz-document url-prefix() {
             .file-item, .dir-item {
@@ -317,16 +317,16 @@ if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USE
                 border: 2px solid #667eea;
             }
         }
-        
+
         /* Active states for touch devices */
-        .file-item:active, 
+        .file-item:active,
         .dir-item:active {
             transform: translateY(-2px) scale(0.98);
             transition: all 0.1s ease-in-out;
         }
-        
+
         /* Accessibility focus states */
-        .file-item:focus-visible, 
+        .file-item:focus-visible,
         .dir-item:focus-visible {
             outline: 3px solid #667eea;
             outline-offset: 2px;
@@ -400,17 +400,17 @@ if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USE
         <div class="header">
             <h1>🗂️ Przeglądarka plików SVG</h1>
         </div>
-        
+
         <!-- Breadcrumb navigation -->
         <div class="breadcrumb">
-            🏠 <a href="?dir=/">Root</a>'; 
-            
+            🏠 <a href="?dir=/">Root</a>';
+
     foreach ($breadcrumbs as $index => $crumb) {
         echo ' <span>/</span> <a href="?dir=' . urlencode($crumb['path']) . '">' . htmlspecialchars($crumb['name']) . '</a>';
     }
-    
+
     echo '</div>
-        
+
         <div class="controls">
             <form method="GET" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
                 <input type="text" name="dir" placeholder="Wprowadź ścieżkę do katalogu..." value="' . htmlspecialchars($directory) . '">
@@ -418,12 +418,12 @@ if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USE
                 <button type="button" onclick="window.history.back()">⬅️ Wstecz</button>
             </form>
         </div>';
-        
+
     $totalItems = count($files) + count($directories);
     if ($totalItems > 0) {
         echo '<div class="stats">📊 Znaleziono <strong>' . count($directories) . '</strong> katalogów i <strong>' . count($files) . '</strong> plików</div>
               <div class="grid">';
-        
+
         // Wyświetl katalogi
         foreach ($directories as $dir) {
             $displayName = htmlspecialchars($dir['name']);
@@ -436,20 +436,20 @@ if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USE
                     <div class="file-info">Katalog</div>
                   </div>';
         }
-        
+
         // Wyświetl pliki
         foreach ($files as $file) {
             $fileName = htmlspecialchars($file['name']);
             $filePath = htmlspecialchars($file['path']);
             echo '<div class="file-item" onclick="openFile(\'' . addslashes($filePath) . '\')">
                     <div class="thumbnail">';
-            
+
             if ($file['is_image']) {
                 echo '<img src="' . $filePath . '" alt="' . $fileName . '" onerror="this.style.display=\'none\'; this.parentNode.innerHTML=\'<div class=\"file-icon\">' . $file['icon'] . '</div>\';"/>';
             } else {
                 echo '<div class="file-icon">' . $file['icon'] . '</div>';
             }
-            
+
             echo '</div>
                   <div class="file-name">' . $fileName . '</div>
                   <div class="file-info">
@@ -459,20 +459,20 @@ if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USE
                   </div>
                 </div>';
         }
-        
+
         echo '</div>';
     } else {
         echo '<div class="no-files">😞 Pusty katalog</div>';
     }
-    
+
     echo '</div>
     <div class="svg-badge">📄 SVG Mode: Interactive</div>
-    
+
     <script>
         function openFile(path) {
             const imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"];
             const extension = path.split(".").pop().toLowerCase();
-            
+
             if (imageExtensions.includes(extension)) {
                 window.open(path, "_blank");
             } else {
@@ -482,28 +482,28 @@ if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USE
                 link.click();
             }
         }
-        
+
         function navigateToDir(path) {
             window.location.href = "?dir=" + encodeURIComponent(path);
         }
-        
+
         // Obsługa drag and drop
         const container = document.querySelector(".container");
-        
+
         container.addEventListener("dragover", function(e) {
             e.preventDefault();
             container.style.background = "rgba(255, 255, 255, 0.8)";
         });
-        
+
         container.addEventListener("dragleave", function(e) {
             container.style.background = "rgba(255, 255, 255, 0.95)";
         });
-        
+
         container.addEventListener("drop", function(e) {
             e.preventDefault();
             container.style.background = "rgba(255, 255, 255, 0.95)";
         });
-        
+
         // Obsługa klawiatury
         document.addEventListener("keydown", function(e) {
             if (e.key === "Escape") {
@@ -519,86 +519,3 @@ if (isset($_GET['dir']) || isset($_GET['navigate']) || (isset($_SERVER['HTTP_USE
     header('Content-Type: image/svg+xml; charset=UTF-8');
 }
 ?>
-<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-
-  <!-- Background -->
-  <rect width="100%" height="100%" fill="url(#bg-gradient)"/>
-  
-  <!-- Title -->
-  <text x="600" y="60" text-anchor="middle" font-size="36" font-weight="bold" fill="white">🗂️ File Browser SVG</text>
-  <text x="600" y="90" text-anchor="middle" font-size="18" fill="rgba(255,255,255,0.8)">Interactive PHP File Grid Viewer</text>
-  
-  <!-- Main container -->
-  <rect x="100" y="120" width="1000" height="580" rx="15" fill="rgba(255,255,255,0.95)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
-  
-  <!-- Grid representation -->
-  <g transform="translate(150, 180)">
-    <!-- File item 1 -->
-    <rect width="280" height="160" rx="12" fill="white" stroke="#ddd"/>
-    <rect x="20" y="20" width="240" height="80" rx="8" fill="#f0f0f0"/>
-    <text x="140" y="70" text-anchor="middle" font-size="28">🐘</text>
-    <text x="20" y="125" font-size="14" font-weight="bold" fill="#333">files.php</text>
-    <text x="20" y="140" font-size="11" fill="#666">15.2 KB • PHP</text>
-    
-    <!-- File item 2 -->
-    <g transform="translate(320, 0)">
-      <rect width="280" height="160" rx="12" fill="white" stroke="#ddd"/>
-      <rect x="20" y="20" width="240" height="80" rx="8" fill="#f0f0f0"/>
-      <text x="140" y="70" text-anchor="middle" font-size="28">📜</text>
-      <text x="20" y="125" font-size="14" font-weight="bold" fill="#333">script.js</text>
-      <text x="20" y="140" font-size="11" fill="#666">8.4 KB • JS</text>
-    </g>
-    
-    <!-- File item 3 -->
-    <g transform="translate(640, 0)">
-      <rect width="280" height="160" rx="12" fill="white" stroke="#ddd"/>
-      <rect x="20" y="20" width="240" height="80" rx="8" fill="#f0f0f0"/>
-      <text x="140" y="70" text-anchor="middle" font-size="28">🌐</text>
-      <text x="20" y="125" font-size="14" font-weight="bold" fill="#333">index.html</text>
-      <text x="20" y="140" font-size="11" fill="#666">5.1 KB • HTML</text>
-    </g>
-    
-    <!-- File item 4 -->
-    <g transform="translate(0, 200)">
-      <rect width="280" height="160" rx="12" fill="white" stroke="#ddd"/>
-      <rect x="20" y="20" width="240" height="80" rx="8" fill="#f0f0f0"/>
-      <text x="140" y="70" text-anchor="middle" font-size="28">🎨</text>
-      <text x="20" y="125" font-size="14" font-weight="bold" fill="#333">styles.css</text>
-      <text x="20" y="140" font-size="11" fill="#666">3.2 KB • CSS</text>
-    </g>
-    
-    <!-- File item 5 -->
-    <g transform="translate(320, 200)">
-      <rect width="280" height="160" rx="12" fill="white" stroke="#ddd"/>
-      <rect x="20" y="20" width="240" height="80" rx="8" fill="#f0f0f0"/>
-      <text x="140" y="70" text-anchor="middle" font-size="28">📄</text>
-      <text x="20" y="125" font-size="14" font-weight="bold" fill="#333">document.pdf</text>
-      <text x="20" y="140" font-size="11" fill="#666">245 KB • PDF</text>
-    </g>
-    
-    <!-- File item 6 -->
-    <g transform="translate(640, 200)">
-      <rect width="280" height="160" rx="12" fill="white" stroke="#ddd"/>
-      <rect x="20" y="20" width="240" height="80" rx="8" fill="#f0f0f0"/>
-      <text x="140" y="70" text-anchor="middle" font-size="28">🖼️</text>
-      <text x="20" y="125" font-size="14" font-weight="bold" fill="#333">image.png</text>
-      <text x="20" y="140" font-size="11" fill="#666">892 KB • PNG</text>
-    </g>
-  </g>
-  
-  <!-- Instructions -->
-  <text x="600" y="740" text-anchor="middle" font-size="14" fill="rgba(255,255,255,0.8)">🖱️ Otwórz w przeglądarce z obsługą PHP dla pełnej funkcjonalności</text>
-  <text x="600" y="760" text-anchor="middle" font-size="12" fill="rgba(255,255,255,0.6)">Open in PHP-enabled browser for full interactivity</text>
-  
-  <!-- Mode indicator -->
-  <rect x="1050" y="740" width="140" height="50" rx="8" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)"/>
-  <text x="1120" y="755" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.8)">📄 SVG Mode</text>
-  <text x="1120" y="770" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.6)">Static Preview</text>
-  <text x="1120" y="785" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.4)">v1.0</text>
-</svg>
