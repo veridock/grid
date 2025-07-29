@@ -1,5 +1,26 @@
 # SVG+PHP Router - Dokumentacja
 
+🐘 **Advanced PHP Router** for SVG file processing with **standardized variable system**
+
+![PHP](https://img.shields.io/badge/PHP-8.2%2B-777bb4.svg)
+![Router](https://img.shields.io/badge/type-Router-blue.svg)
+![CLI](https://img.shields.io/badge/mode-CLI%2BWWW-green.svg)
+![Variables](https://img.shields.io/badge/variables-standardized-orange.svg)
+![Status](https://img.shields.io/badge/status-production-brightgreen.svg)
+
+---
+
+## 📚 **Documentation Navigation**
+
+| 📋 **Core Docs** | 🔧 **Technical** | 🚀 **Advanced** |
+|---|---|---|
+| [🏠 **Main Guide**](../README.md) | [🐘 **PHP Router**](README.md) | [🖥️ **Servers**](../servers/README.md) |
+| [📖 **VeriDock V2**](../documentation/README.md) | [🧪 **Tester**](../tester/README.md) | [🐳 **Docker**](../servers/docker/) |
+
+> **Aktualnie przeglądasz:** 🐘 **PHP Router Documentation**
+
+---
+
 ## Opis
 Router umożliwia uruchamianie plików SVG jako skrypty PHP w dwóch trybach:
 1. **Serwer WWW** - dostęp przez przeglądarkę

@@ -6,6 +6,19 @@
 ![Status](https://img.shields.io/badge/status-production-green.svg)
 ![SVG](https://img.shields.io/badge/format-SVG-orange.svg)
 ![PWA](https://img.shields.io/badge/type-PWA-purple.svg)
+![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)
+![Framework](https://img.shields.io/badge/framework-VeriDock-ff6b6b.svg)
+
+---
+
+## 📚 **Documentation Navigation**
+
+| 📋 **Core Docs** | 🔧 **Technical** | 🚀 **Advanced** |
+|---|---|---|
+| [🏠 **Main Guide**](../README.md) | [🐘 **PHP Router**](../php/README.md) | [🖥️ **Servers**](../servers/README.md) |
+| [📖 **VeriDock V2**](README.md) | [🧪 **Tester**](../tester/README.md) | [🐳 **Docker**](../servers/docker/) |
+
+> **Aktualnie przeglądasz:** 📖 **VeriDock Grid V2.0 Framework Documentation**
 
 ---
 
@@ -20,76 +33,15 @@ Celem projektu jest stworzenie **kompletnej aplikacji z frontend, backend i prev
 
 ## 📁 **STRUKTURA PROJEKTU V2.0**
 
-```
-veridock/grid/
-├── 📂 php/                       # 🔥 Główna implementacja PHP z systemem zmiennych
-│   ├── router.php                # Ustandaryzowany router PHP (WWW + CLI)
-│   ├── calculator.svg            # Kalkulator z placeholders
-│   ├── todo-manager-pwa.svg      # Aplikacja TODO z PHP
-│   ├── project-manager.svg       # Menedżer projektów
-│   ├── expense-tracker.svg       # Śledzenie wydatków
-│   ├── inventory-manager.svg     # Zarządzanie inwentarzem
-│   ├── files.svg                # Przeglądarka plików
-│   ├── README-SVG-PHP.md         # Dokumentacja PHP
-│   └── .env                     # Zmienne środowiskowe
-│
-├── 📂 python/                    # Implementacja Python
-│   ├── svg_processor.py          # Procesor Python (CLI)
-│   ├── svg_server.py             # Serwer HTTP Python
-│   ├── todo-manager-python.svg   # SVG z kodem Python
-│   └── calculator-python.svg     # Kalkulator w Python
-│
-├── 📂 nodejs/                    # Implementacja Node.js
-│   ├── svg_processor.js          # Procesor Node.js (CLI)
-│   ├── svg_server.js             # Serwer HTTP Node.js
-│   └── todo-manager-nodejs.svg   # SVG z kodem JavaScript
-│
-├── 📂 tester/                    # Narzędzia walidacji SVG PWA
-│   ├── index.php                 # CLI/Web tester z 21 testami
-│   ├── index.html                # Interfejs webowy testera
-│   ├── svg-pwa-schema.json       # Schema v1.0 (legacy)
-│   ├── svg-pwa-schema-v2.json    # Schema v2.0 (aktualna)
-│   └── README.md                 # Dokumentacja testera
-│
-├── 📂 generator/                 # Generator SVG PWA
-│   └── svg-pwa-generator.php     # Interaktywny generator
-│
-├── 📂 templates/                 # Szablony SVG
-│   └── svg-pwa-generation-prompt.md # Prompty generowania
-│
-├── 📂 correct/                   # ✅ Złoty standard - wzorcowe aplikacje SVG
-│   ├── devmind.svg              # 100% - Dashboard/monitoring app
-│   ├── example.svg              # 100% - Data visualization app
-│   ├── test_svg_calculator.svg  # 100% - Interactive tool app
-│   ├── stoper.pwa.svg          # 90% - Ma problemy z transform
-│   └── time_tracker_svg.svg    # 95% - Ma niestandardowe elementy
-│
-├── 📂 concepts/                  # Koncepty i prototypy (zawierają błędy)
-│   ├── concept-cards/
-│   ├── concept-dark/
-│   ├── concept-list/
-│   ├── concept-minimal/
-│   └── concept-modern/
-│
-├── 📂 legacy/                    # Stare pliki do archiwizacji
-│   ├── files.svg                # Zawiera <g transform> - deprecated
-│   ├── file-monitor.svg         # Do sprawdzenia i migracji
-│   └── devmind.svg             # Duplikat - do usunięcia
-│
-├── 📂 documentation/             # Dokumentacja techniczna
-│   ├── README-V2.md             # Ten dokument
-│   ├── SVG-PWA-STANDARDS.md     # Standardy techniczne
-│   ├── DEVELOPMENT-GUIDE.md     # Przewodnik tworzenia aplikacji
-│   └── API-REFERENCE.md         # Dokumentacja API testera
-│
-└── 📂 templates/                 # Szablony i prompty
-    ├── svg-pwa-template.svg     # Bazowy szablon aplikacji
-    ├── generation-prompt.md     # Prompt do generowania nowych app
-    └── patterns/                # Wzorce aplikacyjne
-        ├── dashboard-pattern.svg
-        ├── calculator-pattern.svg
-        └── visualization-pattern.svg
-```
+> **Uwaga:** Szczegółowa struktura projektu znajduje się w głównym README.md
+
+### **Kluczowe foldery VeriDock Grid:**
+
+- `📂 correct/` - ✅ **Złoty standard** - wzorcowe aplikacje SVG (100% testów)
+- `📂 tester/` - Narzędzia walidacji z 21 testami 
+- `📂 generator/` - Generator aplikacji SVG PWA
+- `📂 concepts/` - Prototypy i koncepty (zawierają błędy)
+- `📂 legacy/` - Stare pliki do archiwizacji
 
 ---
 
@@ -136,15 +88,11 @@ curl "http://localhost:8000/tester/index.php?file=correct/example.svg"
 ```
 
 ### **21 Testów Walidacyjnych:**
-- ✅ Struktura XML i SVG
-- ✅ Namespace i viewBox
-- ✅ Samowystarczalność (no external deps)
-- ✅ Brak elementów `<g transform="*">`
-- ✅ Inline CSS styles
-- ✅ Kompatybilność PHP
-- ✅ Encoding UTF-8
-- ✅ Rozmiar < 1MB
-- ✅ Standardowe elementy SVG
+> **Uwaga:** Szczegółowy opis wszystkich testów znajduje się w głównym README.md
+
+- ✅ **Struktura i zgodność** (8 testów)
+- ✅ **Kompatybilność PWA** (7 testów)  
+- ✅ **Jakość pliku** (6 testów)
 
 ---
 
@@ -291,25 +239,16 @@ php tester/index.php my-new-app.svg
 
 ## 🧪 **TESTOWANIE**
 
-### **CLI Testing**
+> **Uwaga:** Szczegółowe przykłady użycia testera znajdują się w głównym README.md
+
+### **Podstawowe komendy:**
 ```bash
-# Single file
+# Test pojedynczego pliku
 php tester/index.php correct/devmind.svg
 
-# All correct files
-for f in correct/*.svg; do php tester/index.php "$f"; done
-```
-
-### **Web Interface**
-```
+# Interfejs webowy
+php -S localhost:8000
 http://localhost:8000/tester/index.html
-```
-
-### **API Integration**
-```bash
-curl -X POST http://localhost:8000/tester/index.php \
-  -H "Content-Type: application/json" \
-  -d '{"file": "correct/example.svg"}'
 ```
 
 ---

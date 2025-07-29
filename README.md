@@ -2,6 +2,26 @@
 
 🚀 **Dynamic SVG Generation** with embedded **PHP**, **Python**, and **Node.js** code
 
+![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)
+![PHP](https://img.shields.io/badge/PHP-8.2%2B-777bb4.svg)
+![Python](https://img.shields.io/badge/Python-3.8%2B-3776ab.svg)
+![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933.svg)
+![SVG](https://img.shields.io/badge/format-SVG-orange.svg)
+![PWA](https://img.shields.io/badge/type-PWA-purple.svg)
+![Status](https://img.shields.io/badge/status-production-brightgreen.svg)
+
+---
+
+## 📚 **Documentation Navigation**
+
+| 📋 **Core Docs** | 🔧 **Technical** | 🚀 **Advanced** |
+|---|---|---|
+| [🏠 **Main Guide**](README.md) | [🐘 **PHP Router**](php/README.md) | [🖥️ **Servers**](servers/README.md) |
+| [📖 **VeriDock V2**](documentation/README.md) | [🧪 **Tester**](tester/README.md) | [🐳 **Docker**](servers/docker/) |
+
+---
+
 ## 🎯 Overview
 
 This project enables **execution of SVG files with embedded scripting languages** both via web server and CLI, providing seamless workflows for dynamic SVG generation.
@@ -485,183 +505,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 5. **Run the application:**
    ```bash
-   node file-monitor.js
-   ```
 
-## Usage
+---
 
-### Adding Folders to Monitor
-
-1. Click the "+ Add Folder" button
-2. Enter the full path to the folder
-3. The folder will appear in the sidebar
-
-### Converting PDFs
-
-- **Single file**: Click the blue "SVG" button on any PDF
-- **Batch convert**: Click "⚡ Convert PDFs" to convert all PDFs in the current folder
-
-### Views
-
-- **Grid View**: Visual thumbnails in a 5x5 grid
-- **List View**: Detailed file information in a table
-
-### Keyboard Shortcuts
-
-- `Ctrl/Cmd + F` - Search files
-- `Ctrl/Cmd + R` - Refresh current folder
-
-## Features in Detail
-
-### Auto-monitoring
-When you add a folder, the app watches for:
-- New files added
-- Files modified
-- Files deleted
-
-New PDF files are automatically converted to SVG upon detection.
-
-### Thumbnail Generation
-The app generates thumbnails for:
-- Images (PNG, JPG, JPEG)
-- SVG files
-- PDF files (first page)
-
-### File Management
-- Click any file to open it
-- Search files by name
-- Filter by file type
-- Sort by date or name
-
-## Configuration
-
-### Environment Variables
-
-- `PORT` - Server port (default: 3000, auto-increments if busy)
-
-### File Types Supported
-
-- PDF documents
-- SVG graphics
-- PNG images
-- JPG/JPEG images
-
-## Troubleshooting
-
-### Port Already in Use
-The app automatically finds an available port if 3000 is busy.
-
-### No Thumbnails Showing
-Install the `sharp` package:
-```bash
-npm install sharp
-```
-
-### PDF Conversion Not Working
-Install PDF conversion tools:
-```bash
-# Try pdf2svg first (faster)
-sudo apt-get install pdf2svg
-
-# Or ImageMagick as fallback
-sudo apt-get install imagemagick
-```
-
-### Cannot Monitor Folders
-Install the `chokidar` package:
-```bash
-npm install chokidar
-```
-
-## How It Works
-
-The application consists of two parts:
-
-1. **Server (`file-monitor.js`)**
-   - HTTP server with API endpoints
-   - File system monitoring
-   - PDF conversion
-   - Thumbnail generation
-
-2. **Client (`file-monitor-app.svg`)**
-   - SVG-based user interface
-   - Can be opened directly or served
-   - Auto-connects to server
-   - PWA capabilities
-
-### Architecture
-
-```
-┌─────────────────┐      ┌─────────────────┐
-│   Browser       │────▶│   Node.js       │
-│   (SVG App)     │◀────│   Server        │
-└─────────────────┘      └─────────────────┘
-                              │
-                              ▼
-                        ┌─────────────┐
-                        │ File System │
-                        └─────────────┘
-```
-
-## Development
-
-### Project Structure
-```
-file-monitor-pwa/
-├── file-monitor.js       # Server component
-├── file-monitor-app.svg  # Client application
-├── package.json          # Dependencies
-└── README.md            # This file
-```
-
-### API Endpoints
-
-- `GET /` - Serve SVG application
-- `GET /api/folders` - List monitored folders
-- `POST /api/folders` - Add folder to monitor
-- `GET /api/files?folder=path` - List files in folder
-- `POST /api/convert-pdf` - Convert PDF to SVG
-- `GET /api/thumbnail?file=path` - Get file thumbnail
-- `POST /api/remove-folder` - Remove folder from monitoring
-
-
-
-
-### Creating a New PWA.SVG App
-
-1. Create a new directory in `examples/`
-2. Create your `.pwa.svg` file with the following structure:
-   ```svg
-   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600">
-     <!-- SVG content -->
-     <foreignObject width="100%" height="100%">
-       <xhtml:div>
-         <!-- Your HTML/CSS/JS here -->
-       </xhtml:div>
-     </foreignObject>
-     <script><![CDATA[
-       // Your JavaScript here
-     ]]></script>
-   </svg>
-   ```
-   
-## License
-
-Apache 2.0 License - Feel free to use and modify!
-
-## Contributing
-
-Pull requests welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a pull request
-
-## Credits
-
-Built with:
-- Node.js
-- SVG
-- Progressive Web App technologies
+**Zbudowane z użyciem**: PHP, Python, Node.js, SVG, Progressive Web App technologies
 - Optional: chokidar, sharp, pdf2svg

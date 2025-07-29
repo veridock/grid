@@ -1,5 +1,27 @@
 # SVG PWA Tester - Dokumentacja Kompletna
 
+🧪 **Advanced SVG PWA Testing Suite** with **21 comprehensive validation tests**
+
+![Tests](https://img.shields.io/badge/tests-21-blue.svg)
+![PWA](https://img.shields.io/badge/PWA-compliant-purple.svg)
+![PHP](https://img.shields.io/badge/PHP-8.2%2B-777bb4.svg)
+![CLI](https://img.shields.io/badge/mode-CLI%2BWEB-green.svg)
+![Schema](https://img.shields.io/badge/schema-v2.0-orange.svg)
+![Status](https://img.shields.io/badge/status-production-brightgreen.svg)
+
+---
+
+## 📚 **Documentation Navigation**
+
+| 📋 **Core Docs** | 🔧 **Technical** | 🚀 **Advanced** |
+|---|---|---|
+| [🏠 **Main Guide**](../README.md) | [🐘 **PHP Router**](../php/README.md) | [🖥️ **Servers**](../servers/README.md) |
+| [📖 **VeriDock V2**](../documentation/README.md) | [🧪 **Tester**](README.md) | [🐳 **Docker**](../servers/docker/) |
+
+> **Aktualnie przeglądasz:** 🧪 **SVG PWA Tester Documentation**
+
+---
+
 ## 📋 Spis Treści
 1. [Wprowadzenie](#wprowadzenie)
 2. [Instalacja i Konfiguracja](#instalacja-i-konfiguracja)

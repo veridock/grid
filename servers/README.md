@@ -2,6 +2,26 @@
 
 **Comprehensive collection of production-ready alternatives to traditional web servers for executing PHP code within SVG files.**
 
+![Servers](https://img.shields.io/badge/servers-12%2B-blue.svg)
+![Production](https://img.shields.io/badge/ready-production-brightgreen.svg)
+![PHP](https://img.shields.io/badge/PHP-8.2%2B-777bb4.svg)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ed.svg)
+![Performance](https://img.shields.io/badge/performance-optimized-orange.svg)
+![WebAssembly](https://img.shields.io/badge/WebAssembly-supported-654ff0.svg)
+
+---
+
+## 📚 **Documentation Navigation**
+
+| 📋 **Core Docs** | 🔧 **Technical** | 🚀 **Advanced** |
+|---|---|---|
+| [🏠 **Main Guide**](../README.md) | [🐘 **PHP Router**](../php/README.md) | [🖥️ **Servers**](README.md) |
+| [📖 **VeriDock V2**](../documentation/README.md) | [🧪 **Tester**](../tester/README.md) | [🐳 **Docker**](docker/) |
+
+> **Aktualnie przeglądasz:** 🖥️ **Advanced Server Solutions**
+
+---
+
 ## 📁 Server Solutions Overview
 
 ### 🌟 **Alternative Web Servers**
