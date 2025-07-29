@@ -8,12 +8,13 @@ This project enables **execution of SVG files with embedded scripting languages*
 
 ## ⚡ Quick Start
 
-### PHP (Web Server)
+### PHP (Web Server + Standardized Variables)
 ```bash
-cd generated
-php -S localhost:8093 -t . router.php
-# Dostęp: http://localhost:8093/test-minimal1.svg
-# CLI: php router.php test-minimal1.svg
+cd php
+php -S localhost:8097 router.php
+# Dostęp: http://localhost:8097/calculator.svg
+# CLI: php router.php calculator.svg
+# With variables: php router.php calculator.svg CALCULATOR_TITLE="My Calculator"
 ```
 
 ### Python (Web Server)
@@ -32,6 +33,8 @@ node svg_server.js 8095
 # CLI: node svg_processor.js todo-manager-nodejs.svg > output.svg
 ```
 
+
+
 ## 🎨 Features
 
 - ✅ **Dynamic SVG Generation**: Embed code directly in SVG files
@@ -44,19 +47,35 @@ node svg_server.js 8095
 ## 🗂️ Project Structure
 
 ```
-├── generated/
-│   ├── router.php                  # PHP router (WWW + CLI)
-│   ├── todo-manager-pwa.svg        # SVG z PHP kodem
-│   ├── test-minimal1.svg           # Prosty przykład PHP
-│   └── README-SVG-PHP.md           # Dokumentacja PHP
-├── python/
+├── php/                         # 🔥 Main PHP implementation
+│   ├── router.php                  # Standardized PHP router (WWW + CLI)
+│   ├── calculator.svg              # Advanced calculator with placeholders
+│   ├── todo-manager-pwa.svg        # SVG PWA todo manager
+│   ├── project-manager.svg         # Project management SVG
+│   ├── expense-tracker.svg         # Expense tracker SVG
+│   ├── inventory-manager.svg       # Inventory manager SVG
+│   ├── files.svg                   # File browser SVG
+│   ├── README-SVG-PHP.md           # PHP documentation
+│   └── .env                        # Environment variables
+├── python/                      # Python implementation
 │   ├── svg_processor.py            # Python processor (CLI)
 │   ├── svg_server.py               # Python HTTP server
-│   └── todo-manager-python.svg     # SVG z Python kodem
-└── nodejs/
-    ├── svg_processor.js            # Node.js processor (CLI)
-    ├── svg_server.js               # Node.js HTTP server
-    └── todo-manager-nodejs.svg     # SVG z JavaScript kodem
+│   ├── todo-manager-python.svg     # SVG z Python kodem
+│   └── calculator-python.svg       # Calculator in Python
+├── nodejs/                      # Node.js implementation
+│   ├── svg_processor.js            # Node.js processor (CLI)
+│   ├── svg_server.js               # Node.js HTTP server
+│   └── todo-manager-nodejs.svg     # SVG z JavaScript kodem
+├── generator/                   # SVG PWA generator
+│   └── svg-pwa-generator.php       # Interactive generator
+├── tester/                      # SVG PWA tester
+│   ├── index.php                  # CLI testing tool
+│   ├── index.html                 # Web testing interface
+│   └── README.md                  # Tester documentation
+├── templates/                   # SVG templates
+│   └── svg-pwa-generation-prompt.md # Generation prompts
+└── documentation/               # Additional documentation
+    └── README-V2.md              # Version 2 documentation
 ```
 
 ## 🔧 Language Syntax
@@ -88,31 +107,186 @@ node svg_server.js 8095
 </svg>
 ```
 
-## 🎯 Available Variables
+## 🎯 Standardized Variable System
 
-### PHP
+### Variable Resolution Priority
+
+System automatycznie pobiera zmienne z różnych źródeł w następującej kolejności priorytetów:
+
+1. **CLI arguments** (najwyższy priorytet)
+2. **GET parameters** 
+3. **POST parameters**
+4. **Environment variables**
+5. **.env file**
+6. **Default values** (najniższy priorytet)
+
+### Available Template Variables
+
+Wszystkie języki wspierają te same placeholders w plikach SVG:
+
+#### Core Variables
+- `{APP_TITLE}` - tytuł aplikacji
+- `{APP_DESC}` - opis aplikacji
+- `{APP_KEYWORDS}` - słowa kluczowe
+- `{APP_AUTHOR}` - autor
+- `{APP_AUTHOR_URL}` - URL autora
+- `{APP_VERSION}` - wersja aplikacji
+- `{APP_BASE_URL}` - bazowy URL
+- `{CALCULATOR_TITLE}` - tytuł kalkulatora
+
+#### System Variables
+- `{USER_NAME}` - nazwa użytkownika
+- `{HOST_NAME}` - nazwa hosta
+- `{PHP_VERSION}` - wersja PHP (tylko PHP)
+- `{PYTHON_VERSION}` - wersja Python (tylko Python)
+- `{SERVER_PORT}` - port serwera
+- `{CURRENT_TIME}` - aktualny czas (H:i:s)
+- `{CURRENT_DATE}` - aktualna data (Y-m-d)
+- `{TIMESTAMP}` - pełny timestamp (Y-m-d H:i:s)
+
+### Usage Examples
+
+#### CLI Arguments (najwyższy priorytet)
+```bash
+# PHP
+php router.php calculator.svg CALCULATOR_TITLE="Custom Calculator" APP_TITLE="My App"
+
+# Python
+python svg_processor.py template.svg CALCULATOR_TITLE="Custom Calculator"
+```
+
+#### GET Parameters
+```bash
+# PHP
+http://localhost:8097/calculator.svg?CALCULATOR_TITLE=Web%20Calculator&APP_DESC=Custom%20Description
+
+# Python
+http://localhost:8094/template.svg?CALCULATOR_TITLE=Web%20Calculator
+```
+
+#### .env File
+```bash
+# php/.env
+APP_TITLE="My PHP Calculator"
+APP_DESC="Interactive calculator"
+CALCULATOR_TITLE="PHP Calc"
+```
+
+### Language-Specific Variables
+
+#### PHP
 - `$current_time` - aktualny czas (H:i:s)
 - `$tasks_count` - liczba zadań
 - `$_SERVER` - zmienne serwera
 - Wszystkie funkcje PHP
 
-### Python
+#### Python
 - `current_time` - aktualny czas
 - `current_date` - aktualna data
 - `tasks_count` - liczba zadań
 - `datetime`, `os`, `sys` - moduły Python
 
-### Node.js
+#### Node.js
 - `currentTime` - aktualny czas
 - `currentDate` - aktualna data
 - `tasksCount` - liczba zadań
 - `nodeVersion` - wersja Node.js
 - `Date`, `Math`, `JSON` - obiekty JavaScript
 
+## 🚀 Advanced Usage Examples
+
+### Multi-Source Variable Resolution
+
+#### Example 1: CLI Override
+```bash
+# Override specific variables via CLI
+php router.php calculator.svg CALCULATOR_TITLE="Production Calculator" APP_VERSION="2.0.0"
+```
+
+#### Example 2: Web Server with GET Parameters
+```bash
+# Start server
+php -S localhost:8097 router.php
+# Access with custom variables
+http://localhost:8097/calculator.svg?CALCULATOR_TITLE=Custom%20Calculator&APP_DESC=My%20Description
+```
+
+#### Example 3: Environment + .env Configuration
+```bash
+# Set environment variables
+export CALCULATOR_TITLE="Production Calculator"
+export APP_AUTHOR="John Doe"
+
+# Run with .env fallback
+php router.php calculator.svg
+```
+
+#### Example 4: Production Deployment
+```bash
+# Create production .env
+echo 'APP_TITLE="Production Calculator"' > php/.env
+echo 'APP_VERSION="1.0.0"' >> php/.env
+echo 'APP_AUTHOR="Company Name"' >> php/.env
+
+# Deploy with production settings
+php -S localhost:8097 router.php
+```
+
+### SVG Template Example
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- Variables are automatically replaced -->
+  <title>{APP_TITLE}</title>
+  <desc>{APP_DESC}</desc>
+  
+  <!-- Dynamic content -->
+  <text x="200" y="50" text-anchor="middle">
+    {CALCULATOR_TITLE}
+  </text>
+  
+  <text x="200" y="80" text-anchor="middle">
+    Version: {APP_VERSION}
+  </text>
+  
+  <text x="200" y="110" text-anchor="middle">
+    Author: {APP_AUTHOR}
+  </text>
+  
+  <text x="200" y="140" text-anchor="middle">
+    Generated: {TIMESTAMP}
+  </text>
+  
+  <!-- Still supports PHP code -->
+  <?php echo '<text x="200" y="170">Server: ' . $_SERVER['SERVER_NAME'] . '</text>'; ?>
+</svg>
+```
+
+### Variable Priority Example
+
+```bash
+# 1. Set .env file
+echo 'CALCULATOR_TITLE="From .env"' > php/.env
+
+# 2. Set environment variable (higher priority)
+export CALCULATOR_TITLE="From Environment"
+
+# 3. Use CLI argument (highest priority)
+php router.php calculator.svg CALCULATOR_TITLE="From CLI"
+# Result: "From CLI" wins
+
+# 4. Use GET parameter (when running server)
+http://localhost:8097/calculator.svg?CALCULATOR_TITLE=From%20GET
+# Result: "From GET" wins over .env and environment
+```
+
 ## 📚 Documentation
 
 - 📖 [PHP Documentation](php/README-SVG-PHP.md) - Complete PHP+SVG guide
-- 📖 [Multi-Language Guide](README-SVG-SCRIPTING.md) - Comprehensive documentation
+- 📖 [Tester Documentation](tester/README.md) - SVG PWA testing and validation
+- 📖 [Documentation V2](documentation/README-V2.md) - VeriDock Grid V2.0 framework guide
+- 📖 [Generation Templates](templates/svg-pwa-generation-prompt.md) - SVG PWA generation prompts
 
 
 ## 📊 **21-Point Validation Schema**

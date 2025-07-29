@@ -22,11 +22,40 @@ Celem projektu jest stworzenie **kompletnej aplikacji z frontend, backend i prev
 
 ```
 veridock/grid/
+├── 📂 php/                       # 🔥 Główna implementacja PHP z systemem zmiennych
+│   ├── router.php                # Ustandaryzowany router PHP (WWW + CLI)
+│   ├── calculator.svg            # Kalkulator z placeholders
+│   ├── todo-manager-pwa.svg      # Aplikacja TODO z PHP
+│   ├── project-manager.svg       # Menedżer projektów
+│   ├── expense-tracker.svg       # Śledzenie wydatków
+│   ├── inventory-manager.svg     # Zarządzanie inwentarzem
+│   ├── files.svg                # Przeglądarka plików
+│   ├── README-SVG-PHP.md         # Dokumentacja PHP
+│   └── .env                     # Zmienne środowiskowe
+│
+├── 📂 python/                    # Implementacja Python
+│   ├── svg_processor.py          # Procesor Python (CLI)
+│   ├── svg_server.py             # Serwer HTTP Python
+│   ├── todo-manager-python.svg   # SVG z kodem Python
+│   └── calculator-python.svg     # Kalkulator w Python
+│
+├── 📂 nodejs/                    # Implementacja Node.js
+│   ├── svg_processor.js          # Procesor Node.js (CLI)
+│   ├── svg_server.js             # Serwer HTTP Node.js
+│   └── todo-manager-nodejs.svg   # SVG z kodem JavaScript
+│
 ├── 📂 tester/                    # Narzędzia walidacji SVG PWA
 │   ├── index.php                 # CLI/Web tester z 21 testami
 │   ├── index.html                # Interfejs webowy testera
 │   ├── svg-pwa-schema.json       # Schema v1.0 (legacy)
-│   └── svg-pwa-schema-v2.json    # Schema v2.0 (aktualna)
+│   ├── svg-pwa-schema-v2.json    # Schema v2.0 (aktualna)
+│   └── README.md                 # Dokumentacja testera
+│
+├── 📂 generator/                 # Generator SVG PWA
+│   └── svg-pwa-generator.php     # Interaktywny generator
+│
+├── 📂 templates/                 # Szablony SVG
+│   └── svg-pwa-generation-prompt.md # Prompty generowania
 │
 ├── 📂 correct/                   # ✅ Złoty standard - wzorcowe aplikacje SVG
 │   ├── devmind.svg              # 100% - Dashboard/monitoring app

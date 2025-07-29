@@ -1,0 +1,75 @@
+# Caddy configuration for PHP-SVG processing
+# Zero-configuration HTTPS with powerful routing
+
+:8097 {
+    # Root and logging
+    root * /home/tom/github/veridock/grid/php
+    log {
+        output file /var/log/caddy/svg-php.log
+        format json
+    }
+
+    # Handle SVG files as PHP
+    @svg_files {
+        path *.svg
+    }
+
+    handle @svg_files {
+        # Set proper Content-Type for SVG
+        header Content-Type "image/svg+xml; charset=utf-8"
+        
+        # Process SVG through PHP
+        php_fastcgi unix//run/php/php8.2-fpm.sock {
+            env SCRIPT_FILENAME {http.request.uri.path}
+            env PHP_SELF {http.request.uri.path}
+            env REQUEST_URI {http.request.uri}
+            env DOCUMENT_ROOT {http.vars.root}
+        }
+    }
+
+    # Handle PHP files normally
+    php_fastcgi unix//run/php/php8.2-fpm.sock
+
+    # Static file serving
+    file_server
+
+    # Enable compression
+    encode {
+        gzip
+        zstd
+    }
+
+    # Security headers
+    header {
+        # Remove server info
+        -Server
+        
+        # Security headers
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy strict-origin-when-cross-origin
+    }
+}
+
+# Production variant with HTTPS
+# svg-php.example.com {
+#     root * /var/www/svg-php
+#     
+#     @svg_files {
+#         path *.svg
+#     }
+#     
+#     handle @svg_files {
+#         header Content-Type "image/svg+xml; charset=utf-8"
+#         php_fastcgi unix//run/php/php8.2-fpm.sock
+#     }
+#     
+#     php_fastcgi unix//run/php/php8.2-fpm.sock
+#     file_server
+#     
+#     # Auto HTTPS with Let's Encrypt
+#     tls {
+#         protocols tls1.2 tls1.3
+#     }
+# }

@@ -1,0 +1,28 @@
+{
+    "name": "veridock/reactphp-svg-server",
+    "description": "ReactPHP event-driven server for PHP-SVG processing with high concurrency",
+    "type": "project",
+    "require": {
+        "php": ">=8.0",
+        "react/http": "^1.9",
+        "react/socket": "^1.15",
+        "psr/http-message": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "VeriDock\\ReactPHP\\": "src/"
+        }
+    },
+    "scripts": {
+        "start": "php server.php",
+        "test": "php test.php",
+        "benchmark": "php benchmark.php"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

@@ -9,47 +9,54 @@ Router umożliwia uruchamianie plików SVG jako skrypty PHP w dwóch trybach:
 
 ### Uruchomienie serwera:
 ```bash
-php -S localhost:8093 -t php/ router.php
+cd php
+php -S localhost:8097 router.php
 ```
 
 ### Dostęp do plików SVG+PHP:
-- `http://localhost:8093/test-minimal1.svg`
-- `http://localhost:8093/todo-manager-pwa.svg`
-- `http://localhost:8093/todo-manager2.svg`
+- `http://localhost:8097/calculator.svg`
+- `http://localhost:8097/todo-manager-pwa.svg`
+- `http://localhost:8097/project-manager.svg`
+- `http://localhost:8097/expense-tracker.svg`
+- `http://localhost:8097/inventory-manager.svg`
+- `http://localhost:8097/files.svg`
 
 ### Przykład:
 ```bash
 # Uruchom serwer
-cd generated
-php -S localhost:8093 -t . router.php
-php -S localhost:8093 router.php
+cd php
+php -S localhost:8097 router.php
 
 # Otwórz w przeglądarce
-curl http://localhost:8093/test-minimal1.svg
+curl http://localhost:8097/calculator.svg
 # lub
-firefox http://localhost:8093/test-minimal1.svg
+firefox http://localhost:8097/calculator.svg
 ```
 
 ## 💻 Tryb CLI
 
 ### Uruchomienie pojedynczego pliku:
 ```bash
-php router.php test-minimal1.svg
-php test-minimal1.svg
+cd php
+php router.php calculator.svg
+php router.php todo-manager-pwa.svg
 ```
 
 ### Składnia:
 ```bash
-php router.php <nazwa_pliku.svg>
+php router.php <nazwa_pliku.svg> [VARIABLE=value] [VARIABLE2=value2]
 ```
 
 ### Przykłady:
 ```bash
 # Renderuj SVG do konsoli
-php router.php test-minimal1.svg
+php router.php calculator.svg
+
+# Z customowymi zmiennymi
+php router.php calculator.svg CALCULATOR_TITLE="My Calculator" APP_VERSION="2.0"
 
 # Zapisz wynik do pliku
-php router.php test-minimal1.svg > output.svg
+php router.php calculator.svg > output.svg
 
 # Wykonaj SVG z PHP kodem
 php router.php todo-manager-pwa.svg > rendered-todo.svg
@@ -59,10 +66,14 @@ php router.php todo-manager-pwa.svg > rendered-todo.svg
 
 ```
 php/
-├── router.php              # Router obsługujący SVG+PHP
-├── test-minimal1.svg        # Przykładowy plik testowy
+├── router.php              # Router obsługujący SVG+PHP z systemem zmiennych
+├── calculator.svg          # Kalkulator z placeholders
 ├── todo-manager-pwa.svg     # Aplikacja TODO z PHP
-├── todo-manager2.svg        # Druga wersja aplikacji
+├── project-manager.svg      # Menedżer projektów
+├── expense-tracker.svg      # Śledzenie wydatków
+├── inventory-manager.svg    # Zarządzanie inwentarzem
+├── files.svg               # Przeglądarka plików
+├── .env                    # Zmienne środowiskowe
 └── README-SVG-PHP.md        # Ta dokumentacja
 ```
 
@@ -134,5 +145,6 @@ ls -la php/test-minimal1.svg
 ### Port zajęty:
 ```bash
 # Użyj innego portu
-php -S localhost:8094 -t php/ router.php
+php -S localhost:8094 -t php/ php/router.php
+php -S localhost:8094 router.php
 ```

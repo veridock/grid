@@ -1,0 +1,84 @@
+# RoadRunner configuration for PHP-SVG processing
+# High-performance application server with persistent workers
+
+version: "3"
+
+rpc:
+  listen: tcp://127.0.0.1:6001
+
+server:
+  command: "php worker.php"
+  user: ""
+  group: ""
+  env:
+    - "RR_MODE=http"
+
+http:
+  address: "0.0.0.0:8097"
+  max_request_size: 256
+  middleware: ["static", "gzip"]
+  
+  # Static files configuration
+  static:
+    dir: "../php"
+    forbid: [".php", ".htaccess"]
+    
+  # Custom headers for SVG files
+  headers:
+    cors:
+      allowed_origin: "*"
+      allowed_headers: "*"
+      allowed_methods: "GET,POST,PUT,DELETE"
+      allow_credentials: true
+    response:
+      "X-Powered-By": "RoadRunner"
+      "Server": "RoadRunner"
+
+  # File server configuration  
+  fcgi:
+    address: "tcp://127.0.0.1:9000"
+
+  # Pool configuration for workers
+  pool:
+    num_workers: 8
+    max_jobs: 64
+    allocate_timeout: 60s
+    destroy_timeout: 60s
+    supervisor:
+      max_worker_memory: 128
+
+logs:
+  level: info
+  mode: development
+  output: "logs/rr.log"
+  err_output: "logs/rr_errors.log"
+
+# Metrics and monitoring
+metrics:
+  address: "127.0.0.1:2112"
+
+# Health check
+status:
+  address: "127.0.0.1:2114"
+
+# Development reload
+reload:
+  interval: 1s
+  patterns: [ ".php" ]
+  services:
+    http:
+      recursive: true
+      ignore: [ "vendor", "logs" ]
+      patterns: [ ".php", ".svg" ]
+
+# Jobs and queues (optional)
+jobs:
+  num_pollers: 2
+  pipeline_size: 100000
+  pool:
+    num_workers: 4
+
+# KV storage (optional)
+kv:
+  test:
+    driver: memory
