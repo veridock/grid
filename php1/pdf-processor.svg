@@ -1,3 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml" viewBox="0 0 1024 800">
+  <title>PDF Processor PWA</title>
+  <desc>Advanced PDF conversion and analysis tool</desc>
+
+  <defs>
+    <style>
+      * { font-family: system-ui, sans-serif; }
+      .header { fill: #e74c3c; font-size: 20px; font-weight: bold; }
+      .button { fill: #e74c3c; cursor: pointer; }
+      .button:hover { fill: #c0392b; }
+      .button-text { fill: white; font-size: 11px; text-anchor: middle; }
+      .panel { fill: #f8f9fa; stroke: #dee2e6; }
+      .input { fill: white; stroke: #ced4da; }
+    </style>
+  </defs>
 <?php
 // PDF Processor - Advanced PHP+SVG PWA with PDF conversion and analysis
 $uploadDir = __DIR__ . '/uploads';
@@ -9,25 +24,39 @@ if (!is_dir($outputDir)) mkdir($outputDir, 0755, true);
 if (isset($_FILES['pdfFile'])) {
     file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " - Upload attempt\n", FILE_APPEND);
     file_put_contents(__DIR__ . '/debug.log', "FILES data: " . print_r($_FILES['pdfFile'], true) . "\n", FILE_APPEND);
-    
+
     $uploadFile = $uploadDir . '/' . basename($_FILES['pdfFile']['name']);
+    $absolutePath = realpath($uploadDir) . '/' . basename($_FILES['pdfFile']['name']);
     file_put_contents(__DIR__ . '/debug.log', "Target path: $uploadFile\n", FILE_APPEND);
-    
+    file_put_contents(__DIR__ . '/debug.log', "Absolute path: $absolutePath\n", FILE_APPEND);
+
     if (move_uploaded_file($_FILES['pdfFile']['tmp_name'], $uploadFile)) {
+        // Verify file actually exists
+        $fileExists = file_exists($uploadFile);
+        $fileSize = $fileExists ? filesize($uploadFile) : 0;
+
         file_put_contents(__DIR__ . '/debug.log', "SUCCESS: File uploaded to $uploadFile\n", FILE_APPEND);
-        header('Content-Type: application/json');
-        echo json_encode(['success' => true, 'filename' => basename($_FILES['pdfFile']['name'])]);
+        file_put_contents(__DIR__ . '/debug.log', "File exists check: " . ($fileExists ? 'YES' : 'NO') . "\n", FILE_APPEND);
+        file_put_contents(__DIR__ . '/debug.log', "File size: $fileSize bytes\n", FILE_APPEND);
+
+        // Return JSON response without header() - just echo and exit
+        echo json_encode([
+            'success' => true,
+            'filename' => basename($_FILES['pdfFile']['name']),
+            'absolutePath' => $absolutePath,
+            'fileExists' => $fileExists,
+            'fileSize' => $fileSize,
+            'message' => "File uploaded to: $absolutePath"
+        ]);
         exit;
     } else {
         file_put_contents(__DIR__ . '/debug.log', "FAILED: Upload failed - tmp: " . $_FILES['pdfFile']['tmp_name'] . "\n", FILE_APPEND);
-        header('Content-Type: application/json');
         echo json_encode(['success' => false, 'error' => 'Upload failed']);
         exit;
     }
 }
 
 if (isset($_GET['action'])) {
-    header('Content-Type: application/json');
     switch ($_GET['action']) {
         case 'convert':
             $filename = $_GET['file'] ?? '';
@@ -43,8 +72,9 @@ if (isset($_GET['action'])) {
 
 function convertPdf($filename, $format, $uploadDir, $outputDir) {
     file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " - Conversion attempt: $filename to $format\n", FILE_APPEND);
-    
+
     $inputPath = $uploadDir . '/' . $filename;
+    $absoluteInputPath = realpath($uploadDir) . '/' . $filename;
     if (!file_exists($inputPath)) {
         file_put_contents(__DIR__ . '/debug.log', "FAILED: Input file not found: $inputPath\n", FILE_APPEND);
         return ['success' => false, 'message' => 'File not found'];
@@ -52,6 +82,7 @@ function convertPdf($filename, $format, $uploadDir, $outputDir) {
 
     $outputName = pathinfo($filename, PATHINFO_FILENAME);
     $outputPath = $outputDir . '/' . $outputName . '.' . $format;
+    $absoluteOutputPath = realpath($outputDir) . '/' . $outputName . '.' . $format;
 
     $cmd = "convert '$inputPath'[0] '$outputPath' 2>&1";
     file_put_contents(__DIR__ . '/debug.log', "Conversion command: $cmd\n", FILE_APPEND);
@@ -59,7 +90,13 @@ function convertPdf($filename, $format, $uploadDir, $outputDir) {
 
     if (file_exists($outputPath)) {
         file_put_contents(__DIR__ . '/debug.log', "SUCCESS: Conversion successful: $outputPath\n", FILE_APPEND);
-        return ['success' => true, 'output' => $outputName . '.' . $format];
+        return [
+            'success' => true,
+            'output' => $outputName . '.' . $format,
+            'absoluteInputPath' => $absoluteInputPath,
+            'absoluteOutputPath' => $absoluteOutputPath,
+            'message' => "File converted to: $absoluteOutputPath"
+        ];
     } else {
         file_put_contents(__DIR__ . '/debug.log', "FAILED: Conversion failed: $outputPath\n", FILE_APPEND);
         return ['success' => false, 'message' => 'Conversion failed'];
@@ -68,6 +105,7 @@ function convertPdf($filename, $format, $uploadDir, $outputDir) {
 
 function analyzePdf($filename, $uploadDir) {
     $inputPath = $uploadDir . '/' . $filename;
+    $absoluteInputPath = realpath($uploadDir) . '/' . $filename;
     if (!file_exists($inputPath)) return ['success' => false, 'message' => 'File not found'];
 
     $output = shell_exec("pdfinfo '$inputPath' 2>&1");
@@ -76,40 +114,37 @@ function analyzePdf($filename, $uploadDir) {
     if ($output) {
         foreach (explode("\n", $output) as $line) {
             if (strpos($line, ':') !== false) {
-                list($key, $value) = explode(':', $line, 2);
-                $info[strtolower(trim($key))] = trim($value);
+                list($key, $value) = array_map('trim', explode(':', $line, 2));
+                $info[$key] = $value;
             }
         }
     }
 
-    return ['success' => true, 'info' => $info];
+    return [
+        'success' => true,
+        'info' => $info,
+        'absoluteInputPath' => $absoluteInputPath,
+        'message' => "File analyzed: $absoluteInputPath"
+    ];
 }
 
-header('Content-Type: image/svg+xml; charset=utf-8');
+function formatBytes($bytes, $precision = 2) {
+    $units = array('B', 'KB', 'MB', 'GB', 'TB');
+
+    for ($i = 0; $bytes > 1024; $i++) {
+        $bytes /= 1024;
+    }
+
+    return round($bytes, $precision) . ' ' . $units[$i];
+}
 ?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml" viewBox="0 0 1200 800">
-  <title>PDF Processor PWA</title>
-  <desc>Advanced PDF conversion and analysis tool</desc>
-
-  <defs>
-    <style>
-      * { font-family: system-ui, sans-serif; }
-      .header { fill: #e74c3c; font-size: 20px; font-weight: bold; }
-      .button { fill: #e74c3c; cursor: pointer; }
-      .button:hover { fill: #c0392b; }
-      .button-text { fill: white; font-size: 11px; text-anchor: middle; }
-      .panel { fill: #f8f9fa; stroke: #dee2e6; }
-      .input { fill: white; stroke: #ced4da; }
-    </style>
-  </defs>
-
   <!-- Header -->
-  <rect width="1200" height="60" fill="#e74c3c"/>
+  <rect width="1000" height="60" fill="#e74c3c"/>
   <text x="20" y="30" class="header" fill="white">📄 PDF Processor</text>
   <text x="20" y="48" fill="#fadbd8" font-size="12px">Convert PDFs to PNG/JPG/SVG • Extract metadata</text>
 
   <!-- Control Panel -->
-  <rect x="20" y="80" width="1160" height="120" class="panel" stroke-width="1" rx="5"/>
+  <rect x="20" y="80" width="960" height="120" class="panel" stroke-width="1" rx="5"/>
 
   <!-- File Selection -->
   <text x="40" y="105" font-size="12px" fill="#495057">PDF File:</text>
@@ -141,7 +176,7 @@ header('Content-Type: image/svg+xml; charset=utf-8');
   <text x="40" y="180" font-size="11px" fill="#28a745" id="status">Ready</text>
 
   <!-- Results Area -->
-  <rect x="20" y="220" width="1160" height="400" fill="#ffffff" stroke="#dee2e6" stroke-width="1" rx="5"/>
+  <rect x="20" y="220" width="960" height="400" fill="#ffffff" stroke="#dee2e6" stroke-width="1" rx="5"/>
   <text x="40" y="245" font-size="14px" fill="#495057" font-weight="bold">Results</text>
   <text x="40" y="210" font-size="11px" fill="#6c757d" id="results">Process a file to see results</text>
 
@@ -177,7 +212,12 @@ header('Content-Type: image/svg+xml; charset=utf-8');
         .then(data => {
           if (data.success) {
             currentFile = data.filename;
-            document.getElementById('status').textContent = 'File uploaded: ' + currentFile;
+            const statusMsg = `✅ File uploaded: ${currentFile}
+📁 Path: ${data.absolutePath}
+📊 Size: ${data.fileSize} bytes
+✔️ Verified: ${data.fileExists ? 'File exists' : 'File missing!'}`;
+            document.getElementById('status').innerHTML = statusMsg.replace(/\n/g, '<br>');
+            console.log('Upload details:', data);
           } else {
             document.getElementById('status').textContent = 'Upload failed: ' + data.error;
           }
@@ -202,6 +242,7 @@ header('Content-Type: image/svg+xml; charset=utf-8');
           if (data.success) {
             document.getElementById('status').textContent = `✅ Converted to ${format.toUpperCase()}`;
             displayResults(`Conversion successful! Output: ${data.output}`);
+            console.log(data);
           } else {
             document.getElementById('status').textContent = `❌ Conversion failed: ${data.error}`;
           }
@@ -225,6 +266,7 @@ header('Content-Type: image/svg+xml; charset=utf-8');
           if (data.success) {
             document.getElementById('status').textContent = '✅ Analysis complete';
             displayResults(`Analysis results: ${JSON.stringify(data.info, null, 2)}`);
+            console.log(data);
           } else {
             document.getElementById('status').textContent = `❌ Analysis failed: ${data.error}`;
           }

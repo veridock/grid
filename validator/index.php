@@ -416,6 +416,112 @@ class SVGPWATester {
     }
     
     /**
+     * Test for runtime/functional errors in SVG+PHP apps
+     */
+    private function testRuntimeErrors($filePath) {
+        $content = file_get_contents($filePath);
+        
+        // Test 1: PHP syntax check (catch parse errors)
+        $syntaxCheck = $this->checkPHPSyntax($filePath);
+        $this->addTest("php_syntax", "PHP syntax is valid (no parse errors)", $syntaxCheck);
+        
+        // Test 2: Check for potential runtime issues
+        $hasRuntimeIssues = $this->checkRuntimeIssues($content);
+        $this->addTest("runtime_safety", "No obvious runtime issues detected", !$hasRuntimeIssues);
+        
+        // Test 3: Check for proper error handling
+        $hasErrorHandling = $this->checkErrorHandling($content);
+        $this->addTest("error_handling", "Proper error handling implemented", $hasErrorHandling);
+        
+        // Test 4: Check for output before headers (common JSON API issue)
+        $hasOutputBeforeHeaders = $this->checkOutputBeforeHeaders($content);
+        $this->addTest("output_order", "No output before headers (prevents JSON parse errors)", !$hasOutputBeforeHeaders);
+        
+        return true;
+    }
+    
+    /**
+     * Check PHP syntax using php -l command
+     */
+    private function checkPHPSyntax($filePath) {
+        $output = [];
+        $returnCode = 0;
+        exec("php -l " . escapeshellarg($filePath) . " 2>&1", $output, $returnCode);
+        return $returnCode === 0;
+    }
+    
+    /**
+     * Check for potential runtime issues in code
+     */
+    private function checkRuntimeIssues($content) {
+        // Check for common runtime issue patterns
+        $issues = [
+            // Mixing different PHP syntax styles
+            '/}\s*endforeach\s*;/',
+            '/}\s*endif\s*;/',
+            '/}\s*endwhile\s*;/',
+            // Potential undefined variable access
+            '/\$[a-zA-Z_][a-zA-Z0-9_]*\s*\[\s*["\'][^"\']
+]*["\']\s*\]\s*(?!\s*=)/',
+            // Missing semicolons in common places
+            '/echo\s+[^;\n]*\n/',
+        ];
+        
+        foreach ($issues as $pattern) {
+            if (preg_match($pattern, $content)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check for proper error handling in PHP code
+     */
+    private function checkErrorHandling($content) {
+        // Look for error handling patterns
+        $hasErrorHandling = (
+            strpos($content, 'try {') !== false ||
+            strpos($content, 'catch') !== false ||
+            strpos($content, 'error_reporting') !== false ||
+            strpos($content, 'ini_set') !== false ||
+            strpos($content, 'set_error_handler') !== false
+        );
+        
+        return $hasErrorHandling;
+    }
+    
+    /**
+     * Check for output before headers (causes JSON parse errors)
+     */
+    private function checkOutputBeforeHeaders($content) {
+        // Find PHP sections and check if there's output before header() calls
+        if (preg_match_all('/<\?php(.*?)\?>/s', $content, $matches)) {
+            foreach ($matches[1] as $phpCode) {
+                // Check if there's echo/print/output before header() calls
+                if (preg_match('/header\s*\(/', $phpCode)) {
+                    $beforeHeader = substr($phpCode, 0, strpos($phpCode, 'header('));
+                    if (preg_match('/(echo|print|printf|var_dump)\s*\(/', $beforeHeader)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        // Also check if XML/SVG content appears before JSON API responses
+        if (strpos($content, '<?xml') !== false && strpos($content, 'header(\'Content-Type: application/json\')') !== false) {
+            $xmlPos = strpos($content, '<?xml');
+            $jsonHeaderPos = strpos($content, 'header(\'Content-Type: application/json\')');
+            if ($xmlPos < $jsonHeaderPos) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
      * Add test result
      */
     private function addTest($testName, $description, $passed) {
