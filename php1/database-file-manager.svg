@@ -4,8 +4,6 @@
 // Database File Manager - Advanced PHP+SVG PWA
 // Features: SQLite database, file indexing, search, metadata extraction
 
-header('Content-Type: image/svg+xml');
-
 // Initialize SQLite database
 $dbFile = __DIR__ . '/filemanager.db';
 $pdo = new PDO("sqlite:$dbFile");
@@ -409,7 +407,7 @@ header('Content-Type: image/svg+xml; charset=utf-8');
       <text x="1270" y="<?php echo $y - 2; ?>" class="button-text" font-size="10px">Preview</text>
     <?php
         }
-    }  endforeach; 
+    } 
     
     function formatBytes($size) {
         $units = ['B', 'KB', 'MB', 'GB'];
@@ -421,8 +419,7 @@ header('Content-Type: image/svg+xml; charset=utf-8');
         return round($size, 1) . ' ' . $units[$unitIndex];
     }
     ?>
-  </g>
-  
+
   <!-- Analysis Panel (Hidden by default) -->
   <rect x="20" y="580" width="1360" height="280" fill="rgba(0,0,0,0.9)" rx="10" id="analysisPanel" style="display: none;"/>
   <text x="40" y="605" fill="white" font-size="16px" font-weight="bold" style="display: none;" id="analysisTitle">📊 File Analysis</text>

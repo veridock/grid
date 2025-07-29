@@ -26,12 +26,12 @@
 // Data Visualization Engine - Advanced PHP+SVG PWA
 // Features: CSV/JSON import, chart generation, statistical analysis
 
-header('Content-Type: image/svg+xml');
-
+// IMPORTANT: Handle JSON API requests BEFORE any SVG output
 $dataDir = __DIR__ . '/data';
 if (!is_dir($dataDir)) mkdir($dataDir, 0755, true);
 
 if (isset($_GET['action'])) {
+    // Set JSON header and handle API requests BEFORE SVG output
     header('Content-Type: application/json');
     switch ($_GET['action']) {
         case 'import':
@@ -45,6 +45,7 @@ if (isset($_GET['action'])) {
             exit;
     }
 }
+
 
 function importData($data, $type) {
     global $dataDir;

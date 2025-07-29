@@ -1,39 +1,69 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml" viewBox="0 0 1200 800">
-    <?php
+<?php
 // PDF Processor - Advanced PHP+SVG PWA with PDF conversion and analysis
 $uploadDir = __DIR__ . '/uploads';
 $outputDir = __DIR__ . '/output';
 if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 if (!is_dir($outputDir)) mkdir($outputDir, 0755, true);
 
+// Handle file upload
+if (isset($_FILES['pdfFile'])) {
+    file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " - Upload attempt\n", FILE_APPEND);
+    file_put_contents(__DIR__ . '/debug.log', "FILES data: " . print_r($_FILES['pdfFile'], true) . "\n", FILE_APPEND);
+    
+    $uploadFile = $uploadDir . '/' . basename($_FILES['pdfFile']['name']);
+    file_put_contents(__DIR__ . '/debug.log', "Target path: $uploadFile\n", FILE_APPEND);
+    
+    if (move_uploaded_file($_FILES['pdfFile']['tmp_name'], $uploadFile)) {
+        file_put_contents(__DIR__ . '/debug.log', "SUCCESS: File uploaded to $uploadFile\n", FILE_APPEND);
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'filename' => basename($_FILES['pdfFile']['name'])]);
+        exit;
+    } else {
+        file_put_contents(__DIR__ . '/debug.log', "FAILED: Upload failed - tmp: " . $_FILES['pdfFile']['tmp_name'] . "\n", FILE_APPEND);
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'error' => 'Upload failed']);
+        exit;
+    }
+}
+
 if (isset($_GET['action'])) {
     header('Content-Type: application/json');
     switch ($_GET['action']) {
         case 'convert':
-            $file = $_GET['file'] ?? '';
+            $filename = $_GET['file'] ?? '';
             $format = $_GET['format'] ?? 'png';
-            echo json_encode(convertPdf($file, $format, $uploadDir, $outputDir));
+            echo json_encode(convertPdf($filename, $format, $uploadDir, $outputDir));
             exit;
         case 'analyze':
-            $file = $_GET['file'] ?? '';
-            echo json_encode(analyzePdf($file, $uploadDir));
+            $filename = $_GET['file'] ?? '';
+            echo json_encode(analyzePdf($filename, $uploadDir));
             exit;
     }
 }
 
 function convertPdf($filename, $format, $uploadDir, $outputDir) {
+    file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " - Conversion attempt: $filename to $format\n", FILE_APPEND);
+    
     $inputPath = $uploadDir . '/' . $filename;
-    if (!file_exists($inputPath)) return ['success' => false, 'message' => 'File not found'];
+    if (!file_exists($inputPath)) {
+        file_put_contents(__DIR__ . '/debug.log', "FAILED: Input file not found: $inputPath\n", FILE_APPEND);
+        return ['success' => false, 'message' => 'File not found'];
+    }
 
     $outputName = pathinfo($filename, PATHINFO_FILENAME);
     $outputPath = $outputDir . '/' . $outputName . '.' . $format;
 
     $cmd = "convert '$inputPath'[0] '$outputPath' 2>&1";
+    file_put_contents(__DIR__ . '/debug.log', "Conversion command: $cmd\n", FILE_APPEND);
     shell_exec($cmd);
 
-    return file_exists($outputPath) ?
-        ['success' => true, 'output' => $outputName . '.' . $format] :
-        ['success' => false, 'message' => 'Conversion failed'];
+    if (file_exists($outputPath)) {
+        file_put_contents(__DIR__ . '/debug.log', "SUCCESS: Conversion successful: $outputPath\n", FILE_APPEND);
+        return ['success' => true, 'output' => $outputName . '.' . $format];
+    } else {
+        file_put_contents(__DIR__ . '/debug.log', "FAILED: Conversion failed: $outputPath\n", FILE_APPEND);
+        return ['success' => false, 'message' => 'Conversion failed'];
+    }
 }
 
 function analyzePdf($filename, $uploadDir) {
@@ -57,6 +87,7 @@ function analyzePdf($filename, $uploadDir) {
 
 header('Content-Type: image/svg+xml; charset=utf-8');
 ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml" viewBox="0 0 1200 800">
   <title>PDF Processor PWA</title>
   <desc>Advanced PDF conversion and analysis tool</desc>
 
@@ -82,11 +113,13 @@ header('Content-Type: image/svg+xml; charset=utf-8');
 
   <!-- File Selection -->
   <text x="40" y="105" font-size="12px" fill="#495057">PDF File:</text>
-  <rect x="40" y="110" width="300" height="25" class="input" stroke-width="1" rx="3"/>
-  <text x="45" y="125" font-size="10px" fill="#6c757d" id="selectedFile">No file selected</text>
+  <foreignObject x="40" y="110" width="300" height="25">
+    <xhtml:input type="file" id="selectedFile" accept=".pdf" onchange="handleFileSelect()" style="width:100%; height:100%; padding:2px; border-radius:3px; border:1px solid #ced4da; font-size:10px;"/>
+  </foreignObject>
 
   <!-- Convert Buttons -->
-  <text x="40" y="135" font-size="12px" fill="#495057">Convert to:</text>
+  <text x="40" y="155" font-size="12px" fill="#495057">Convert to:</text>
+
   <foreignObject x="120" y="140" width="50" height="20">
     <xhtml:button onclick="convert('png')" style="width:100%; height:100%; background:#e74c3c; color:white; border:none; border-radius:2px; cursor:pointer; font-size:11px;">PNG</xhtml:button>
   </foreignObject>
@@ -125,10 +158,34 @@ header('Content-Type: image/svg+xml; charset=utf-8');
   <script><![CDATA[
     let currentFile = '';
     
-    function selectSample(filename) {
-      currentFile = filename;
-      document.getElementById('selectedFile').textContent = filename;
-      document.getElementById('status').textContent = 'File selected: ' + filename;
+    function handleFileSelect() {
+      const fileInput = document.getElementById('selectedFile');
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        
+        // Upload the file
+        const formData = new FormData();
+        formData.append('pdfFile', file);
+        
+        document.getElementById('status').textContent = 'Uploading file...';
+        
+        fetch('', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            currentFile = data.filename;
+            document.getElementById('status').textContent = 'File uploaded: ' + currentFile;
+          } else {
+            document.getElementById('status').textContent = 'Upload failed: ' + data.error;
+          }
+        })
+        .catch(error => {
+          document.getElementById('status').textContent = 'Upload error: ' + error.message;
+        });
+      }
     }
     
     function convert(format) {
@@ -139,15 +196,18 @@ header('Content-Type: image/svg+xml; charset=utf-8');
       
       document.getElementById('status').textContent = `Converting to ${format.toUpperCase()}...`;
       
-      fetch(`?action=convert&file=${currentFile}&format=${format}`)
-        .then(r => r.json())
+      fetch(`?action=convert&file=${encodeURIComponent(currentFile)}&format=${format}`)
+        .then(response => response.json())
         .then(data => {
           if (data.success) {
-            document.getElementById('status').textContent = `✅ Converted to ${data.output}`;
-            showResult(`Conversion successful: ${data.output}`);
+            document.getElementById('status').textContent = `✅ Converted to ${format.toUpperCase()}`;
+            displayResults(`Conversion successful! Output: ${data.output}`);
           } else {
-            document.getElementById('status').textContent = `❌ ${data.message}`;
+            document.getElementById('status').textContent = `❌ Conversion failed: ${data.error}`;
           }
+        })
+        .catch(error => {
+          document.getElementById('status').textContent = `❌ Conversion error: ${error.message}`;
         });
     }
     
@@ -159,35 +219,28 @@ header('Content-Type: image/svg+xml; charset=utf-8');
       
       document.getElementById('status').textContent = 'Analyzing PDF...';
       
-      fetch(`?action=analyze&file=${currentFile}`)
-        .then(r => r.json())
+      fetch(`?action=analyze&file=${encodeURIComponent(currentFile)}`)
+        .then(response => response.json())
         .then(data => {
           if (data.success) {
             document.getElementById('status').textContent = '✅ Analysis complete';
-            showAnalysis(data.info);
+            displayResults(`Analysis results: ${JSON.stringify(data.info, null, 2)}`);
           } else {
-            document.getElementById('status').textContent = `❌ ${data.message}`;
+            document.getElementById('status').textContent = `❌ Analysis failed: ${data.error}`;
           }
+        })
+        .catch(error => {
+          document.getElementById('status').textContent = `❌ Analysis error: ${error.message}`;
         });
     }
     
-    function showResult(message) {
-      document.getElementById('results').innerHTML = 
-        `<text x="40" y="270" font-size="12px" fill="#28a745">${message}</text>`;
+    function selectSample(filename) {
+      currentFile = filename;
+      document.getElementById('status').textContent = 'Selected sample: ' + filename;
     }
     
-    function showAnalysis(info) {
-      let html = '<text x="40" y="270" font-size="12px" fill="#495057" font-weight="bold">PDF Analysis:</text>';
-      let y = 290;
-      
-      for (const [key, value] of Object.entries(info)) {
-        html += `<text x="60" y="${y}" font-size="10px" fill="#6c757d">${key}: ${value}</text>`;
-        y += 15;
-      }
-      
-      document.getElementById('results').innerHTML = html;
+    function displayResults(content) {
+      document.getElementById('results').textContent = content;
     }
-    
-    console.log('📄 PDF Processor initialized');
   ]]></script>
 </svg>

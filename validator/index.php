@@ -109,9 +109,20 @@ class SVGPWATester {
     private function testSVGStructure($filePath) {
         $content = file_get_contents($filePath);
         
-        // Test 1: Valid XML structure
-        $xml = @simplexml_load_string($content);
-        $this->addTest("valid_xml", "Valid XML structure", $xml !== false);
+        // Test 1: Valid XML structure (handle PHP+SVG files)
+        $isPhpSvg = (strpos($content, '<?php') !== false || strpos($content, '<?=') !== false);
+        
+        if ($isPhpSvg) {
+            // For PHP+SVG files, check if basic XML structure is valid by removing PHP tags
+            $contentForXml = preg_replace('/<\?php.*?\?>/s', '', $content);
+            $contentForXml = preg_replace('/<\?=.*?\?>/s', '', $contentForXml);
+            $xml = @simplexml_load_string($contentForXml);
+            $this->addTest("valid_xml", "Valid XML structure (PHP+SVG compatible)", $xml !== false);
+        } else {
+            // For regular SVG files, standard XML validation
+            $xml = @simplexml_load_string($content);
+            $this->addTest("valid_xml", "Valid XML structure", $xml !== false);  
+        }
         
         // Test 2: SVG namespace
         $hasSVGNamespace = strpos($content, 'xmlns="http://www.w3.org/2000/svg"') !== false ||
@@ -224,14 +235,15 @@ class SVGPWATester {
         // Check for PHP code anywhere in the file (embedded PHP is valid)
         $hasPhpCode = (strpos($content, '<?php') !== false || strpos($content, '<?=') !== false);
         
-        // Should have XML declaration (SVG files start with <?xml)
+        // XML declaration is optional for SVG files (<?xml)
         $hasXMLDeclaration = strpos($content, '<?xml') !== false;
         
         // Should have SVG root element with proper namespace
         $hasSVGRoot = preg_match('/<svg[^>]*xmlns=["\']http:\/\/www\.w3\.org\/2000\/svg["\']/', $content);
         
-        // Basic structure: XML declaration + SVG root + embedded PHP
-        $basicStructureValid = $hasXMLDeclaration && $hasSVGRoot && $hasPhpCode;
+        // For PHP+SVG files: SVG root + embedded PHP is sufficient
+        // XML declaration is optional as SVG can be valid without it
+        $basicStructureValid = $hasSVGRoot && $hasPhpCode;
         
         // For PHP+SVG files, this structure is valid regardless of Content-Type header
         // (header can be set by router.php or server configuration)

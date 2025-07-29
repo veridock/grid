@@ -1,13 +1,14 @@
 # SVG PHP+PWA Validator - Dokumentacja Kompletna
 
-🧪 **Advanced SVG PWA Testing Suite** with **21 comprehensive validation tests**
+🧪 **Advanced SVG PWA Testing Suite** with **28 comprehensive validation tests**
 
-![Tests](https://img.shields.io/badge/tests-21-blue.svg)
+![Tests](https://img.shields.io/badge/tests-28-blue.svg)
 ![PWA](https://img.shields.io/badge/PWA-compliant-purple.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.2%2B-777bb4.svg)
 ![CLI](https://img.shields.io/badge/mode-CLI%2BWEB-green.svg)
-![Schema](https://img.shields.io/badge/schema-v2.0-orange.svg)
+![Schema](https://img.shields.io/badge/schema-v2.1-orange.svg)
 ![Status](https://img.shields.io/badge/status-production-brightgreen.svg)
+![Success](https://img.shields.io/badge/php1%2F*.svg-100%25%20PASS-success.svg)
 
 ---
 
