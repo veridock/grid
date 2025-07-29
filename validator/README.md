@@ -1,4 +1,4 @@
-# SVG PWA Tester - Dokumentacja Kompletna
+# SVG PHP+PWA Validator - Dokumentacja Kompletna
 
 🧪 **Advanced SVG PWA Testing Suite** with **21 comprehensive validation tests**
 

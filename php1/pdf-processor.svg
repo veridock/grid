@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml" viewBox="0 0 1200 800">
     <?php
 // PDF Processor - Advanced PHP+SVG PWA with PDF conversion and analysis
 $uploadDir = __DIR__ . '/uploads';
@@ -87,19 +86,23 @@ header('Content-Type: image/svg+xml; charset=utf-8');
   <text x="45" y="125" font-size="10px" fill="#6c757d" id="selectedFile">No file selected</text>
 
   <!-- Convert Buttons -->
-  <text x="40" y="155" font-size="12px" fill="#495057">Convert to:</text>
-  <rect x="120" y="140" width="50" height="20" class="button" rx="2" onclick="convert('png')"/>
-  <text x="145" y="152" class="button-text">PNG</text>
+  <text x="40" y="135" font-size="12px" fill="#495057">Convert to:</text>
+  <foreignObject x="120" y="140" width="50" height="20">
+    <xhtml:button onclick="convert('png')" style="width:100%; height:100%; background:#e74c3c; color:white; border:none; border-radius:2px; cursor:pointer; font-size:11px;">PNG</xhtml:button>
+  </foreignObject>
 
-  <rect x="180" y="140" width="50" height="20" class="button" rx="2" onclick="convert('jpg')"/>
-  <text x="205" y="152" class="button-text">JPG</text>
+  <foreignObject x="180" y="140" width="50" height="20">
+    <xhtml:button onclick="convert('jpg')" style="width:100%; height:100%; background:#e74c3c; color:white; border:none; border-radius:2px; cursor:pointer; font-size:11px;">JPG</xhtml:button>
+  </foreignObject>
 
-  <rect x="240" y="140" width="50" height="20" class="button" rx="2" onclick="convert('svg')"/>
-  <text x="265" y="152" class="button-text">SVG</text>
+  <foreignObject x="240" y="140" width="50" height="20">
+    <xhtml:button onclick="convert('svg')" style="width:100%; height:100%; background:#e74c3c; color:white; border:none; border-radius:2px; cursor:pointer; font-size:11px;">SVG</xhtml:button>
+  </foreignObject>
 
   <!-- Analyze Button -->
-  <rect x="320" y="140" width="60" height="20" class="button" rx="2" onclick="analyze()"/>
-  <text x="350" y="152" class="button-text">Analyze</text>
+  <foreignObject x="320" y="140" width="60" height="20">
+    <xhtml:button onclick="analyze()" style="width:100%; height:100%; background:#e74c3c; color:white; border:none; border-radius:2px; cursor:pointer; font-size:11px;">Analyze</xhtml:button>
+  </foreignObject>
 
   <!-- Status -->
   <text x="40" y="180" font-size="11px" fill="#28a745" id="status">Ready</text>
@@ -107,18 +110,17 @@ header('Content-Type: image/svg+xml; charset=utf-8');
   <!-- Results Area -->
   <rect x="20" y="220" width="1160" height="400" fill="#ffffff" stroke="#dee2e6" stroke-width="1" rx="5"/>
   <text x="40" y="245" font-size="14px" fill="#495057" font-weight="bold">Results</text>
-
-  <g id="results">
-    <text x="40" y="270" font-size="11px" fill="#6c757d">Process a PDF file to see results here</text>
-  </g>
+  <text x="40" y="210" font-size="11px" fill="#6c757d" id="results">Process a file to see results</text>
 
   <!-- Sample Files -->
   <text x="40" y="650" font-size="12px" fill="#495057">Sample files (click to select):</text>
-  <rect x="40" y="660" width="100" height="20" class="button" rx="2" onclick="selectSample('sample1.pdf')"/>
-  <text x="90" y="672" class="button-text" font-size="10px">sample1.pdf</text>
+  <foreignObject x="40" y="660" width="100" height="20">
+    <xhtml:button onclick="selectSample('sample1.pdf')" style="width:100%; height:100%; background:#e74c3c; color:white; border:none; border-radius:2px; cursor:pointer; font-size:10px;">sample1.pdf</xhtml:button>
+  </foreignObject>
 
-  <rect x="150" y="660" width="100" height="20" class="button" rx="2" onclick="selectSample('sample2.pdf')"/>
-  <text x="200" y="672" class="button-text" font-size="10px">sample2.pdf</text>
+  <foreignObject x="150" y="660" width="100" height="20">
+    <xhtml:button onclick="selectSample('sample2.pdf')" style="width:100%; height:100%; background:#e74c3c; color:white; border:none; border-radius:2px; cursor:pointer; font-size:10px;">sample2.pdf</xhtml:button>
+  </foreignObject>
 
   <script><![CDATA[
     let currentFile = '';

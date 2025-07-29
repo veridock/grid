@@ -1,116 +1,5 @@
-<?php
-// Data Visualization Engine - Advanced PHP+SVG PWA
-// Features: CSV/JSON import, chart generation, statistical analysis
-
-$dataDir = __DIR__ . '/data';
-if (!is_dir($dataDir)) mkdir($dataDir, 0755, true);
-
-if (isset($_GET['action'])) {
-    header('Content-Type: application/json');
-    switch ($_GET['action']) {
-        case 'import':
-            echo json_encode(importData($_POST['data'] ?? '', $_POST['type'] ?? 'csv'));
-            exit;
-        case 'analyze':
-            echo json_encode(analyzeDataset($_GET['dataset'] ?? ''));
-            exit;
-        case 'chart':
-            echo json_encode(generateChart($_GET['dataset'] ?? '', $_GET['type'] ?? 'bar'));
-            exit;
-    }
-}
-
-function importData($data, $type) {
-    global $dataDir;
-    
-    if ($type === 'csv') {
-        $rows = array_map('str_getcsv', explode("\n", trim($data)));
-        $headers = array_shift($rows);
-        $dataset = array_map(function($row) use ($headers) {
-            return array_combine($headers, $row);
-        }, $rows);
-    } else {
-        $dataset = json_decode($data, true);
-        if (!$dataset) return ['success' => false, 'message' => 'Invalid JSON'];
-    }
-    
-    $filename = 'dataset_' . time() . '.json';
-    file_put_contents($dataDir . '/' . $filename, json_encode($dataset, JSON_PRETTY_PRINT));
-    
-    return ['success' => true, 'dataset' => $filename, 'rows' => count($dataset)];
-}
-
-function analyzeDataset($filename) {
-    global $dataDir;
-    $path = $dataDir . '/' . $filename;
-    if (!file_exists($path)) return ['success' => false, 'message' => 'Dataset not found'];
-    
-    $data = json_decode(file_get_contents($path), true);
-    $analysis = ['total_rows' => count($data), 'columns' => []];
-    
-    if (!empty($data)) {
-        foreach (array_keys($data[0]) as $column) {
-            $values = array_column($data, $column);
-            $numeric = array_filter($values, 'is_numeric');
-            
-            $columnAnalysis = [
-                'name' => $column,
-                'type' => count($numeric) > count($values) * 0.7 ? 'numeric' : 'text',
-                'unique_values' => count(array_unique($values)),
-                'null_count' => count(array_filter($values, function($v) { return $v === '' || $v === null; }))
-            ];
-            
-            if ($columnAnalysis['type'] === 'numeric') {
-                $columnAnalysis['min'] = min($numeric);
-                $columnAnalysis['max'] = max($numeric);
-                $columnAnalysis['avg'] = round(array_sum($numeric) / count($numeric), 2);
-            }
-            
-            $analysis['columns'][] = $columnAnalysis;
-        }
-    }
-    
-    return ['success' => true, 'analysis' => $analysis];
-}
-
-function generateChart($filename, $type) {
-    global $dataDir;
-    $path = $dataDir . '/' . $filename;
-    if (!file_exists($path)) return ['success' => false, 'message' => 'Dataset not found'];
-    
-    $data = json_decode(file_get_contents($path), true);
-    if (empty($data)) return ['success' => false, 'message' => 'Empty dataset'];
-    
-    // Simple chart data generation
-    $chartData = [];
-    $columns = array_keys($data[0]);
-    $numericColumns = [];
-    
-    foreach ($columns as $col) {
-        $values = array_column($data, $col);
-        if (count(array_filter($values, 'is_numeric')) > count($values) * 0.7) {
-            $numericColumns[] = $col;
-        }
-    }
-    
-    if (count($numericColumns) >= 1) {
-        $column = $numericColumns[0];
-        $values = array_map('floatval', array_column($data, $column));
-        
-        if ($type === 'bar') {
-            $chartData = array_slice($values, 0, 10); // First 10 values
-        } elseif ($type === 'line') {
-            $chartData = array_slice($values, 0, 20); // First 20 values
-        }
-    }
-    
-    return ['success' => true, 'data' => $chartData, 'column' => $column ?? 'unknown'];
-}
-
-header('Content-Type: image/svg+xml; charset=utf-8');
-?>
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml" viewBox="0 0 1400 900">
   <title>Data Visualization Engine PWA</title>
   <desc>Import CSV/JSON data, generate charts, perform statistical analysis</desc>
   
@@ -133,11 +22,123 @@ header('Content-Type: image/svg+xml; charset=utf-8');
       <stop offset="100%" stop-color="#8e44ad"/>
     </linearGradient>
   </defs>
-  
+  <?php
+// Data Visualization Engine - Advanced PHP+SVG PWA
+// Features: CSV/JSON import, chart generation, statistical analysis
+
+header('Content-Type: image/svg+xml');
+
+$dataDir = __DIR__ . '/data';
+if (!is_dir($dataDir)) mkdir($dataDir, 0755, true);
+
+if (isset($_GET['action'])) {
+    header('Content-Type: application/json');
+    switch ($_GET['action']) {
+        case 'import':
+            echo json_encode(importData($_POST['data'] ?? '', $_POST['type'] ?? 'csv'));
+            exit;
+        case 'analyze':
+            echo json_encode(analyzeDataset($_GET['dataset'] ?? ''));
+            exit;
+        case 'chart':
+            echo json_encode(generateChart($_GET['dataset'] ?? '', $_GET['type'] ?? 'bar'));
+            exit;
+    }
+}
+
+function importData($data, $type) {
+    global $dataDir;
+
+    if ($type === 'csv') {
+        $rows = array_map('str_getcsv', explode("\n", trim($data)));
+        $headers = array_shift($rows);
+        $dataset = array_map(function($row) use ($headers) {
+            return array_combine($headers, $row);
+        }, $rows);
+    } else {
+        $dataset = json_decode($data, true);
+        if (!$dataset) return ['success' => false, 'message' => 'Invalid JSON'];
+    }
+
+    $filename = 'dataset_' . time() . '.json';
+    file_put_contents($dataDir . '/' . $filename, json_encode($dataset, JSON_PRETTY_PRINT));
+
+    return ['success' => true, 'dataset' => $filename, 'rows' => count($dataset)];
+}
+
+function analyzeDataset($filename) {
+    global $dataDir;
+    $path = $dataDir . '/' . $filename;
+    if (!file_exists($path)) return ['success' => false, 'message' => 'Dataset not found'];
+
+    $data = json_decode(file_get_contents($path), true);
+    $analysis = ['total_rows' => count($data), 'columns' => []];
+
+    if (!empty($data)) {
+        foreach (array_keys($data[0]) as $column) {
+            $values = array_column($data, $column);
+            $numeric = array_filter($values, 'is_numeric');
+
+            $columnAnalysis = [
+                'name' => $column,
+                'type' => count($numeric) > count($values) * 0.7 ? 'numeric' : 'text',
+                'unique_values' => count(array_unique($values)),
+                'null_count' => count(array_filter($values, function($v) { return $v === '' || $v === null; }))
+            ];
+
+            if ($columnAnalysis['type'] === 'numeric') {
+                $columnAnalysis['min'] = min($numeric);
+                $columnAnalysis['max'] = max($numeric);
+                $columnAnalysis['avg'] = round(array_sum($numeric) / count($numeric), 2);
+            }
+
+            $analysis['columns'][] = $columnAnalysis;
+        }
+    }
+
+    return ['success' => true, 'analysis' => $analysis];
+}
+
+function generateChart($filename, $type) {
+    global $dataDir;
+    $path = $dataDir . '/' . $filename;
+    if (!file_exists($path)) return ['success' => false, 'message' => 'Dataset not found'];
+
+    $data = json_decode(file_get_contents($path), true);
+    if (empty($data)) return ['success' => false, 'message' => 'Empty dataset'];
+
+    // Simple chart data generation
+    $chartData = [];
+    $columns = array_keys($data[0]);
+    $numericColumns = [];
+
+    foreach ($columns as $col) {
+        $values = array_column($data, $col);
+        if (count(array_filter($values, 'is_numeric')) > count($values) * 0.7) {
+            $numericColumns[] = $col;
+        }
+    }
+
+    if (count($numericColumns) >= 1) {
+        $column = $numericColumns[0];
+        $values = array_map('floatval', array_column($data, $column));
+
+        if ($type === 'bar') {
+            $chartData = array_slice($values, 0, 10); // First 10 values
+        } elseif ($type === 'line') {
+            $chartData = array_slice($values, 0, 20); // First 20 values
+        }
+    }
+
+    return ['success' => true, 'data' => $chartData, 'column' => $column ?? 'unknown'];
+}
+
+header('Content-Type: image/svg+xml; charset=utf-8');
+?>
   <!-- Header -->
   <rect width="1400" height="70" fill="url(#headerGrad)"/>
-  <text x="20" y="30" class="header" fill="white">📊 Data Visualization Engine</text>
-  <text x="20" y="50" fill="#e8d5f2" font-size="14px">CSV/JSON Import • Statistical Analysis • Chart Generation</text>
+  <text x="20" y="30" class="header" fill="white">📊 Data Visualization Engine <?php echo date('H:i:s'); ?></text>
+  <text x="20" y="50" fill="#e8d5f2" font-size="14px">CSV/JSON Import • Statistical Analysis • Chart Generation • <?php echo count(glob(__DIR__ . '/data/*.json')); ?> datasets</text>
   
   <!-- Import Panel -->
   <rect x="20" y="90" width="1360" height="150" class="panel" stroke-width="1" rx="5"/>
@@ -153,14 +154,17 @@ Product C,75,Electronics</text>
   
   <!-- Import Controls -->
   <text x="660" y="140" font-size="12px" fill="#495057">Data Type:</text>
-  <rect x="660" y="145" width="40" height="20" class="button" rx="2" onclick="setType('csv')" id="csvBtn"/>
-  <text x="680" y="157" class="button-text" font-size="10px">CSV</text>
+  <foreignObject x="660" y="145" width="40" height="20">
+    <xhtml:button onclick="setType('csv')" id="csvBtn" style="width:100%; height:100%; background:#9b59b6; color:white; border:none; border-radius:2px; cursor:pointer; font-size:10px;">CSV</xhtml:button>
+  </foreignObject>
+
+  <foreignObject x="710" y="145" width="40" height="20">
+    <xhtml:button onclick="setType('json')" id="jsonBtn" style="width:100%; height:100%; background:#34495e; color:white; border:none; border-radius:2px; cursor:pointer; font-size:10px;">JSON</xhtml:button>
+  </foreignObject>
   
-  <rect x="710" y="145" width="40" height="20" fill="#6c757d" rx="2" onclick="setType('json')" id="jsonBtn"/>
-  <text x="730" y="157" fill="white" font-size="10px" text-anchor="middle">JSON</text>
-  
-  <rect x="660" y="175" width="80" height="25" class="button" rx="3" onclick="importData()"/>
-  <text x="700" y="190" class="button-text">Import Data</text>
+  <foreignObject x="660" y="175" width="80" height="25">
+    <xhtml:button onclick="importData()" style="width:100%; height:100%; background:#9b59b6; color:white; border:none; border-radius:3px; cursor:pointer; font-size:11px;">Import Data</xhtml:button>
+  </foreignObject>
   
   <!-- Status -->
   <text x="40" y="225" font-size="11px" fill="#28a745" id="importStatus">Ready to import data</text>
@@ -169,39 +173,39 @@ Product C,75,Electronics</text>
   <rect x="20" y="260" width="680" height="300" class="panel" stroke-width="1" rx="5"/>
   <text x="40" y="285" font-size="14px" fill="#495057" font-weight="bold">📈 Dataset Analysis</text>
   
-  <g id="analysisResults">
-    <text x="40" y="310" font-size="11px" fill="#6c757d">Import data to see analysis</text>
-  </g>
+  <text x="40" y="310" font-size="11px" fill="#6c757d" id="analysisResults">Import data to see analysis</text>
   
   <!-- Chart Panel -->
   <rect x="720" y="260" width="660" height="300" class="panel" stroke-width="1" rx="5"/>
   <text x="740" y="285" font-size="14px" fill="#495057" font-weight="bold">📊 Chart Visualization</text>
   
   <!-- Chart Controls -->
-  <rect x="740" y="295" width="50" height="20" class="button" rx="2" onclick="generateChart('bar')"/>
-  <text x="765" y="307" class="button-text" font-size="10px">Bar</text>
-  
-  <rect x="800" y="295" width="50" height="20" class="button" rx="2" onclick="generateChart('line')"/>
-  <text x="825" y="307" class="button-text" font-size="10px">Line</text>
+  <foreignObject x="740" y="295" width="50" height="20">
+    <xhtml:button onclick="generateChart('bar')" style="width:100%; height:100%; background:#9b59b6; color:white; border:none; border-radius:2px; cursor:pointer; font-size:10px;">Bar</xhtml:button>
+  </foreignObject>
+
+  <foreignObject x="800" y="295" width="50" height="20">
+    <xhtml:button onclick="generateChart('line')" style="width:100%; height:100%; background:#9b59b6; color:white; border:none; border-radius:2px; cursor:pointer; font-size:10px;">Line</xhtml:button>
+  </foreignObject>
   
   <!-- Chart Area -->
-  <g id="chartArea">
-    <rect x="740" y="325" width="620" height="220" fill="white" stroke="#dee2e6" stroke-width="1" rx="3"/>
-    <text x="1050" y="440" font-size="11px" fill="#6c757d" text-anchor="middle">Generate chart to visualize data</text>
-  </g>
+  <text x="1050" y="440" font-size="11px" fill="#6c757d" text-anchor="middle" id="chartArea">Generate chart to visualize data</text>
   
   <!-- Sample Data Buttons -->
   <rect x="20" y="580" width="1360" height="60" class="panel" stroke-width="1" rx="5"/>
   <text x="40" y="605" font-size="12px" fill="#495057">Quick Start - Sample Datasets:</text>
   
-  <rect x="40" y="615" width="120" height="20" class="button" rx="2" onclick="loadSample('sales')"/>
-  <text x="100" y="627" class="button-text" font-size="10px">📈 Sales Data</text>
-  
-  <rect x="170" y="615" width="120" height="20" class="button" rx="2" onclick="loadSample('survey')"/>
-  <text x="230" y="627" class="button-text" font-size="10px">📋 Survey Results</text>
-  
-  <rect x="300" y="615" width="120" height="20" class="button" rx="2" onclick="loadSample('performance')"/>
-  <text x="360" y="627" class="button-text" font-size="10px">⚡ Performance Metrics</text>
+  <foreignObject x="40" y="615" width="120" height="20">
+    <xhtml:button onclick="loadSample('sales')" style="width:100%; height:100%; background:#9b59b6; color:white; border:none; border-radius:2px; cursor:pointer; font-size:10px;">📈 Sales Data</xhtml:button>
+  </foreignObject>
+
+  <foreignObject x="170" y="615" width="120" height="20">
+    <xhtml:button onclick="loadSample('survey')" style="width:100%; height:100%; background:#9b59b6; color:white; border:none; border-radius:2px; cursor:pointer; font-size:10px;">📋 Survey Results</xhtml:button>
+  </foreignObject>
+
+  <foreignObject x="300" y="615" width="120" height="20">
+    <xhtml:button onclick="loadSample('performance')" style="width:100%; height:100%; background:#9b59b6; color:white; border:none; border-radius:2px; cursor:pointer; font-size:10px;">⚡ Performance Metrics</xhtml:button>
+  </foreignObject>
   
   <!-- Footer Stats -->
   <text x="20" y="680" font-size="11px" fill="#6c757d">

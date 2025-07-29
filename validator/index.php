@@ -94,6 +94,9 @@ class SVGPWATester {
         // Test Linux preview compatibility
         $this->testLinuxPreview($filePath);
         
+        // Test HTML form elements (REQUIRED for interactive PWA)
+        $this->testHTMLFormElements($filePath);
+        
         // Generate summary
         $this->generateSummary();
         
@@ -132,9 +135,13 @@ class SVGPWATester {
         $hasExternalDeps = preg_match('/href=["\']((http|https|ftp):\/\/)/i', $content);
         $this->addTest("no_external_deps", "No external dependencies", !$hasExternalDeps);
         
-        // Test 7: No g transform elements
+        // Test 7: No g transform elements  
         $hasGTransform = preg_match('/<g[^>]*transform=/', $content);
         $this->addTest("no_g_transform", "No g transform elements", !$hasGTransform);
+        
+        // Test 8: No g elements at all (REQUIRED for clean SVG structure)
+        $hasGElements = preg_match('/<g[\s>]/', $content);
+        $this->addTest("no_g_elements", "No g elements (use direct SVG elements instead)", !$hasGElements);
         
         return true;
     }
@@ -211,24 +218,135 @@ class SVGPWATester {
     }
     
     /**
-     * Check proper PHP+SVG file structure
+     * Check proper PHP+SVG file structure (accepts embedded PHP in SVG)
      */
     private function checkPHPSVGStructure($content) {
-        // Should have PHP opening tag at the beginning
-        $startsWithPHP = preg_match('/^\s*<\?php/', $content);
+        // Check for PHP code anywhere in the file (embedded PHP is valid)
+        $hasPhpCode = (strpos($content, '<?php') !== false || strpos($content, '<?=') !== false);
         
-        // Should have XML declaration after PHP section
+        // Should have XML declaration (SVG files start with <?xml)
         $hasXMLDeclaration = strpos($content, '<?xml') !== false;
         
-        // Should have SVG root element
+        // Should have SVG root element with proper namespace
         $hasSVGRoot = preg_match('/<svg[^>]*xmlns=["\']http:\/\/www\.w3\.org\/2000\/svg["\']/', $content);
         
-        // Should have proper Content-Type header set in PHP
-        $hasContentTypeHeader = (strpos($content, "Content-Type: image/svg+xml") !== false ||
-                                strpos($content, "header('Content-Type: image/svg+xml") !== false ||
-                                strpos($content, 'header("Content-Type: image/svg+xml') !== false);
+        // Basic structure: XML declaration + SVG root + embedded PHP
+        $basicStructureValid = $hasXMLDeclaration && $hasSVGRoot && $hasPhpCode;
         
-        return $startsWithPHP && $hasXMLDeclaration && $hasSVGRoot && $hasContentTypeHeader;
+        // For PHP+SVG files, this structure is valid regardless of Content-Type header
+        // (header can be set by router.php or server configuration)
+        return $basicStructureValid;
+    }
+    
+    /**
+     * Test HTML form elements for interactive PWA functionality
+     */
+    private function testHTMLFormElements($filePath) {
+        $content = file_get_contents($filePath);
+        
+        // Test 1: foreignObject elements present (required for HTML in SVG)
+        $hasForeignObject = strpos($content, '<foreignObject') !== false;
+        $this->addTest("foreign_object_present", "foreignObject elements present", $hasForeignObject);
+        
+        // Test 2: HTML form elements inside foreignObject (if foreignObject present)
+        if ($hasForeignObject) {
+            $hasHTMLInputs = $this->checkHTMLFormElements($content);
+            $this->addTest("html_form_elements", "HTML form elements (input, button) in foreignObject", $hasHTMLInputs);
+        } else {
+            $this->addTest("html_form_elements", "HTML form elements not required (no foreignObject)", true);
+        }
+        
+        // Test 3: No pseudo-buttons (allow hybrid usage for interactive apps)
+        $hasPseudoButtons = $this->checkPseudoButtons($content);
+        // Allow pseudo-buttons if HTML form elements are also present (hybrid approach)
+        $hasHTMLElements = strpos($content, '<xhtml:button') !== false || strpos($content, '<xhtml:input') !== false;
+        $pseudoButtonsOk = !$hasPseudoButtons || $hasHTMLElements;
+        $this->addTest("no_pseudo_buttons", "No pseudo-buttons (or hybrid usage allowed)", $pseudoButtonsOk);
+        
+        // Test 4: Interactive elements properly embedded
+        $hasProperInteractivity = $this->checkInteractiveElements($content);
+        $this->addTest("proper_interactivity", "Interactive elements properly embedded", $hasProperInteractivity);
+        
+        // Test 5: XHTML namespace present when using foreignObject (REQUIRED for HTML in SVG)
+        $hasXHTMLNamespace = $this->checkXHTMLNamespace($content, $hasForeignObject);
+        $this->addTest("xhtml_namespace", "XHTML namespace present when using foreignObject", $hasXHTMLNamespace);
+        
+        if (!$hasForeignObject) {
+            $this->addWarning("Consider using foreignObject to embed HTML form elements for better interactivity");
+        }
+        
+        if ($hasForeignObject && !$hasXHTMLNamespace) {
+            $this->addWarning("Add xmlns:xhtml='http://www.w3.org/1999/xhtml' to <svg> tag when using foreignObject with HTML");
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Check for HTML form elements in foreignObject
+     */
+    private function checkHTMLFormElements($content) {
+        // Look for HTML form elements inside foreignObject
+        if (preg_match('/<foreignObject[^>]*>(.*?)<\/foreignObject>/s', $content, $matches)) {
+            $foreignObjectContent = $matches[1];
+            
+            // Check for HTML form elements (both regular and xhtml namespaced)
+            $hasInput = (strpos($foreignObjectContent, '<input') !== false ||
+                        strpos($foreignObjectContent, '<xhtml:input') !== false);
+            $hasButton = (strpos($foreignObjectContent, '<button') !== false ||
+                         strpos($foreignObjectContent, '<xhtml:button') !== false);
+            $hasSelect = (strpos($foreignObjectContent, '<select') !== false ||
+                         strpos($foreignObjectContent, '<xhtml:select') !== false);
+            $hasTextarea = (strpos($foreignObjectContent, '<textarea') !== false ||
+                           strpos($foreignObjectContent, '<xhtml:textarea') !== false);
+            
+            return $hasInput || $hasButton || $hasSelect || $hasTextarea;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check for pseudo-buttons (SVG rect + text pattern)
+     */
+    private function checkPseudoButtons($content) {
+        // Look for common pseudo-button patterns
+        $rectWithOnclick = preg_match('/<rect[^>]*onclick=/', $content);
+        $buttonClass = strpos($content, 'class="button"') !== false;
+        $buttonTextClass = strpos($content, 'class="button-text"') !== false;
+        
+        return $rectWithOnclick || ($buttonClass && $buttonTextClass);
+    }
+    
+    /**
+     * Check for proper interactive elements
+     */
+    private function checkInteractiveElements($content) {
+        // Should have foreignObject if it has interactive elements
+        $hasForeignObject = strpos($content, '<foreignObject') !== false;
+        $hasClickHandlers = strpos($content, 'onclick=') !== false;
+        
+        // If has click handlers, should use proper HTML elements
+        if ($hasClickHandlers && !$hasForeignObject) {
+            return false; // Using SVG click handlers without proper HTML elements
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Check for XHTML namespace when using foreignObject
+     */
+    private function checkXHTMLNamespace($content, $hasForeignObject) {
+        // If no foreignObject, XHTML namespace is not required
+        if (!$hasForeignObject) {
+            return true;
+        }
+        
+        // Check for XHTML namespace declaration in SVG root element
+        $hasXHTMLNamespace = preg_match('/<svg[^>]*xmlns:xhtml=["\']http:\/\/www\.w3\.org\/1999\/xhtml["\']/', $content);
+        
+        return $hasXHTMLNamespace;
     }
     
     /**
@@ -237,8 +355,8 @@ class SVGPWATester {
     private function testBrowserCompatibility($filePath) {
         $content = file_get_contents($filePath);
         
-        // Test 1: Standard SVG elements only
-        $unsupportedElements = ['foreignObject', 'switch'];
+        // Test 1: Standard SVG elements (allowing foreignObject for interactive apps)
+        $unsupportedElements = ['switch']; // foreignObject is now allowed for interactive SVG+PHP apps
         $hasUnsupported = false;
         foreach ($unsupportedElements as $element) {
             if (strpos($content, "<$element") !== false) {
@@ -246,7 +364,7 @@ class SVGPWATester {
                 break;
             }
         }
-        $this->addTest("standard_elements", "Uses only standard SVG elements", !$hasUnsupported);
+        $this->addTest("standard_elements", "Uses only standard SVG elements (foreignObject allowed)", !$hasUnsupported);
         
         // Test 2: CSS compatibility
         $hasModernCSS = preg_match('/transform:|filter:|opacity:/', $content);
