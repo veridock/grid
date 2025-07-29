@@ -16,7 +16,7 @@
 | 📋 **Core Docs** | 🔧 **Technical** | 🚀 **Advanced** |
 |---|---|---|
 | [🏠 **Main Guide**](../README.md) | [🐘 **PHP Router**](../php/README.md) | [🖥️ **Servers**](README.md) |
-| [📖 **VeriDock V2**](../documentation/README.md) | [🧪 **Tester**](../tester/README.md) | [🐳 **Docker**](docker/) |
+| [📖 **VeriDock V2**](../documentation/README.md) | [🧪 **Validator**](../validator/README.md) | [🐳 **Docker**](docker/) |
 
 > **Aktualnie przeglądasz:** 🖥️ **Advanced Server Solutions**
 

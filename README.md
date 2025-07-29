@@ -18,7 +18,7 @@
 | 📋 **Core Docs** | 🔧 **Technical** | 🚀 **Advanced** |
 |---|---|---|
 | [🏠 **Main Guide**](README.md) | [🐘 **PHP Router**](php/README.md) | [🖥️ **Servers**](servers/README.md) |
-| [📖 **VeriDock V2**](documentation/README.md) | [🧪 **Tester**](tester/README.md) | [🐳 **Docker**](servers/docker/) |
+| [📖 **VeriDock V2**](documentation/README.md) | [🧪 **Validator**](validator/README.md) | [🐳 **Docker**](servers/docker/) |
 
 ---
 
@@ -88,7 +88,7 @@ node svg_server.js 8095
 │   └── todo-manager-nodejs.svg     # SVG z JavaScript kodem
 ├── generator/                   # SVG PWA generator
 │   └── svg-pwa-generator.php       # Interactive generator
-├── tester/                      # SVG PWA tester
+├── validator/                   # SVG PWA validator
 │   ├── index.php                  # CLI testing tool
 │   ├── index.html                 # Web testing interface
 │   └── README.md                  # Tester documentation
@@ -304,7 +304,7 @@ http://localhost:8097/calculator.svg?CALCULATOR_TITLE=From%20GET
 ## 📚 Documentation
 
 - 📖 [PHP Documentation](php/README-SVG-PHP.md) - Complete PHP+SVG guide
-- 📖 [Tester Documentation](tester/README.md) - SVG PWA testing and validation
+- 📖 [Validator Documentation](validator/README.md) - SVG PWA testing and validation
 - 📖 [Documentation V2](documentation/README-V2.md) - VeriDock Grid V2.0 framework guide
 - 📖 [Generation Templates](templates/svg-pwa-generation-prompt.md) - SVG PWA generation prompts
 
@@ -344,7 +344,7 @@ http://localhost:8097/calculator.svg?CALCULATOR_TITLE=From%20GET
 
 ```bash
 # Test all SVG files in a directory
-php tester/index.php /path/to/svg/files/
+php validator/index.php /path/to/svg/files/
 
 # Output includes:
 # - Per-file validation results
@@ -386,7 +386,7 @@ php generator/svg-pwa-generator.php
 ### **💰 Expense Tracker PWA**
 ```bash
 # Test the expense tracker
-php tester/index.php php/expense-tracker-pwa.svg
+php validator/index.php php/expense-tracker-pwa.svg
 
 # Features:
 # - Financial transaction tracking (income/expenses)
@@ -399,7 +399,7 @@ php tester/index.php php/expense-tracker-pwa.svg
 ### **📦 Inventory Manager PWA**
 ```bash
 # Test the inventory manager
-php tester/index.php php/inventory-manager-pwa.svg
+php validator/index.php php/inventory-manager-pwa.svg
 
 # Features:
 # - Stock level monitoring and alerts
@@ -412,7 +412,7 @@ php tester/index.php php/inventory-manager-pwa.svg
 ### **🚀 Project Manager PWA**
 ```bash
 # Test the project manager
-php tester/index.php php/project-manager-pwa.svg
+php validator/index.php php/project-manager-pwa.svg
 
 # Features:
 # - Task and milestone tracking
@@ -425,7 +425,7 @@ php tester/index.php php/project-manager-pwa.svg
 ### **📊 Test Dashboard PWA**
 ```bash
 # Test the analytics dashboard
-php tester/index.php php/test-dashboard.svg
+php validator/index.php php/test-dashboard.svg
 
 # Features:
 # - Real-time system monitoring
@@ -466,12 +466,12 @@ To add new SVG PWA applications:
 1. Follow the 21-point validation schema
 2. Embed PHP as JSON strings (never direct PHP tags)
 3. Use only standard SVG elements
-4. Test with `php tester/index.php your-app.svg`
+4. Test with `php validator/index.php your-app.svg`
 5. Ensure 100% compliance before submission
 
 ## 📄 **License**
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the Apache 2.0 License - see the LICENSE file for details.
 
 ---
 

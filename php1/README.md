@@ -16,7 +16,7 @@
 | 📋 **Core Docs** | 🔧 **Technical** | 🚀 **Advanced** |
 |---|---|---|
 | [🏠 **Main Guide**](../README.md) | [🐘 **PHP Router**](../php/README.md) | [🖥️ **Servers**](../servers/README.md) |
-| [📖 **VeriDock V2**](../documentation/README.md) | [🧪 **Tester**](../tester/README.md) | [⚡ **PHP1 Advanced**](README.md) |
+| [📖 **VeriDock V2**](../documentation/README.md) | [🧪 **Validator**](../validator/README.md) | [⚡ **PHP1 Advanced**](README.md) |
 
 > **Aktualnie przeglądasz:** ⚡ **Advanced PHP+SVG PWA Applications**
 

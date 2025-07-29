@@ -16,7 +16,7 @@
 | 📋 **Core Docs** | 🔧 **Technical** | 🚀 **Advanced** |
 |---|---|---|
 | [🏠 **Main Guide**](../README.md) | [🐘 **PHP Router**](../php/README.md) | [🖥️ **Servers**](../servers/README.md) |
-| [📖 **VeriDock V2**](README.md) | [🧪 **Tester**](../tester/README.md) | [🐳 **Docker**](../servers/docker/) |
+| [📖 **VeriDock V2**](README.md) | [🧪 **Validator**](../validator/README.md) | [🐳 **Docker**](../servers/docker/) |
 
 > **Aktualnie przeglądasz:** 📖 **VeriDock Grid V2.0 Framework Documentation**
 
@@ -37,11 +37,11 @@ Celem projektu jest stworzenie **kompletnej aplikacji z frontend, backend i prev
 
 ### **Kluczowe foldery VeriDock Grid:**
 
-- `📂 correct/` - ✅ **Złoty standard** - wzorcowe aplikacje SVG (100% testów)
-- `📂 tester/` - Narzędzia walidacji z 21 testami 
-- `📂 generator/` - Generator aplikacji SVG PWA
-- `📂 concepts/` - Prototypy i koncepty (zawierają błędy)
-- `📂 legacy/` - Stare pliki do archiwizacji
+- `📂 php1/` - ✅ **Advanced PHP+SVG PWA** - zaawansowane aplikacje z bazą danych
+- `📂 validator/` - Narzędzia walidacji z 32 testami (strukturalne + runtime)
+- `📂 php/` - PHP router i podstawowe SVG+PHP examples
+- `📂 servers/` - Konfiguracje serwerów (Caddy, Docker, RoadRunner, etc.)
+- `📂 concepts/` - Prototypy i koncepty różnych stylów UI
 
 ---
 
@@ -78,13 +78,13 @@ Kompletny system testowania aplikacji SVG PWA:
 
 ```bash
 # Testowanie z konsoli
-php tester/index.php correct/devmind.svg
+php validator/index.php correct/devmind.svg
 
 # Interfejs webowy
-http://localhost:8000/tester/index.html
+http://localhost:8000/validator/index.html
 
 # API REST
-curl "http://localhost:8000/tester/index.php?file=correct/example.svg"
+curl "http://localhost:8000/validator/index.php?file=correct/example.svg"
 ```
 
 ### **21 Testów Walidacyjnych:**
@@ -151,7 +151,7 @@ cp correct/devmind.svg new-app.svg
 ### **3. Walidacja**
 ```bash
 # Test CLI
-php tester/index.php new-app.svg
+php validator/index.php new-app.svg
 
 # Wymagane: 21/21 testów ✅ (100%)
 ```
@@ -206,7 +206,7 @@ php -S localhost:8000  # Start serwera
 ```bash
 # Test wszystkich wzorcowych aplikacji
 for file in correct/*.svg; do 
-  php tester/index.php "$file"
+  php validator/index.php "$file"
 done
 ```
 
@@ -219,7 +219,7 @@ cp correct/devmind.svg my-new-app.svg
 # ...
 
 # Testuj
-php tester/index.php my-new-app.svg
+php validator/index.php my-new-app.svg
 ```
 
 ---
@@ -244,11 +244,11 @@ php tester/index.php my-new-app.svg
 ### **Podstawowe komendy:**
 ```bash
 # Test pojedynczego pliku
-php tester/index.php correct/devmind.svg
+php validator/index.php correct/devmind.svg
 
 # Interfejs webowy
 php -S localhost:8000
-http://localhost:8000/tester/index.html
+http://localhost:8000/validator/index.html
 ```
 
 ---
@@ -288,7 +288,7 @@ http://localhost:8000/tester/index.html
 
 ### **Proces Dodawania Nowej Aplikacji**
 1. Stwórz na bazie wzorca z `correct/`
-2. Przetestuj: `php tester/index.php new-app.svg`
+2. Przetestuj: `php validator/index.php new-app.svg`
 3. Osiągnij 100% success rate
 4. Dodaj dokumentację wzorca
 5. Pull request z opisem funkcjonalności
@@ -298,9 +298,9 @@ http://localhost:8000/tester/index.html
 ## 📞 **WSPARCIE**
 
 - **Dokumentacja:** `/documentation/`
-- **Tester CLI:** `php tester/index.php --help`
-- **Web Interface:** `/tester/index.html`
-- **Schema:** `/tester/svg-pwa-schema-v2.json`
+- **Validator CLI:** `php validator/index.php --help`
+- **Web Interface:** `/validator/index.html`
+- **Schema:** `/validator/svg-pwa-schema-v2.json`
 
 ---
 

@@ -1,6 +1,6 @@
 # SVG PHP+PWA Validator - Dokumentacja Kompletna
 
-🧪 **Advanced SVG PWA Testing Suite** with **28 comprehensive validation tests**
+🧪 **Advanced SVG PWA Validation Suite** with **28 comprehensive validation tests**
 
 ![Tests](https://img.shields.io/badge/tests-28-blue.svg)
 ![PWA](https://img.shields.io/badge/PWA-compliant-purple.svg)
@@ -17,9 +17,9 @@
 | 📋 **Core Docs** | 🔧 **Technical** | 🚀 **Advanced** |
 |---|---|---|
 | [🏠 **Main Guide**](../README.md) | [🐘 **PHP Router**](../php/README.md) | [🖥️ **Servers**](../servers/README.md) |
-| [📖 **VeriDock V2**](../documentation/README.md) | [🧪 **Tester**](README.md) | [🐳 **Docker**](../servers/docker/) |
+| [📖 **VeriDock V2**](../documentation/README.md) | [🧪 **Validator**](README.md) | [🐳 **Docker**](../servers/docker/) |
 
-> **Aktualnie przeglądasz:** 🧪 **SVG PWA Tester Documentation**
+> **Aktualnie przeglądasz:** 🧪 **SVG PWA Validator Documentation**
 
 ---
 
@@ -39,7 +39,7 @@
 
 ## 🎯 Wprowadzenie
 
-**SVG PWA Tester** to kompleksowe narzędzie do testowania plików SVG pod kątem kompatybilności z Progressive Web Apps (PWA) oraz integracją z PHP. System sprawdza czy plik SVG spełnia wszystkie wymagania techniczne do poprawnego wyświetlania w przeglądarce i podglądzie w systemach Linux.
+**SVG PWA Validator** to kompleksowe narzędzie do walidacji plików SVG pod kątem kompatybilności z Progressive Web Apps (PWA) oraz integracją z PHP. System sprawdza czy plik SVG spełnia wszystkie wymagania techniczne do poprawnego wyświetlania w przeglądarce i podglądzie w systemach Linux.
 
 ### Główne Funkcje:
 - ✅ **Walidacja struktury SVG** - sprawdzenie poprawności XML i elementów SVG

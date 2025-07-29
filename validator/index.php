@@ -48,7 +48,7 @@ if (!$isCommandLine) {
     header('Content-Type: application/json; charset=UTF-8');
 }
 
-class SVGPWATester {
+class SVGPWAValidator {
     
     private $results = [];
     private $errors = [];
@@ -587,7 +587,7 @@ if ($isCommandLine) {
     
     // If relative path, make it relative to current working directory
     if (!file_exists($target) && !str_starts_with($target, '/')) {
-        // Try relative to the tester directory
+        // Try relative to the validator directory
         $target = '../' . $target;
     }
     
@@ -628,8 +628,8 @@ if ($isCommandLine) {
                 continue;
             }
             
-            $tester = new SVGPWATester();
-            $results = $tester->testSVGFile($svgFile);
+            $validator = new SVGPWAValidator();
+            $results = $validator->testSVGFile($svgFile);
             
             if ($results === false) {
                 echo "❌ Error: Could not test file\n";
@@ -690,8 +690,8 @@ if ($isCommandLine) {
         echo "=" . str_repeat("=", strlen($svgFile) + 18) . "\n\n";
     }
     
-    $tester = new SVGPWATester();
-    $results = $tester->testSVGFile($svgFile);
+    $validator = new SVGPWAValidator();
+    $results = $validator->testSVGFile($svgFile);
     
     if ($results === false) {
         echo "❌ Error: Could not test file\n";
@@ -755,21 +755,21 @@ if ($isCommandLine) {
             exit;
         }
         
-        $tester = new SVGPWATester();
-        $results = $tester->testSVGFile($input['file']);
+        $validator = new SVGPWAValidator();
+        $results = $validator->testSVGFile($input['file']);
         
         echo json_encode($results, JSON_PRETTY_PRINT);
     } elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['file'])) {
-        $tester = new SVGPWATester();
-        $results = $tester->testSVGFile($_GET['file']);
+        $validator = new SVGPWAValidator();
+        $results = $validator->testSVGFile($_GET['file']);
         
         echo json_encode($results, JSON_PRETTY_PRINT);
     } else {
         // Return API documentation
         $apiDoc = [
-            'name' => 'SVG PWA Tester API',
+            'name' => 'SVG PWA Validator API',
             'version' => '1.0.0',
-            'description' => 'API for testing SVG files for PWA and PHP compatibility',
+            'description' => 'API for validating SVG files for PWA and PHP compatibility',
             'endpoints' => [
                 [
                     'method' => 'GET',

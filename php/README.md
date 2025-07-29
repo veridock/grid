@@ -15,7 +15,7 @@
 | 📋 **Core Docs** | 🔧 **Technical** | 🚀 **Advanced** |
 |---|---|---|
 | [🏠 **Main Guide**](../README.md) | [🐘 **PHP Router**](README.md) | [🖥️ **Servers**](../servers/README.md) |
-| [📖 **VeriDock V2**](../documentation/README.md) | [🧪 **Tester**](../tester/README.md) | [🐳 **Docker**](../servers/docker/) |
+| [📖 **VeriDock V2**](../documentation/README.md) | [🧪 **Validator**](../validator/README.md) | [🐳 **Docker**](../servers/docker/) |
 
 > **Aktualnie przeglądasz:** 🐘 **PHP Router Documentation**
 

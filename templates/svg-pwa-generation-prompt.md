@@ -199,7 +199,7 @@ COMPLIANCE VALIDATION:
 □ File size under 1MB
 
 TESTING VALIDATION:
-□ Must pass: php tester/index.php generated-app.svg
+□ Must pass: php validator/index.php generated-app.svg
 □ Required: 21/21 tests passing (100%)
 □ Browser compatibility verified
 □ PWA functionality confirmed
@@ -298,7 +298,7 @@ Create a SVG PWA time tracking application:
 ### **Post-Generation Validation**
 ```bash
 # Test generated application
-php tester/index.php generated-app.svg
+php validator/index.php generated-app.svg
 
 # Expected result: 21/21 tests passing (100%)
 # Any failure requires correction
@@ -322,13 +322,13 @@ php tester/index.php generated-app.svg
 - **Visualization:** `correct/example.svg` (21/21 tests ✅)
 
 ### **Schema Reference**
-- **Current Schema:** `tester/svg-pwa-schema-v2.json`
+- **Current Schema:** `validator/svg-pwa-schema-v2.json`
 - **Validation Rules:** 21 comprehensive tests
 - **Technical Standards:** 100% compliance required
 
 ### **Development Tools**
-- **CLI Tester:** `php tester/index.php [file.svg]`
-- **Web Interface:** `tester/index.html`
+- **CLI Validator:** `php validator/index.php [file.svg]`
+- **Web Interface:** `validator/index.html`
 - **Documentation:** `README-V2.md`
 
 ---
