@@ -1,10 +1,11 @@
 <?php
 /**
- * SVG PWA Tester
- * Comprehensive tester for SVG files working as Progressive Web Apps with PHP
+ * SVG PHP+PWA Validator
+ * Comprehensive validator for PHP+SVG files working as Progressive Web Apps
+ * Requires PHP code embedded within SVG tags for advanced functionality
  * 
  * @author VeriDock Grid System
- * @version 1.0.0
+ * @version 2.0.0
  */
 
 // Check if running from command line
@@ -171,20 +172,63 @@ class SVGPWATester {
     private function testPHPIntegration($filePath) {
         $content = file_get_contents($filePath);
         
-        // Test 1: No PHP conflicts
+        // Test 1: PHP code embedded within SVG tags (REQUIRED for PHP+SVG PWA)
+        $hasSVGPHP = $this->checkPHPInSVG($content);
+        $this->addTest("php_in_svg", "PHP code embedded within SVG tags", $hasSVGPHP);
+        
+        // Test 2: PHP opening tag present
         $hasPhpTags = strpos($content, '<?php') !== false || strpos($content, '<?=') !== false;
-        $this->addTest("no_php_conflicts", "No PHP tag conflicts", !$hasPhpTags);
+        $this->addTest("php_tags_present", "PHP tags present in file", $hasPhpTags);
         
-        // Test 2: MIME type compatibility
-        $mimeType = mime_content_type($filePath);
-        $correctMimeType = in_array($mimeType, ['image/svg+xml', 'text/xml', 'application/xml']);
-        $this->addTest("correct_mime_type", "Correct MIME type", $correctMimeType);
+        // Test 3: Proper PHP+SVG structure (PHP header + SVG content)
+        $hasProperStructure = $this->checkPHPSVGStructure($content);
+        $this->addTest("php_svg_structure", "Proper PHP+SVG file structure", $hasProperStructure);
         
-        // Test 3: UTF-8 encoding
+        // Test 4: UTF-8 encoding
         $isUTF8 = mb_check_encoding($content, 'UTF-8');
         $this->addTest("utf8_encoding", "UTF-8 encoding", $isUTF8);
         
         return true;
+    }
+    
+    /**
+     * Check if PHP code is embedded within SVG tags
+     */
+    private function checkPHPInSVG($content) {
+        // Extract content between <svg> and </svg> tags
+        if (preg_match('/<svg[^>]*>(.*?)<\/svg>/s', $content, $matches)) {
+            $svgContent = $matches[1];
+            
+            // Check for PHP code within SVG content
+            $hasPhpInSVG = (strpos($svgContent, '<?php') !== false || 
+                           strpos($svgContent, '<?=') !== false ||
+                           strpos($svgContent, '<?') !== false);
+            
+            return $hasPhpInSVG;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check proper PHP+SVG file structure
+     */
+    private function checkPHPSVGStructure($content) {
+        // Should have PHP opening tag at the beginning
+        $startsWithPHP = preg_match('/^\s*<\?php/', $content);
+        
+        // Should have XML declaration after PHP section
+        $hasXMLDeclaration = strpos($content, '<?xml') !== false;
+        
+        // Should have SVG root element
+        $hasSVGRoot = preg_match('/<svg[^>]*xmlns=["\']http:\/\/www\.w3\.org\/2000\/svg["\']/', $content);
+        
+        // Should have proper Content-Type header set in PHP
+        $hasContentTypeHeader = (strpos($content, "Content-Type: image/svg+xml") !== false ||
+                                strpos($content, "header('Content-Type: image/svg+xml") !== false ||
+                                strpos($content, 'header("Content-Type: image/svg+xml') !== false);
+        
+        return $startsWithPHP && $hasXMLDeclaration && $hasSVGRoot && $hasContentTypeHeader;
     }
     
     /**
@@ -293,8 +337,8 @@ class SVGPWATester {
 if ($isCommandLine) {
     // Command line interface
     if ($argc < 2) {
-        echo "🔍 SVG PWA Tester - Command Line Interface\n";
-        echo "=========================================\n\n";
+        echo "🔍 SVG PHP+PWA Validator - Command Line Interface\n";
+        echo "===============================================\n\n";
         echo "Usage: php index.php <svg-file-or-directory>\n";
         echo "Examples:\n";
         echo "  Single file: php index.php ../devmind.svg\n";

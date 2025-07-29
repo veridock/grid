@@ -1,0 +1,618 @@
+<?php
+// Database File Manager - Advanced PHP+SVG PWA
+// Features: SQLite database, file indexing, search, metadata extraction
+
+// Initialize SQLite database
+$dbFile = __DIR__ . '/filemanager.db';
+$pdo = new PDO("sqlite:$dbFile");
+
+// Create tables if they don't exist
+$pdo->exec("
+CREATE TABLE IF NOT EXISTS files (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    path TEXT NOT NULL,
+    size INTEGER,
+    type TEXT,
+    modified DATETIME,
+    content_hash TEXT,
+    metadata TEXT,
+    indexed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS search_index (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    file_id INTEGER,
+    content TEXT,
+    FOREIGN KEY (file_id) REFERENCES files (id)
+);
+");
+
+// Handle API requests
+if (isset($_GET['action'])) {
+    header('Content-Type: application/json');
+    
+    switch ($_GET['action']) {
+        case 'scan':
+            $directory = $_POST['directory'] ?? '.';
+            scanDirectory($pdo, $directory);
+            echo json_encode(['status' => 'success', 'message' => 'Directory scanned']);
+            exit;
+            
+        case 'search':
+            $query = $_GET['q'] ?? '';
+            $results = searchFiles($pdo, $query);
+            echo json_encode($results);
+            exit;
+            
+        case 'list':
+            $files = listFiles($pdo);
+            echo json_encode($files);
+            exit;
+            
+        case 'analyze':
+            $fileId = $_GET['id'] ?? 0;
+            $analysis = analyzeFile($pdo, $fileId);
+            echo json_encode($analysis);
+            exit;
+    }
+}
+
+// Helper functions
+function scanDirectory($pdo, $directory) {
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($directory)
+    );
+    
+    foreach ($iterator as $file) {
+        if ($file->isFile()) {
+            $filePath = $file->getPathname();
+            $fileName = $file->getFilename();
+            $fileSize = $file->getSize();
+            $fileType = pathinfo($fileName, PATHINFO_EXTENSION);
+            $modified = date('Y-m-d H:i:s', $file->getMTime());
+            $contentHash = md5_file($filePath);
+            
+            // Extract metadata
+            $metadata = extractMetadata($filePath, $fileType);
+            
+            // Check if file already exists
+            $stmt = $pdo->prepare("SELECT id FROM files WHERE path = ? AND content_hash = ?");
+            $stmt->execute([$filePath, $contentHash]);
+            
+            if (!$stmt->fetch()) {
+                // Insert new file
+                $stmt = $pdo->prepare("
+                    INSERT INTO files (name, path, size, type, modified, content_hash, metadata) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                ");
+                $stmt->execute([$fileName, $filePath, $fileSize, $fileType, $modified, $contentHash, json_encode($metadata)]);
+                
+                $fileId = $pdo->lastInsertId();
+                
+                // Index content for search
+                indexFileContent($pdo, $fileId, $filePath, $fileType);
+            }
+        }
+    }
+}
+
+function extractMetadata($filePath, $fileType) {
+    $metadata = [];
+    
+    switch (strtolower($fileType)) {
+        case 'jpg':
+        case 'jpeg':
+        case 'png':
+        case 'gif':
+            if (function_exists('exif_read_data') && in_array($fileType, ['jpg', 'jpeg'])) {
+                $exif = @exif_read_data($filePath);
+                if ($exif) {
+                    $metadata['camera'] = $exif['Model'] ?? 'Unknown';
+                    $metadata['date_taken'] = $exif['DateTime'] ?? null;
+                    $metadata['dimensions'] = ($exif['COMPUTED']['Width'] ?? 0) . 'x' . ($exif['COMPUTED']['Height'] ?? 0);
+                }
+            }
+            break;
+            
+        case 'pdf':
+            $metadata['pages'] = getPdfPageCount($filePath);
+            break;
+            
+        case 'txt':
+        case 'md':
+            $content = file_get_contents($filePath);
+            $metadata['lines'] = substr_count($content, "\n") + 1;
+            $metadata['words'] = str_word_count($content);
+            break;
+    }
+    
+    return $metadata;
+}
+
+function getPdfPageCount($filePath) {
+    try {
+        $content = file_get_contents($filePath);
+        preg_match_all('/\/Count\s+(\d+)/', $content, $matches);
+        return !empty($matches[1]) ? max($matches[1]) : 1;
+    } catch (Exception $e) {
+        return 1;
+    }
+}
+
+function indexFileContent($pdo, $fileId, $filePath, $fileType) {
+    $content = '';
+    
+    switch (strtolower($fileType)) {
+        case 'txt':
+        case 'md':
+        case 'json':
+        case 'xml':
+        case 'csv':
+            $content = file_get_contents($filePath);
+            break;
+            
+        case 'svg':
+            $content = file_get_contents($filePath);
+            // Extract text from SVG
+            preg_match_all('/<text[^>]*>(.*?)<\/text>/is', $content, $matches);
+            $content = implode(' ', $matches[1]);
+            break;
+    }
+    
+    if ($content) {
+        $stmt = $pdo->prepare("INSERT INTO search_index (file_id, content) VALUES (?, ?)");
+        $stmt->execute([$fileId, $content]);
+    }
+}
+
+function searchFiles($pdo, $query) {
+    $stmt = $pdo->prepare("
+        SELECT DISTINCT f.*, si.content 
+        FROM files f 
+        LEFT JOIN search_index si ON f.id = si.file_id 
+        WHERE f.name LIKE ? OR si.content LIKE ? 
+        ORDER BY f.modified DESC 
+        LIMIT 50
+    ");
+    $searchTerm = '%' . $query . '%';
+    $stmt->execute([$searchTerm, $searchTerm]);
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function listFiles($pdo) {
+    $stmt = $pdo->prepare("
+        SELECT f.*, COUNT(si.id) as indexed_content 
+        FROM files f 
+        LEFT JOIN search_index si ON f.id = si.file_id 
+        GROUP BY f.id 
+        ORDER BY f.modified DESC 
+        LIMIT 100
+    ");
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function analyzeFile($pdo, $fileId) {
+    $stmt = $pdo->prepare("SELECT * FROM files WHERE id = ?");
+    $stmt->execute([$fileId]);
+    $file = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$file) return null;
+    
+    $analysis = [
+        'file' => $file,
+        'similar_files' => findSimilarFiles($pdo, $file),
+        'content_preview' => getContentPreview($file['path'], $file['type']),
+        'statistics' => getFileStatistics($pdo, $file['type'])
+    ];
+    
+    return $analysis;
+}
+
+function findSimilarFiles($pdo, $file) {
+    $stmt = $pdo->prepare("
+        SELECT * FROM files 
+        WHERE type = ? AND id != ? 
+        ORDER BY ABS(size - ?) 
+        LIMIT 5
+    ");
+    $stmt->execute([$file['type'], $file['id'], $file['size']]);
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getContentPreview($filePath, $fileType) {
+    switch (strtolower($fileType)) {
+        case 'txt':
+        case 'md':
+            return substr(file_get_contents($filePath), 0, 500);
+        case 'json':
+            $json = json_decode(file_get_contents($filePath), true);
+            return json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        default:
+            return 'Binary file - no preview available';
+    }
+}
+
+function getFileStatistics($pdo, $fileType) {
+    $stmt = $pdo->prepare("
+        SELECT 
+            COUNT(*) as count,
+            AVG(size) as avg_size,
+            MAX(size) as max_size,
+            MIN(size) as min_size
+        FROM files WHERE type = ?
+    ");
+    $stmt->execute([$fileType]);
+    
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+// Set proper headers for SVG
+header('Content-Type: image/svg+xml; charset=utf-8');
+?>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900">
+  <title>Database File Manager PWA</title>
+  <desc>Advanced file management with SQLite database, full-text search, and metadata extraction</desc>
+  
+  <defs>
+    <style>
+      * { font-family: 'Segoe UI', system-ui, sans-serif; }
+      .header { fill: #2c3e50; font-size: 24px; font-weight: bold; }
+      .subheader { fill: #34495e; font-size: 14px; }
+      .panel { fill: #ecf0f1; stroke: #bdc3c7; stroke-width: 1; }
+      .button { fill: #3498db; cursor: pointer; }
+      .button:hover { fill: #2980b9; }
+      .button-text { fill: white; font-size: 12px; text-anchor: middle; }
+      .input { fill: white; stroke: #bdc3c7; stroke-width: 1; }
+      .file-item { fill: #ffffff; stroke: #ddd; stroke-width: 1; cursor: pointer; }
+      .file-item:hover { fill: #f8f9fa; }
+      .file-name { fill: #2c3e50; font-size: 12px; font-weight: bold; }
+      .file-meta { fill: #7f8c8d; font-size: 10px; }
+      .stats { fill: #27ae60; font-size: 11px; }
+      .search-highlight { fill: #e74c3c; font-weight: bold; }
+      .loading { fill: #f39c12; font-size: 12px; }
+    </style>
+    
+    <linearGradient id="headerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3498db"/>
+      <stop offset="100%" stop-color="#2c3e50"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="1400" height="70" fill="url(#headerGradient)"/>
+  <text x="20" y="30" class="header" fill="white">🗄️ Database File Manager</text>
+  <text x="20" y="50" class="subheader" fill="#ecf0f1">Advanced file indexing with SQLite • Full-text search • Metadata extraction</text>
+  
+  <!-- Current Time -->
+  <text x="1200" y="30" fill="white" font-size="12px">
+    <?php echo date('Y-m-d H:i:s'); ?>
+  </text>
+  
+  <!-- Control Panel -->
+  <rect x="20" y="90" width="1360" height="60" class="panel" rx="5"/>
+  
+  <!-- Directory Input -->
+  <text x="40" y="110" fill="#2c3e50" font-size="12px">Scan Directory:</text>
+  <rect x="40" y="115" width="200" height="25" class="input" rx="3"/>
+  <text x="45" y="130" font-size="11px" fill="#7f8c8d" id="dirInput">./</text>
+  
+  <!-- Scan Button -->
+  <rect x="250" y="115" width="80" height="25" class="button" rx="3" onclick="scanDirectory()"/>
+  <text x="290" y="130" class="button-text">🔍 Scan</text>
+  
+  <!-- Search Input -->
+  <text x="350" y="110" fill="#2c3e50" font-size="12px">Search Files:</text>
+  <rect x="350" y="115" width="250" height="25" class="input" rx="3"/>
+  <text x="355" y="130" font-size="11px" fill="#7f8c8d" id="searchInput">Enter search terms...</text>
+  
+  <!-- Search Button -->
+  <rect x="610" y="115" width="80" height="25" class="button" rx="3" onclick="searchFiles()"/>
+  <text x="650" y="130" class="button-text">🔎 Search</text>
+  
+  <!-- List All Button -->
+  <rect x="700" y="115" width="80" height="25" class="button" rx="3" onclick="listAllFiles()"/>
+  <text x="740" y="130" class="button-text">📋 List All</text>
+  
+  <!-- Statistics -->
+  <text x="1000" y="110" class="stats">
+    Database: <?php 
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM files");
+    echo $stmt->fetch()['count']; 
+    ?> files indexed
+  </text>
+  <text x="1000" y="125" class="stats">
+    Last scan: <?php 
+    $stmt = $pdo->query("SELECT MAX(indexed_at) as last_scan FROM files");
+    $lastScan = $stmt->fetch()['last_scan'];
+    echo $lastScan ? date('H:i:s', strtotime($lastScan)) : 'Never'; 
+    ?>
+  </text>
+  
+  <!-- File List Header -->
+  <rect x="20" y="170" width="1360" height="30" fill="#34495e"/>
+  <text x="40" y="185" fill="white" font-size="12px" font-weight="bold">Name</text>
+  <text x="350" y="185" fill="white" font-size="12px" font-weight="bold">Type</text>
+  <text x="450" y="185" fill="white" font-size="12px" font-weight="bold">Size</text>
+  <text x="550" y="185" fill="white" font-size="12px" font-weight="bold">Modified</text>
+  <text x="750" y="185" fill="white" font-size="12px" font-weight="bold">Metadata</text>
+  <text x="1200" y="185" fill="white" font-size="12px" font-weight="bold">Actions</text>
+  
+  <!-- File List -->
+  <g id="fileList">
+    <?php
+    $files = listFiles($pdo);
+    $y = 210;
+    foreach (array_slice($files, 0, 15) as $index => $file):
+        $metadata = json_decode($file['metadata'], true) ?: [];
+        $metaText = '';
+        if (isset($metadata['dimensions'])) $metaText .= $metadata['dimensions'] . ' ';
+        if (isset($metadata['pages'])) $metaText .= $metadata['pages'] . ' pages ';
+        if (isset($metadata['words'])) $metaText .= $metadata['words'] . ' words';
+    ?>
+    <g class="file-row" data-file-id="<?php echo $file['id']; ?>">
+      <rect x="20" y="<?php echo $y - 15; ?>" width="1360" height="25" class="file-item" onclick="analyzeFile(<?php echo $file['id']; ?>)"/>
+      
+      <text x="40" y="<?php echo $y; ?>" class="file-name">
+        <?php echo htmlspecialchars(substr($file['name'], 0, 35)); ?>
+      </text>
+      
+      <text x="350" y="<?php echo $y; ?>" class="file-meta">
+        <?php echo strtoupper($file['type']); ?>
+      </text>
+      
+      <text x="450" y="<?php echo $y; ?>" class="file-meta">
+        <?php echo formatBytes($file['size']); ?>
+      </text>
+      
+      <text x="550" y="<?php echo $y; ?>" class="file-meta">
+        <?php echo date('M j, H:i', strtotime($file['modified'])); ?>
+      </text>
+      
+      <text x="750" y="<?php echo $y; ?>" class="file-meta">
+        <?php echo htmlspecialchars(substr($metaText, 0, 40)); ?>
+      </text>
+      
+      <rect x="1200" y="<?php echo $y - 12; ?>" width="40" height="18" class="button" rx="2" onclick="analyzeFile(<?php echo $file['id']; ?>)"/>
+      <text x="1220" y="<?php echo $y - 2; ?>" class="button-text" font-size="10px">Analyze</text>
+      
+      <rect x="1250" y="<?php echo $y - 12; ?>" width="40" height="18" class="button" rx="2" onclick="showPreview(<?php echo $file['id']; ?>)"/>
+      <text x="1270" y="<?php echo $y - 2; ?>" class="button-text" font-size="10px">Preview</text>
+    </g>
+    <?php 
+        $y += 30;
+    endforeach; 
+    
+    function formatBytes($size) {
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $unitIndex = 0;
+        while ($size >= 1024 && $unitIndex < count($units) - 1) {
+            $size /= 1024;
+            $unitIndex++;
+        }
+        return round($size, 1) . ' ' . $units[$unitIndex];
+    }
+    ?>
+  </g>
+  
+  <!-- Analysis Panel (Hidden by default) -->
+  <g id="analysisPanel" style="display: none;">
+    <rect x="20" y="580" width="1360" height="280" fill="rgba(0,0,0,0.9)" rx="10"/>
+    <text x="40" y="605" fill="white" font-size="16px" font-weight="bold">📊 File Analysis</text>
+    
+    <rect x="1320" y="590" width="20" height="20" fill="#e74c3c" rx="3" onclick="closeAnalysis()" cursor="pointer"/>
+    <text x="1327" y="603" fill="white" font-size="12px" onclick="closeAnalysis()" cursor="pointer">✕</text>
+    
+    <g id="analysisContent">
+      <!-- Analysis content will be populated by JavaScript -->
+    </g>
+  </g>
+  
+  <!-- Loading indicator -->
+  <g id="loadingIndicator" style="display: none;">
+    <rect x="600" y="400" width="200" height="60" fill="rgba(0,0,0,0.8)" rx="10"/>
+    <text x="700" y="425" class="loading" text-anchor="middle" fill="white">⏳ Processing...</text>
+    <text x="700" y="445" fill="#bdc3c7" font-size="10px" text-anchor="middle">Please wait</text>
+  </g>
+  
+  <script><![CDATA[
+    // JavaScript functionality for the File Manager
+    let currentView = 'list';
+    
+    function scanDirectory() {
+      showLoading();
+      const directory = document.getElementById('dirInput').textContent;
+      
+      fetch('?action=scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `directory=${encodeURIComponent(directory)}`
+      })
+      .then(response => response.json())
+      .then(data => {
+        hideLoading();
+        if (data.status === 'success') {
+          alert('✅ Directory scan completed!');
+          listAllFiles(); // Refresh the list
+        }
+      })
+      .catch(error => {
+        hideLoading();
+        alert('❌ Error scanning directory: ' + error.message);
+      });
+    }
+    
+    function searchFiles() {
+      const query = document.getElementById('searchInput').textContent;
+      if (query === 'Enter search terms...' || !query.trim()) {
+        alert('Please enter search terms');
+        return;
+      }
+      
+      showLoading();
+      
+      fetch(`?action=search&q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(files => {
+          hideLoading();
+          displayFiles(files, query);
+        })
+        .catch(error => {
+          hideLoading();
+          alert('❌ Search error: ' + error.message);
+        });
+    }
+    
+    function listAllFiles() {
+      showLoading();
+      
+      fetch('?action=list')
+        .then(response => response.json())
+        .then(files => {
+          hideLoading();
+          displayFiles(files);
+        })
+        .catch(error => {
+          hideLoading();
+          alert('❌ Error loading files: ' + error.message);
+        });
+    }
+    
+    function analyzeFile(fileId) {
+      showLoading();
+      
+      fetch(`?action=analyze&id=${fileId}`)
+        .then(response => response.json())
+        .then(analysis => {
+          hideLoading();
+          showAnalysis(analysis);
+        })
+        .catch(error => {
+          hideLoading();
+          alert('❌ Analysis error: ' + error.message);
+        });
+    }
+    
+    function showAnalysis(analysis) {
+      const panel = document.getElementById('analysisPanel');
+      const content = document.getElementById('analysisContent');
+      
+      // Clear previous content
+      content.innerHTML = '';
+      
+      if (!analysis) {
+        content.innerHTML = '<text x="40" y="650" fill="#e74c3c">File not found</text>';
+        panel.style.display = 'block';
+        return;
+      }
+      
+      const file = analysis.file;
+      let y = 630;
+      
+      // File info
+      content.innerHTML += `<text x="40" y="${y}" fill="white" font-size="14px">📁 ${file.name}</text>`;
+      y += 20;
+      content.innerHTML += `<text x="40" y="${y}" fill="#bdc3c7" font-size="11px">Path: ${file.path}</text>`;
+      y += 15;
+      content.innerHTML += `<text x="40" y="${y}" fill="#bdc3c7" font-size="11px">Size: ${formatBytes(file.size)} • Type: ${file.type.toUpperCase()} • Modified: ${file.modified}</text>`;
+      y += 25;
+      
+      // Statistics
+      if (analysis.statistics) {
+        const stats = analysis.statistics;
+        content.innerHTML += `<text x="40" y="${y}" fill="#27ae60" font-size="12px">📊 Type Statistics:</text>`;
+        y += 15;
+        content.innerHTML += `<text x="60" y="${y}" fill="#95a5a6" font-size="10px">Total ${file.type.toUpperCase()} files: ${stats.count}</text>`;
+        y += 12;
+        content.innerHTML += `<text x="60" y="${y}" fill="#95a5a6" font-size="10px">Average size: ${formatBytes(stats.avg_size)} • Max: ${formatBytes(stats.max_size)}</text>`;
+        y += 20;
+      }
+      
+      // Similar files
+      if (analysis.similar_files && analysis.similar_files.length > 0) {
+        content.innerHTML += `<text x="40" y="${y}" fill="#3498db" font-size="12px">🔗 Similar Files:</text>`;
+        y += 15;
+        analysis.similar_files.slice(0, 3).forEach(similar => {
+          content.innerHTML += `<text x="60" y="${y}" fill="#95a5a6" font-size="10px">${similar.name} (${formatBytes(similar.size)})</text>`;
+          y += 12;
+        });
+      }
+      
+      panel.style.display = 'block';
+    }
+    
+    function closeAnalysis() {
+      document.getElementById('analysisPanel').style.display = 'none';
+    }
+    
+    function showPreview(fileId) {
+      // Implementation for file preview
+      alert('Preview feature - to be implemented');
+    }
+    
+    function displayFiles(files, searchQuery = '') {
+      // This would update the file list dynamically
+      // For now, just refresh the page to see updates
+      if (searchQuery) {
+        console.log(`Displaying ${files.length} search results for "${searchQuery}"`);
+      } else {
+        console.log(`Displaying ${files.length} files`);
+      }
+    }
+    
+    function showLoading() {
+      document.getElementById('loadingIndicator').style.display = 'block';
+    }
+    
+    function hideLoading() {
+      document.getElementById('loadingIndicator').style.display = 'none';
+    }
+    
+    function formatBytes(bytes) {
+      const units = ['B', 'KB', 'MB', 'GB'];
+      let unitIndex = 0;
+      let size = parseInt(bytes);
+      
+      while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex++;
+      }
+      
+      return Math.round(size * 10) / 10 + ' ' + units[unitIndex];
+    }
+    
+    // Make inputs editable
+    document.getElementById('dirInput').addEventListener('click', function() {
+      const currentText = this.textContent;
+      const newText = prompt('Enter directory path:', currentText);
+      if (newText !== null) {
+        this.textContent = newText;
+      }
+    });
+    
+    document.getElementById('searchInput').addEventListener('click', function() {
+      const currentText = this.textContent;
+      const placeholder = 'Enter search terms...';
+      const newText = prompt('Enter search terms:', currentText === placeholder ? '' : currentText);
+      if (newText !== null) {
+        this.textContent = newText || placeholder;
+      }
+    });
+    
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+      if (currentView === 'list') {
+        listAllFiles();
+      }
+    }, 30000);
+    
+    console.log('🗄️ Database File Manager initialized');
+    console.log('Features: SQLite database, full-text search, metadata extraction');
+  ]]></script>
+  
+</svg>

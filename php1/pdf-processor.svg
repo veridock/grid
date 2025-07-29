@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+    <?php
+// PDF Processor - Advanced PHP+SVG PWA with PDF conversion and analysis
+$uploadDir = __DIR__ . '/uploads';
+$outputDir = __DIR__ . '/output';
+if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+if (!is_dir($outputDir)) mkdir($outputDir, 0755, true);
+
+if (isset($_GET['action'])) {
+    header('Content-Type: application/json');
+    switch ($_GET['action']) {
+        case 'convert':
+            $file = $_GET['file'] ?? '';
+            $format = $_GET['format'] ?? 'png';
+            echo json_encode(convertPdf($file, $format, $uploadDir, $outputDir));
+            exit;
+        case 'analyze':
+            $file = $_GET['file'] ?? '';
+            echo json_encode(analyzePdf($file, $uploadDir));
+            exit;
+    }
+}
+
+function convertPdf($filename, $format, $uploadDir, $outputDir) {
+    $inputPath = $uploadDir . '/' . $filename;
+    if (!file_exists($inputPath)) return ['success' => false, 'message' => 'File not found'];
+
+    $outputName = pathinfo($filename, PATHINFO_FILENAME);
+    $outputPath = $outputDir . '/' . $outputName . '.' . $format;
+
+    $cmd = "convert '$inputPath'[0] '$outputPath' 2>&1";
+    shell_exec($cmd);
+
+    return file_exists($outputPath) ?
+        ['success' => true, 'output' => $outputName . '.' . $format] :
+        ['success' => false, 'message' => 'Conversion failed'];
+}
+
+function analyzePdf($filename, $uploadDir) {
+    $inputPath = $uploadDir . '/' . $filename;
+    if (!file_exists($inputPath)) return ['success' => false, 'message' => 'File not found'];
+
+    $output = shell_exec("pdfinfo '$inputPath' 2>&1");
+    $info = ['filename' => $filename, 'size' => filesize($inputPath)];
+
+    if ($output) {
+        foreach (explode("\n", $output) as $line) {
+            if (strpos($line, ':') !== false) {
+                list($key, $value) = explode(':', $line, 2);
+                $info[strtolower(trim($key))] = trim($value);
+            }
+        }
+    }
+
+    return ['success' => true, 'info' => $info];
+}
+
+header('Content-Type: image/svg+xml; charset=utf-8');
+?>
+  <title>PDF Processor PWA</title>
+  <desc>Advanced PDF conversion and analysis tool</desc>
+
+  <defs>
+    <style>
+      * { font-family: system-ui, sans-serif; }
+      .header { fill: #e74c3c; font-size: 20px; font-weight: bold; }
+      .button { fill: #e74c3c; cursor: pointer; }
+      .button:hover { fill: #c0392b; }
+      .button-text { fill: white; font-size: 11px; text-anchor: middle; }
+      .panel { fill: #f8f9fa; stroke: #dee2e6; }
+      .input { fill: white; stroke: #ced4da; }
+    </style>
+  </defs>
+
+  <!-- Header -->
+  <rect width="1200" height="60" fill="#e74c3c"/>
+  <text x="20" y="30" class="header" fill="white">📄 PDF Processor</text>
+  <text x="20" y="48" fill="#fadbd8" font-size="12px">Convert PDFs to PNG/JPG/SVG • Extract metadata</text>
+
+  <!-- Control Panel -->
+  <rect x="20" y="80" width="1160" height="120" class="panel" stroke-width="1" rx="5"/>
+
+  <!-- File Selection -->
+  <text x="40" y="105" font-size="12px" fill="#495057">PDF File:</text>
+  <rect x="40" y="110" width="300" height="25" class="input" stroke-width="1" rx="3"/>
+  <text x="45" y="125" font-size="10px" fill="#6c757d" id="selectedFile">No file selected</text>
+
+  <!-- Convert Buttons -->
+  <text x="40" y="155" font-size="12px" fill="#495057">Convert to:</text>
+  <rect x="120" y="140" width="50" height="20" class="button" rx="2" onclick="convert('png')"/>
+  <text x="145" y="152" class="button-text">PNG</text>
+
+  <rect x="180" y="140" width="50" height="20" class="button" rx="2" onclick="convert('jpg')"/>
+  <text x="205" y="152" class="button-text">JPG</text>
+
+  <rect x="240" y="140" width="50" height="20" class="button" rx="2" onclick="convert('svg')"/>
+  <text x="265" y="152" class="button-text">SVG</text>
+
+  <!-- Analyze Button -->
+  <rect x="320" y="140" width="60" height="20" class="button" rx="2" onclick="analyze()"/>
+  <text x="350" y="152" class="button-text">Analyze</text>
+
+  <!-- Status -->
+  <text x="40" y="180" font-size="11px" fill="#28a745" id="status">Ready</text>
+
+  <!-- Results Area -->
+  <rect x="20" y="220" width="1160" height="400" fill="#ffffff" stroke="#dee2e6" stroke-width="1" rx="5"/>
+  <text x="40" y="245" font-size="14px" fill="#495057" font-weight="bold">Results</text>
+
+  <g id="results">
+    <text x="40" y="270" font-size="11px" fill="#6c757d">Process a PDF file to see results here</text>
+  </g>
+
+  <!-- Sample Files -->
+  <text x="40" y="650" font-size="12px" fill="#495057">Sample files (click to select):</text>
+  <rect x="40" y="660" width="100" height="20" class="button" rx="2" onclick="selectSample('sample1.pdf')"/>
+  <text x="90" y="672" class="button-text" font-size="10px">sample1.pdf</text>
+
+  <rect x="150" y="660" width="100" height="20" class="button" rx="2" onclick="selectSample('sample2.pdf')"/>
+  <text x="200" y="672" class="button-text" font-size="10px">sample2.pdf</text>
+
+  <script><![CDATA[
+    let currentFile = '';
+    
+    function selectSample(filename) {
+      currentFile = filename;
+      document.getElementById('selectedFile').textContent = filename;
+      document.getElementById('status').textContent = 'File selected: ' + filename;
+    }
+    
+    function convert(format) {
+      if (!currentFile) {
+        alert('Please select a PDF file first');
+        return;
+      }
+      
+      document.getElementById('status').textContent = `Converting to ${format.toUpperCase()}...`;
+      
+      fetch(`?action=convert&file=${currentFile}&format=${format}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('status').textContent = `✅ Converted to ${data.output}`;
+            showResult(`Conversion successful: ${data.output}`);
+          } else {
+            document.getElementById('status').textContent = `❌ ${data.message}`;
+          }
+        });
+    }
+    
+    function analyze() {
+      if (!currentFile) {
+        alert('Please select a PDF file first');
+        return;
+      }
+      
+      document.getElementById('status').textContent = 'Analyzing PDF...';
+      
+      fetch(`?action=analyze&file=${currentFile}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById('status').textContent = '✅ Analysis complete';
+            showAnalysis(data.info);
+          } else {
+            document.getElementById('status').textContent = `❌ ${data.message}`;
+          }
+        });
+    }
+    
+    function showResult(message) {
+      document.getElementById('results').innerHTML = 
+        `<text x="40" y="270" font-size="12px" fill="#28a745">${message}</text>`;
+    }
+    
+    function showAnalysis(info) {
+      let html = '<text x="40" y="270" font-size="12px" fill="#495057" font-weight="bold">PDF Analysis:</text>';
+      let y = 290;
+      
+      for (const [key, value] of Object.entries(info)) {
+        html += `<text x="60" y="${y}" font-size="10px" fill="#6c757d">${key}: ${value}</text>`;
+        y += 15;
+      }
+      
+      document.getElementById('results').innerHTML = html;
+    }
+    
+    console.log('📄 PDF Processor initialized');
+  ]]></script>
+</svg>

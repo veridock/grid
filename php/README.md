@@ -132,7 +132,8 @@ php/
 ### 1. Development i testowanie:
 ```bash
 # Uruchom serwer deweloperski
-php -S localhost:8093 -t php/ router.php
+php -S localhost:8093 router.php
+php -S localhost:8093 -t php/ php/router.php
 # Otwórz http://localhost:8093/test-minimal1.svg
 ```
 

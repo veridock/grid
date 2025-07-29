@@ -1,0 +1,415 @@
+<?php
+// Data Visualization Engine - Advanced PHP+SVG PWA
+// Features: CSV/JSON import, chart generation, statistical analysis
+
+$dataDir = __DIR__ . '/data';
+if (!is_dir($dataDir)) mkdir($dataDir, 0755, true);
+
+if (isset($_GET['action'])) {
+    header('Content-Type: application/json');
+    switch ($_GET['action']) {
+        case 'import':
+            echo json_encode(importData($_POST['data'] ?? '', $_POST['type'] ?? 'csv'));
+            exit;
+        case 'analyze':
+            echo json_encode(analyzeDataset($_GET['dataset'] ?? ''));
+            exit;
+        case 'chart':
+            echo json_encode(generateChart($_GET['dataset'] ?? '', $_GET['type'] ?? 'bar'));
+            exit;
+    }
+}
+
+function importData($data, $type) {
+    global $dataDir;
+    
+    if ($type === 'csv') {
+        $rows = array_map('str_getcsv', explode("\n", trim($data)));
+        $headers = array_shift($rows);
+        $dataset = array_map(function($row) use ($headers) {
+            return array_combine($headers, $row);
+        }, $rows);
+    } else {
+        $dataset = json_decode($data, true);
+        if (!$dataset) return ['success' => false, 'message' => 'Invalid JSON'];
+    }
+    
+    $filename = 'dataset_' . time() . '.json';
+    file_put_contents($dataDir . '/' . $filename, json_encode($dataset, JSON_PRETTY_PRINT));
+    
+    return ['success' => true, 'dataset' => $filename, 'rows' => count($dataset)];
+}
+
+function analyzeDataset($filename) {
+    global $dataDir;
+    $path = $dataDir . '/' . $filename;
+    if (!file_exists($path)) return ['success' => false, 'message' => 'Dataset not found'];
+    
+    $data = json_decode(file_get_contents($path), true);
+    $analysis = ['total_rows' => count($data), 'columns' => []];
+    
+    if (!empty($data)) {
+        foreach (array_keys($data[0]) as $column) {
+            $values = array_column($data, $column);
+            $numeric = array_filter($values, 'is_numeric');
+            
+            $columnAnalysis = [
+                'name' => $column,
+                'type' => count($numeric) > count($values) * 0.7 ? 'numeric' : 'text',
+                'unique_values' => count(array_unique($values)),
+                'null_count' => count(array_filter($values, function($v) { return $v === '' || $v === null; }))
+            ];
+            
+            if ($columnAnalysis['type'] === 'numeric') {
+                $columnAnalysis['min'] = min($numeric);
+                $columnAnalysis['max'] = max($numeric);
+                $columnAnalysis['avg'] = round(array_sum($numeric) / count($numeric), 2);
+            }
+            
+            $analysis['columns'][] = $columnAnalysis;
+        }
+    }
+    
+    return ['success' => true, 'analysis' => $analysis];
+}
+
+function generateChart($filename, $type) {
+    global $dataDir;
+    $path = $dataDir . '/' . $filename;
+    if (!file_exists($path)) return ['success' => false, 'message' => 'Dataset not found'];
+    
+    $data = json_decode(file_get_contents($path), true);
+    if (empty($data)) return ['success' => false, 'message' => 'Empty dataset'];
+    
+    // Simple chart data generation
+    $chartData = [];
+    $columns = array_keys($data[0]);
+    $numericColumns = [];
+    
+    foreach ($columns as $col) {
+        $values = array_column($data, $col);
+        if (count(array_filter($values, 'is_numeric')) > count($values) * 0.7) {
+            $numericColumns[] = $col;
+        }
+    }
+    
+    if (count($numericColumns) >= 1) {
+        $column = $numericColumns[0];
+        $values = array_map('floatval', array_column($data, $column));
+        
+        if ($type === 'bar') {
+            $chartData = array_slice($values, 0, 10); // First 10 values
+        } elseif ($type === 'line') {
+            $chartData = array_slice($values, 0, 20); // First 20 values
+        }
+    }
+    
+    return ['success' => true, 'data' => $chartData, 'column' => $column ?? 'unknown'];
+}
+
+header('Content-Type: image/svg+xml; charset=utf-8');
+?>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900">
+  <title>Data Visualization Engine PWA</title>
+  <desc>Import CSV/JSON data, generate charts, perform statistical analysis</desc>
+  
+  <defs>
+    <style>
+      * { font-family: system-ui, sans-serif; }
+      .header { fill: #8e44ad; font-size: 22px; font-weight: bold; }
+      .button { fill: #9b59b6; cursor: pointer; }
+      .button:hover { fill: #8e44ad; }
+      .button-text { fill: white; font-size: 11px; text-anchor: middle; }
+      .panel { fill: #f8f9fa; stroke: #dee2e6; }
+      .chart-bar { fill: #3498db; }
+      .chart-line { stroke: #e74c3c; stroke-width: 2; fill: none; }
+      .axis { stroke: #666; stroke-width: 1; }
+      .grid { stroke: #ddd; stroke-width: 0.5; }
+    </style>
+    
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9b59b6"/>
+      <stop offset="100%" stop-color="#8e44ad"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Header -->
+  <rect width="1400" height="70" fill="url(#headerGrad)"/>
+  <text x="20" y="30" class="header" fill="white">📊 Data Visualization Engine</text>
+  <text x="20" y="50" fill="#e8d5f2" font-size="14px">CSV/JSON Import • Statistical Analysis • Chart Generation</text>
+  
+  <!-- Import Panel -->
+  <rect x="20" y="90" width="1360" height="150" class="panel" stroke-width="1" rx="5"/>
+  <text x="40" y="115" font-size="14px" fill="#495057" font-weight="bold">📥 Data Import</text>
+  
+  <!-- Data Input Area -->
+  <rect x="40" y="125" width="600" height="80" fill="white" stroke="#ced4da" stroke-width="1" rx="3"/>
+  <text x="50" y="140" font-size="10px" fill="#6c757d">Paste CSV or JSON data here:</text>
+  <text x="50" y="155" font-size="9px" fill="#868e96" id="dataInput">name,value,category
+Product A,100,Electronics
+Product B,150,Clothing
+Product C,75,Electronics</text>
+  
+  <!-- Import Controls -->
+  <text x="660" y="140" font-size="12px" fill="#495057">Data Type:</text>
+  <rect x="660" y="145" width="40" height="20" class="button" rx="2" onclick="setType('csv')" id="csvBtn"/>
+  <text x="680" y="157" class="button-text" font-size="10px">CSV</text>
+  
+  <rect x="710" y="145" width="40" height="20" fill="#6c757d" rx="2" onclick="setType('json')" id="jsonBtn"/>
+  <text x="730" y="157" fill="white" font-size="10px" text-anchor="middle">JSON</text>
+  
+  <rect x="660" y="175" width="80" height="25" class="button" rx="3" onclick="importData()"/>
+  <text x="700" y="190" class="button-text">Import Data</text>
+  
+  <!-- Status -->
+  <text x="40" y="225" font-size="11px" fill="#28a745" id="importStatus">Ready to import data</text>
+  
+  <!-- Analysis Panel -->
+  <rect x="20" y="260" width="680" height="300" class="panel" stroke-width="1" rx="5"/>
+  <text x="40" y="285" font-size="14px" fill="#495057" font-weight="bold">📈 Dataset Analysis</text>
+  
+  <g id="analysisResults">
+    <text x="40" y="310" font-size="11px" fill="#6c757d">Import data to see analysis</text>
+  </g>
+  
+  <!-- Chart Panel -->
+  <rect x="720" y="260" width="660" height="300" class="panel" stroke-width="1" rx="5"/>
+  <text x="740" y="285" font-size="14px" fill="#495057" font-weight="bold">📊 Chart Visualization</text>
+  
+  <!-- Chart Controls -->
+  <rect x="740" y="295" width="50" height="20" class="button" rx="2" onclick="generateChart('bar')"/>
+  <text x="765" y="307" class="button-text" font-size="10px">Bar</text>
+  
+  <rect x="800" y="295" width="50" height="20" class="button" rx="2" onclick="generateChart('line')"/>
+  <text x="825" y="307" class="button-text" font-size="10px">Line</text>
+  
+  <!-- Chart Area -->
+  <g id="chartArea">
+    <rect x="740" y="325" width="620" height="220" fill="white" stroke="#dee2e6" stroke-width="1" rx="3"/>
+    <text x="1050" y="440" font-size="11px" fill="#6c757d" text-anchor="middle">Generate chart to visualize data</text>
+  </g>
+  
+  <!-- Sample Data Buttons -->
+  <rect x="20" y="580" width="1360" height="60" class="panel" stroke-width="1" rx="5"/>
+  <text x="40" y="605" font-size="12px" fill="#495057">Quick Start - Sample Datasets:</text>
+  
+  <rect x="40" y="615" width="120" height="20" class="button" rx="2" onclick="loadSample('sales')"/>
+  <text x="100" y="627" class="button-text" font-size="10px">📈 Sales Data</text>
+  
+  <rect x="170" y="615" width="120" height="20" class="button" rx="2" onclick="loadSample('survey')"/>
+  <text x="230" y="627" class="button-text" font-size="10px">📋 Survey Results</text>
+  
+  <rect x="300" y="615" width="120" height="20" class="button" rx="2" onclick="loadSample('performance')"/>
+  <text x="360" y="627" class="button-text" font-size="10px">⚡ Performance Metrics</text>
+  
+  <!-- Footer Stats -->
+  <text x="20" y="680" font-size="11px" fill="#6c757d">
+    📊 Data Engine: Ready • Supported formats: CSV, JSON • Chart types: Bar, Line
+  </text>
+  
+  <script><![CDATA[
+    let currentDataset = '';
+    let currentType = 'csv';
+    let lastAnalysis = null;
+    
+    function setType(type) {
+      currentType = type;
+      document.getElementById('csvBtn').setAttribute('fill', type === 'csv' ? '#9b59b6' : '#6c757d');
+      document.getElementById('jsonBtn').setAttribute('fill', type === 'json' ? '#9b59b6' : '#6c757d');
+      
+      if (type === 'json') {
+        document.getElementById('dataInput').textContent = 
+          '[{"name":"Product A","value":100,"category":"Electronics"},{"name":"Product B","value":150,"category":"Clothing"}]';
+      } else {
+        document.getElementById('dataInput').textContent = 
+          'name,value,category\nProduct A,100,Electronics\nProduct B,150,Clothing\nProduct C,75,Electronics';
+      }
+    }
+    
+    function importData() {
+      const data = document.getElementById('dataInput').textContent;
+      if (!data.trim()) {
+        alert('Please enter some data first');
+        return;
+      }
+      
+      document.getElementById('importStatus').textContent = 'Importing data...';
+      
+      fetch('?action=import', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `data=${encodeURIComponent(data)}&type=${currentType}`
+      })
+      .then(r => r.json())
+      .then(result => {
+        if (result.success) {
+          currentDataset = result.dataset;
+          document.getElementById('importStatus').textContent = 
+            `✅ Imported ${result.rows} rows successfully`;
+          analyzeCurrentDataset();
+        } else {
+          document.getElementById('importStatus').textContent = 
+            `❌ Import failed: ${result.message}`;
+        }
+      })
+      .catch(err => {
+        document.getElementById('importStatus').textContent = 
+          `❌ Import error: ${err.message}`;
+      });
+    }
+    
+    function analyzeCurrentDataset() {
+      if (!currentDataset) return;
+      
+      fetch(`?action=analyze&dataset=${currentDataset}`)
+        .then(r => r.json())
+        .then(result => {
+          if (result.success) {
+            lastAnalysis = result.analysis;
+            displayAnalysis(result.analysis);
+          }
+        });
+    }
+    
+    function displayAnalysis(analysis) {
+      let html = `<text x="40" y="310" font-size="12px" fill="#495057">📊 ${analysis.total_rows} total rows</text>`;
+      let y = 330;
+      
+      analysis.columns.forEach((col, i) => {
+        if (y > 530) return; // Limit display
+        
+        html += `<text x="40" y="${y}" font-size="11px" fill="#495057" font-weight="bold">${col.name}</text>`;
+        y += 15;
+        html += `<text x="60" y="${y}" font-size="10px" fill="#6c757d">Type: ${col.type} • Unique: ${col.unique_values}</text>`;
+        y += 12;
+        
+        if (col.type === 'numeric') {
+          html += `<text x="60" y="${y}" font-size="10px" fill="#6c757d">Range: ${col.min} - ${col.max} • Avg: ${col.avg}</text>`;
+          y += 12;
+        }
+        y += 8;
+      });
+      
+      document.getElementById('analysisResults').innerHTML = html;
+    }
+    
+    function generateChart(type) {
+      if (!currentDataset) {
+        alert('Please import data first');
+        return;
+      }
+      
+      fetch(`?action=chart&dataset=${currentDataset}&type=${type}`)
+        .then(r => r.json())
+        .then(result => {
+          if (result.success) {
+            drawChart(result.data, type, result.column);
+          } else {
+            alert('Chart generation failed: ' + result.message);
+          }
+        });
+    }
+    
+    function drawChart(data, type, column) {
+      const chartArea = document.getElementById('chartArea');
+      let html = '<rect x="740" y="325" width="620" height="220" fill="white" stroke="#dee2e6" stroke-width="1" rx="3"/>';
+      
+      // Chart title
+      html += `<text x="1050" y="345" font-size="12px" fill="#495057" text-anchor="middle" font-weight="bold">${column} (${type} chart)</text>`;
+      
+      if (type === 'bar') {
+        html += drawBarChart(data, 760, 360, 580, 160);
+      } else if (type === 'line') {
+        html += drawLineChart(data, 760, 360, 580, 160);
+      }
+      
+      chartArea.innerHTML = html;
+    }
+    
+    function drawBarChart(data, x, y, width, height) {
+      if (!data.length) return '';
+      
+      const maxVal = Math.max(...data);
+      const barWidth = width / data.length * 0.8;
+      let html = '';
+      
+      // Draw bars
+      data.forEach((value, i) => {
+        const barHeight = (value / maxVal) * height;
+        const barX = x + i * (width / data.length) + (width / data.length - barWidth) / 2;
+        const barY = y + height - barHeight;
+        
+        html += `<rect x="${barX}" y="${barY}" width="${barWidth}" height="${barHeight}" class="chart-bar"/>`;
+        html += `<text x="${barX + barWidth/2}" y="${y + height + 15}" font-size="9px" text-anchor="middle" fill="#666">${i + 1}</text>`;
+        html += `<text x="${barX + barWidth/2}" y="${barY - 5}" font-size="9px" text-anchor="middle" fill="#666">${Math.round(value)}</text>`;
+      });
+      
+      // Draw axes
+      html += `<line x1="${x}" y1="${y + height}" x2="${x + width}" y2="${y + height}" class="axis"/>`;
+      html += `<line x1="${x}" y1="${y}" x2="${x}" y2="${y + height}" class="axis"/>`;
+      
+      return html;
+    }
+    
+    function drawLineChart(data, x, y, width, height) {
+      if (!data.length) return '';
+      
+      const maxVal = Math.max(...data);
+      const minVal = Math.min(...data);
+      const range = maxVal - minVal || 1;
+      let points = '';
+      
+      data.forEach((value, i) => {
+        const pointX = x + (i / (data.length - 1)) * width;
+        const pointY = y + height - ((value - minVal) / range) * height;
+        points += `${pointX},${pointY} `;
+      });
+      
+      let html = `<polyline points="${points}" class="chart-line"/>`;
+      
+      // Draw points
+      data.forEach((value, i) => {
+        const pointX = x + (i / (data.length - 1)) * width;
+        const pointY = y + height - ((value - minVal) / range) * height;
+        html += `<circle cx="${pointX}" cy="${pointY}" r="3" fill="#e74c3c"/>`;
+        html += `<text x="${pointX}" y="${pointY - 8}" font-size="9px" text-anchor="middle" fill="#666">${Math.round(value)}</text>`;
+      });
+      
+      // Draw axes
+      html += `<line x1="${x}" y1="${y + height}" x2="${x + width}" y2="${y + height}" class="axis"/>`;
+      html += `<line x1="${x}" y1="${y}" x2="${x}" y2="${y + height}" class="axis"/>`;
+      
+      return html;
+    }
+    
+    function loadSample(type) {
+      let sampleData = '';
+      
+      switch(type) {
+        case 'sales':
+          sampleData = 'month,revenue,units,region\nJan,15000,120,North\nFeb,18000,145,North\nMar,22000,180,South\nApr,19000,155,East\nMay,25000,200,West';
+          break;
+        case 'survey':
+          sampleData = 'question,rating,department\nSatisfaction,4.2,Sales\nSatisfaction,3.8,Support\nQuality,4.5,Product\nSpeed,3.9,Delivery';
+          break;
+        case 'performance':
+          sampleData = 'metric,value,target,status\nCPU Usage,75,80,Good\nMemory,85,90,Warning\nDisk Space,45,70,Good\nNetwork,92,95,Warning';
+          break;
+      }
+      
+      document.getElementById('dataInput').textContent = sampleData;
+      setType('csv');
+    }
+    
+    // Make data input editable
+    document.getElementById('dataInput').addEventListener('click', function() {
+      const newData = prompt('Enter your data:', this.textContent);
+      if (newData !== null) {
+        this.textContent = newData;
+      }
+    });
+    
+    console.log('📊 Data Visualization Engine initialized');
+  ]]></script>
+</svg>
